@@ -1,4 +1,3 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:geo_journal_v001/AnimationLogo.dart';
 import 'package:geo_journal_v001/folderForProjects/AddProjectDescription.dart';
@@ -8,11 +7,9 @@ import 'package:geo_journal_v001/InfoPage.dart';
 import 'package:geo_journal_v001/folderForProjects/Projects.dart';
 import 'package:geo_journal_v001/Settings.dart';
 import 'package:geo_journal_v001/SoilTypes.dart';
-import 'package:geo_journal_v001/createHeader.dart';
 import 'package:geo_journal_v001/CoordinatesParser.dart';
 import 'package:geo_journal_v001/weatherForecasts.dart';
 import 'package:provider/provider.dart';
-import 'package:matrix4_transform/matrix4_transform.dart';
 
 
 /* ************************************************************

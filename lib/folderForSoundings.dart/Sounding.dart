@@ -1,13 +1,8 @@
-import 'dart:async';
-
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:geo_journal_v001/Bottom.dart';
-import 'package:geo_journal_v001/folderForSoundings.dart/SoundingPage.dart';
 
 
 /* *************************************************************************
- Classes for sounding in soundings' list
+ Classes for sounding
 ************************************************************************* */
 class Sounding extends StatefulWidget {
   var depth;
@@ -23,14 +18,16 @@ class Sounding extends StatefulWidget {
 
 
 class SoundingState extends State<Sounding>{
+
   @override
   Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
-          border: Border(
-            bottom: BorderSide(color: Colors.black45, width: 1.0),
-          )
-        ),
+        border: Border(
+        bottom: BorderSide(color: Colors.black45, width: 1.0),
+        )
+      ),
+
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [

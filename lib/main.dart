@@ -1,48 +1,23 @@
-import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:geo_journal_v001/Application.dart';
-import 'package:geo_journal_v001/InfoPage.dart';
-import 'package:geo_journal_v001/folderForProjects/Projects.dart';
-import 'package:geo_journal_v001/SoilDescriptionDB.dart';
 import 'package:geo_journal_v001/SoilTypes.dart';
-import 'package:geo_journal_v001/createHeader.dart';
-import 'package:geo_journal_v001/weatherForecasts.dart';
-import 'package:path_provider/path_provider.dart';
-import 'package:hive/hive.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 
 
 void main() async {   
   WidgetsFlutterBinding.ensureInitialized();
-  await Hive.initFlutter();
+  await Hive.initFlutter();  // Hive database initialization
   
   if (!Hive.isAdapterRegistered(0)) {
-    Hive.registerAdapter(SoilDescriptionAdapter());
+    Hive.registerAdapter(SoilDescriptionAdapter());  // Adding adapter for soil description
   }
 
-  // Create box
+  // Creating box for soil description
   var box = await Hive.openBox<SoilDescription>('soil_types');
   box.close();
 
-  
+  // Running app
   runApp(Application());
-}
-
-
-class Painter extends CustomPainter {
-  @override
-  void paint(Canvas canvas, Size size) {
-    final p1 = Offset(2, 120);
-    final p2 = Offset(1000, 120);
-    final paint = Paint()
-      ..color = Colors.black
-      ..strokeWidth = 4;
-    canvas.drawLine(p1, p2, paint);
-  }
-
-  @override
-  bool shouldRepaint(CustomPainter old) => false;
 }
 
 

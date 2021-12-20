@@ -1,13 +1,9 @@
-import 'dart:async';
-
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:geo_journal_v001/Bottom.dart';
 import 'package:geo_journal_v001/folderForWells/WellPage.dart';
 
 
 /* *************************************************************************
- Classes for well in wells' list
+ Classes for well
 ************************************************************************* */
 class Well extends StatefulWidget {
   var number;
@@ -23,14 +19,16 @@ class Well extends StatefulWidget {
 
 
 class WellState extends State<Well>{
+
   @override
   Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
-          border: Border(
-            bottom: BorderSide(color: Colors.black45, width: 1.0),
-          )
-        ),
+        border: Border(
+        bottom: BorderSide(color: Colors.black45, width: 1.0),
+        )
+      ),
+
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [

@@ -9,7 +9,7 @@ import 'package:http/http.dart' as http;
 /* *************************************************************************
  Class for creating album if loading data from https was successful
 ************************************************************************* */
-Future<Album> fetchAlbum() async {
+Future<Album> fetchAlbum(http.Client client) async {
   final response = await http
       .get(Uri.parse('https://raw.githubusercontent.com/mezgoodle/weather-bot/master/test/data.json'));
 
@@ -22,26 +22,27 @@ Future<Album> fetchAlbum() async {
 
 
 /* *************************************************************************
- Classes of album where json data extracts
+ Classes of album where JSON data is extracted
 ************************************************************************* */
 class Album {
-  var currentWeather;
+  late final List<String> currentWeather;
   Map<String, String> coordsList = {};
 
   Album();
-  Album.parsed(this.currentWeather, this.coordsList);
+  Album.parsed({required this.currentWeather, required this.coordsList});
 
+  // Function for extracting data from JSON
   fromJson(Map<String, dynamic> json) {
     this.currentWeather = json['current_weather'];
     
     for (var element in currentWeather) {
       var coordinates = element[2];
-      coordsList['${element[0]}, ${element[1]}'] = '${coordinates['lat']}, ${coordinates['lon']}';
+      coordsList['${element[0]}, ${element[1]}'] = '${coordinates[0]}, ${coordinates[1]}';
     }
 
     return Album.parsed(
-      this.currentWeather,
-      this.coordsList,
+      currentWeather: this.currentWeather,
+      coordsList: this.coordsList,
     );
   }
 }
@@ -51,51 +52,50 @@ class Album {
  Classes for page with latitude and longtitude of some cities
 ************************************************************************* */
 class CoordinatesParser extends StatefulWidget {
+  const CoordinatesParser({Key? key}) : super(key: key);
 
   @override
-  _CoordinatesParserState createState() => _CoordinatesParserState();
+  CoordinatesParserState createState() => CoordinatesParserState();
 }
 
-class _CoordinatesParserState extends State<CoordinatesParser> {
-  late Future<Album> futureAlbum;
+
+class CoordinatesParserState extends State<CoordinatesParser> {
+  late final Future<Album> futureAlbum;
 
   @override
   void initState() {
     super.initState();
-    futureAlbum = fetchAlbum();
+    futureAlbum = fetchAlbum(http.Client());
   }
 
   @override
   Widget build(BuildContext context) {
-
     return Scaffold(
-        appBar: AppBar(
-          backgroundColor: Colors.brown,
-          title: Text('Отримати координати'),
-        ),
+      appBar: AppBar(backgroundColor: Colors.brown, title: Text('Отримати координати')),
 
-        body: Padding(
-          padding: EdgeInsets.symmetric(vertical: 20, horizontal: 20),
-          child: Center(
-            child: FutureBuilder<Album>(
-              future: futureAlbum,
-              builder: (context, snapshot) {
-                if (snapshot.hasData) {
-                  return printData(snapshot.data!.coordsList);
-                } else if (snapshot.hasError) {
-                  return Text('${snapshot.error}');
-                }
+      body: Padding(
+        padding: EdgeInsets.symmetric(vertical: 20, horizontal: 20),
+        child: Center(
+          child: FutureBuilder<Album>(
+            future: futureAlbum,
+            builder: (context, snapshot) {
+              if (snapshot.hasData) {
+                return printData(snapshot.data!.coordsList);
+              } else if (snapshot.hasError) {
+                return Text('${snapshot.error}');
+              }
 
-                return const CircularProgressIndicator();
-              },
-            ),
+              return const CircularProgressIndicator();
+            },
           ),
         ),
+      ),
 
-        bottomNavigationBar: Bottom(),
+      bottomNavigationBar: Bottom(),
     );
   }
 
+  // Function for representing city with coordinates
   Widget printData(sd) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,

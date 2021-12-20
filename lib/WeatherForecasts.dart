@@ -1,13 +1,14 @@
-import 'dart:async';
-
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:geo_journal_v001/Bottom.dart';
+
 import 'package:weather/weather.dart';
 
-
+// States of downloading weather data
 enum WeatherState { NOT_DOWNLOADED, DOWNLOADING, FINISHED_DOWNLOADING }
 
+/* ***************************************************************
+  Classes for creating weather forecast of certain place (city)
+**************************************************************** */
 class WeatherForecast extends StatefulWidget {
   @override
   _WeatherForecastState createState() => _WeatherForecastState();
@@ -31,7 +32,7 @@ class _WeatherForecastState extends State<WeatherForecast> {
     ws = new WeatherFactory(key);
   }
 
-
+  // Function for getting 5-day forecast by latitude and longtitude
   void queryForecast() async {
     FocusScope.of(context).requestFocus(FocusNode());
 
@@ -46,7 +47,7 @@ class _WeatherForecastState extends State<WeatherForecast> {
     });
   }
 
-
+  // Function for getting current weather by location
   void queryWeather() async {
     FocusScope.of(context).requestFocus(FocusNode());
 
@@ -61,7 +62,7 @@ class _WeatherForecastState extends State<WeatherForecast> {
     });
   }
 
-
+  // Function for representing weather data if it finished downloading
   Widget contentFinishedDownload() {
     return Center(
       child: ListView.separated(
@@ -78,6 +79,7 @@ class _WeatherForecastState extends State<WeatherForecast> {
     );
   }
 
+  // Function for creating widget of downloading
   Widget contentDownloading() {
     return Container(
       margin: EdgeInsets.all(25),
@@ -96,6 +98,7 @@ class _WeatherForecastState extends State<WeatherForecast> {
     );
   }
 
+  // Function for creating widget if no downloading available
   Widget contentNotDownloaded() {
     return Center(
       child: Column(
@@ -109,7 +112,7 @@ class _WeatherForecastState extends State<WeatherForecast> {
     );
   }
 
-
+  // Function for setting state if weather data finished downloading
   Widget resultView() => state == WeatherState.FINISHED_DOWNLOADING
       ? contentFinishedDownload()
       : state == WeatherState.DOWNLOADING
@@ -117,20 +120,21 @@ class _WeatherForecastState extends State<WeatherForecast> {
           : contentNotDownloaded();
 
 
+  // Function for saving latitude
   void saveLatitude(String input) {
     latitude = double.tryParse(input);
     print(latitude);
   }
 
-
+  // Function for saving longtitude
   void saveLongtitude(String input) {
     longtitude = double.tryParse(input);
     print(longtitude);
   }
 
-
+  // Function for creating widget with text fields for latitude and longtitude
   Widget coordinateInputs() {
-    var TextFieldStyle = OutlineInputBorder(
+    var textFieldStyle = OutlineInputBorder(
         borderRadius: BorderRadius.all(Radius.circular(10.0)),
         borderSide: BorderSide(color: Colors.grey.shade700, width: 1.0),
     );
@@ -146,17 +150,15 @@ class _WeatherForecastState extends State<WeatherForecast> {
             child: TextField(
               autofocus: false,
               textInputAction: TextInputAction.next,
-              //controller: txt1,
 
               decoration: InputDecoration(
                 hintText: 'Широта',
                 hintStyle: TextStyle( fontSize: 12, color: Colors.grey.shade400),
                 contentPadding: EdgeInsets.fromLTRB(7, 5, 5, 0),
                 
-                focusedBorder: TextFieldStyle,
-                enabledBorder: TextFieldStyle,
+                focusedBorder: textFieldStyle,
+                enabledBorder: textFieldStyle,
               ),
-              
               
               keyboardType: TextInputType.number,
               onChanged: saveLatitude,
@@ -176,10 +178,9 @@ class _WeatherForecastState extends State<WeatherForecast> {
                 hintStyle: TextStyle( fontSize: 12, color: Colors.grey.shade400),
                 contentPadding: EdgeInsets.fromLTRB(7, 0, 5, 0),
                 
-                focusedBorder: TextFieldStyle,
-                enabledBorder: TextFieldStyle,
-              ),
-              
+                focusedBorder: textFieldStyle,
+                enabledBorder: textFieldStyle,
+              ), 
               
               keyboardType: TextInputType.number,
               onChanged: saveLongtitude,
@@ -191,7 +192,7 @@ class _WeatherForecastState extends State<WeatherForecast> {
     );
   }
 
-
+  // Function for creating buttons
   Widget createButtons() {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -202,7 +203,7 @@ class _WeatherForecastState extends State<WeatherForecast> {
     );
   }
 
-
+  // Function for creating button widget
   Widget buttonConstructor(text, action) {
     return FlatButton(
       minWidth: buttonWidth,
@@ -219,48 +220,47 @@ class _WeatherForecastState extends State<WeatherForecast> {
     );
   }
 
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: AppBar(
-          backgroundColor: Colors.brown,
-          title: Text('Прогноз погоди'),
-          actions: [
-            IconButton(
-              splashColor: Colors.transparent,
-              icon: Icon(Icons.map),
-              onPressed: (){ Navigator.pushNamed(context, '/coordinates_parser_page'); },
-            ),
-              
-            PopupMenuButton(
-              icon: Icon(Icons.info),
-              itemBuilder: (context) => [
-                PopupMenuItem(child: Text('Київ (50.4536, 30.5164)'), value: [50.4536, 30.5164]),
-                PopupMenuItem(child: Text('Львів (49.8383, 24.0232)'), value: [49.8383, 24.0232]),
-                PopupMenuItem(child: Text('Одеса (46.4775, 30.7326)'), value: [46.4775, 30.7326]),
-                PopupMenuItem(child: Text('Харків (49.9808, 36.2527)'), value: [49.9808, 36.2527]),
-              ],
-              onSelected: (value) {
-                this.latitude = (value as dynamic)[0];
-                this.longtitude = (value as dynamic)[1];
-              },
-            ),            
-          ]
-        ),
+      appBar: AppBar(
+        backgroundColor: Colors.brown, 
+        title: Text('Прогноз погоди'),
+        actions: [
+          IconButton(
+            splashColor: Colors.transparent,
+            icon: Icon(Icons.map),
+            onPressed: (){ Navigator.pushNamed(context, '/coordinates_parser_page'); },
+          ),
+            
+          PopupMenuButton(
+            icon: Icon(Icons.info),
+            itemBuilder: (context) => [
+              PopupMenuItem(child: Text('Київ (50.4536, 30.5164)'), value: [50.4536, 30.5164]),
+              PopupMenuItem(child: Text('Львів (49.8383, 24.0232)'), value: [49.8383, 24.0232]),
+              PopupMenuItem(child: Text('Одеса (46.4775, 30.7326)'), value: [46.4775, 30.7326]),
+              PopupMenuItem(child: Text('Харків (49.9808, 36.2527)'), value: [49.9808, 36.2527]),
+            ],
+            onSelected: (value) {
+              this.latitude = (value as dynamic)[0];
+              this.longtitude = (value as dynamic)[1];
+            },
+          ),            
+        ]
+      ),
 
-        body: Column(
-          children: [
-            coordinateInputs(),
-            createButtons(),
-            SizedBox(height: 15),
-            Text('Результати:', style: TextStyle(fontSize: 20)),
-            Divider(height: 20.0, thickness: 2.0),
-            Expanded(child: resultView())
-          ],
-        ),
+      body: Column(
+        children: [
+          coordinateInputs(),
+          createButtons(),
+          SizedBox(height: 15),
+          Text('Результати:', style: TextStyle(fontSize: 20)),
+          Divider(height: 20.0, thickness: 2.0),
+          Expanded(child: resultView())
+        ],
+      ),
 
-        bottomNavigationBar: Bottom(),
+      bottomNavigationBar: Bottom(),
     );
   }
 }

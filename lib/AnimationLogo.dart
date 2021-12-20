@@ -2,15 +2,18 @@ import "package:flutter/material.dart";
 import 'dart:math';
 
 
+/* ***************************************************************
+  Classes for creating wellcome page with animated Flutter logo
+**************************************************************** */
 class WelcomePage extends StatefulWidget {
   @override
   WelcomeState createState() => WelcomeState();
 }
 
+
 class WelcomeState extends State<WelcomePage> with SingleTickerProviderStateMixin {
   late AnimationController controller;
   late Animation animation;
-
 
   @override
   void initState() {
@@ -28,13 +31,11 @@ class WelcomeState extends State<WelcomePage> with SingleTickerProviderStateMixi
     controller.forward();
   }
 
-
   @override
   void dispose() {
     controller.dispose();
     super.dispose();
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -45,13 +46,13 @@ class WelcomeState extends State<WelcomePage> with SingleTickerProviderStateMixi
           elevation: 0.000001,
           backgroundColor: Colors.brown,
           title: Text('Welcome!', style: TextStyle(color: Colors.white)),
-            actions: [
-              IconButton(
-                splashColor: Colors.transparent,
-                icon: Icon(Icons.home_filled),
-                onPressed: (){ Navigator.pushNamed(context, '/'); },
-              )
-            ]
+          actions: [
+            IconButton(
+              splashColor: Colors.transparent,
+              icon: Icon(Icons.home_filled),
+              onPressed: (){ Navigator.pushNamed(context, '/'); },
+            )
+          ]
         ),
       ),
 

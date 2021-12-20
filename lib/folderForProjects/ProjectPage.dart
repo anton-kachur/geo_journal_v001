@@ -1,6 +1,3 @@
-import 'dart:async';
-
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:geo_journal_v001/Bottom.dart';
 import 'package:geo_journal_v001/folderForSoundings.dart/AddSoundingData.dart';
@@ -8,16 +5,17 @@ import 'package:geo_journal_v001/folderForSoundings.dart/Soundigs.dart';
 import 'package:geo_journal_v001/folderForWells/AddWellDescription.dart';
 import 'package:geo_journal_v001/folderForWells/Wells.dart';
 
+
 /* *************************************************************************
  Classes for page of additional project
 ************************************************************************* */
 class ProjectPage extends StatefulWidget {
-  var name;
-  var number;
-  var date;
-  var notes;
+  final String name;
+  final String number;
+  final String date;
+  final String notes;
 
-  ProjectPage(this.name, this.number, this.date, this.notes);
+  const ProjectPage({Key? key, required this.name, required this.number, required this.date, required this.notes}): super(key: key);
   
   @override
   ProjectPageState createState() => ProjectPageState();
@@ -25,7 +23,6 @@ class ProjectPage extends StatefulWidget {
 
 
 class ProjectPageState extends State<ProjectPage> {
-  ProjectPageState();
 
   @override
   Widget build(BuildContext context) {
@@ -37,139 +34,137 @@ class ProjectPageState extends State<ProjectPage> {
     );
 
     return Scaffold(
-        appBar: AppBar(
-          backgroundColor: Colors.brown,
-          title: Text(widget.name),
-        ),
+      appBar: AppBar(
+        backgroundColor: Colors.brown,
+        title: Text(widget.name),
+      ),
 
-        body: Column(
-          children: [
-            Container(
-              height: 200.0,
-              decoration: BoxDecoration(
-                border: Border(
-                  bottom: BorderSide(color: Colors.black45, width: 1.0),
-                )
-              ),
-              
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Padding(
-                    padding: EdgeInsets.fromLTRB(15.0, 15.0, 0.0, 8.0),
-                    child: Row(
-                      children: [
-                        Text('id: ${widget.number}'),
-                        SizedBox(width: 15.0),
-                        Text('Дата закінчення: ${widget.date}'),
-                      ]
-                    ) 
-                  ),
-
-                  Padding(
-                    padding: EdgeInsets.fromLTRB(15.0, 0.0, 0.0, 8.0),
-                    child: Row(
-                      children: [
-                        Text('До закінчення (днів): ${dateToEnd.difference(dateNow).inDays}'),
-                      ]
-                    ) 
-                  ),
-
-                  Padding(
-                    padding: EdgeInsets.fromLTRB(15.0, 7.0, 0.0, 8.0),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text('Примітки: '),
-                        Text('${widget.notes}'),
-                      ],
-                    ),
-                  ),
-                ]
+      body: Column(
+        children: [
+          Container(
+            height: 200.0,
+            decoration: BoxDecoration(
+              border: Border(
+                bottom: BorderSide(color: Colors.black45, width: 1.0),
               )
             ),
-
-
-            Column(
+            
+            child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Padding(
-                  padding: EdgeInsets.fromLTRB(13.0, 10.0, 0.0, 8.0),
+                  padding: EdgeInsets.fromLTRB(15.0, 15.0, 0.0, 8.0),
                   child: Row(
                     children: [
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text('Свердловини, відкачки і', style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
-                          Text('точки наскрізного', style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
-                          Text('зондування', style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
-                        ]
-                      )
+                      Text('Номер: ${widget.number}'),
+                      SizedBox(width: 15.0),
+                      Text('Дата закінчення: ${widget.date}'),
                     ]
                   ) 
                 ),
 
                 Padding(
-                  padding: EdgeInsets.fromLTRB(8.0, 8.0, 0.0, 8.0),
-                  child: Column(
+                  padding: EdgeInsets.fromLTRB(15.0, 0.0, 0.0, 8.0),
+                  child: Row(
                     children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text('Сверловини'),
-                          Row(
-                            children: [
-                              buttonConstructor(Icons.view_list_rounded, Wells()),
-                              buttonConstructor(Icons.add_circle_outline, AddWellDescription()),
-                              buttonConstructor(Icons.edit),
-                            ],
-                          ),
-                        ]
-                      ),
-
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text('Точки статичного зондування'),
-                          Row(
-                            children: [
-                              buttonConstructor(Icons.view_list_rounded, Soundings()),
-                              buttonConstructor(Icons.add_circle_outline, AddSoundingData()),
-                              buttonConstructor(Icons.edit),
-                            ],
-                          ),
-                        ]
-                      ),
+                      Text('До закінчення (днів): ${dateToEnd.difference(dateNow).inDays}'),
                     ]
                   ) 
                 ),
 
+                Padding(
+                  padding: EdgeInsets.fromLTRB(15.0, 7.0, 0.0, 8.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text('Примітки: '),
+                      Text('${widget.notes}'),
+                    ],
+                  ),
+                ),
               ]
             )
-          ]
-        ),
+          ),
 
-        bottomNavigationBar: Bottom(),
-      );
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Padding(
+                padding: EdgeInsets.fromLTRB(13.0, 10.0, 0.0, 8.0),
+                child: Row(
+                  children: [
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text('Свердловини, відкачки і', style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
+                        Text('точки наскрізного', style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
+                        Text('зондування', style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
+                      ]
+                    )
+                  ]
+                ) 
+              ),
+
+              Padding(
+                padding: EdgeInsets.fromLTRB(8.0, 8.0, 0.0, 8.0),
+                child: Column(
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text('Сверловини'),
+                        Row(
+                          children: [
+                            buttonConstructor(Icons.view_list_rounded, Wells()),
+                            buttonConstructor(Icons.add_circle_outline, AddWellDescription()),
+                            buttonConstructor(Icons.edit),
+                          ],
+                        ),
+                      ]
+                    ),
+
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text('Точки статичного зондування'),
+                        Row(
+                          children: [
+                            buttonConstructor(Icons.view_list_rounded, Soundings()),
+                            buttonConstructor(Icons.add_circle_outline, AddSoundingData()),
+                            buttonConstructor(Icons.edit),
+                          ],
+                        ),
+                      ]
+                    ),
+                  ]
+                ) 
+              ),
+            ]
+          )
+        ]
+      ),
+
+      bottomNavigationBar: Bottom(),
+    );
   }
 
-  
+  // Function for creating button widget
   Widget buttonConstructor(icon_type, [route]) {
     return Padding(
       padding: EdgeInsets.fromLTRB(0.0, 0.0, 0.0, 0.0),
       child: ClipRRect (
         borderRadius: BorderRadius.circular(4.0),
-        child: IconButton(  
-            color: Colors.black,
-            padding: EdgeInsets.all(0.0),
-            icon: Icon(icon_type, size: 25.0),
-            onPressed: ()=>{
-               Navigator.push(
-                context, 
-                MaterialPageRoute(builder: (context) => route),
-               )
-            },
-          )
+        child: IconButton(       
+          color: Colors.black,
+          padding: EdgeInsets.all(0.0),
+          icon: Icon(icon_type, size: 25.0),
+          onPressed: ()=>{
+            Navigator.push(
+              context, 
+              MaterialPageRoute(builder: (context) => route),
+            )
+          },
+        )
       )
     );
   }

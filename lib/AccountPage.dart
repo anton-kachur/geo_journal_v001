@@ -1,8 +1,10 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:geo_journal_v001/Bottom.dart';
 
 
+/* ***************************************************************
+  Classes for the page of registration/authorization
+**************************************************************** */
 class AccountPage extends StatefulWidget {
   var mode;
 
@@ -23,7 +25,6 @@ class AccountPageState extends State<AccountPage> {
   var textFieldHeight = 32.0;
 
   late FocusNode _focusNode;
-
   
   @override
   void initState() {
@@ -36,31 +37,27 @@ class AccountPageState extends State<AccountPage> {
     super.dispose();
     _focusNode.dispose();
   }
-  
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: AppBar(
-          backgroundColor: Colors.brown,
-          title: (widget.mode=='sign_up')? Text('Реєстрація'): Text('Увійти в акаунт'),
-        ),
+      appBar: AppBar(backgroundColor: Colors.brown, title: (widget.mode=='sign_up')? Text('Реєстрація'): Text('Увійти в акаунт')),
 
-        body: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            createTextFieldsBlock(20.0, 20.0, ["логін...", "пароль..."]),
-            if (widget.mode == 'sign_up') createTextFieldsBlock(0.0, 20.0, ["електронна пошта...", "номер телефону..."], true),
-          ]
-        ),
+      body: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          createTextFieldsBlock(20.0, 20.0, ["логін...", "пароль..."]),
+          if (widget.mode == 'sign_up') createTextFieldsBlock(0.0, 20.0, ["електронна пошта...", "номер телефону..."], true),
+        ]
+      ),
 
-        bottomNavigationBar: Bottom(),
+      bottomNavigationBar: Bottom(),
     );
   }
 
-
+  // Function for creating widget of text fields, stored in block
   Widget createTextFieldsBlock(verticalPadding, horizontalPadding, hintTextVals, [isSecondBlockNeeded]) {
-    var TextFieldStyle = OutlineInputBorder(
+    var textFieldStyle = OutlineInputBorder(
         borderRadius: BorderRadius.all(Radius.circular(10.0)),
         borderSide: BorderSide(color: Colors.grey.shade700, width: 1.0),
     );
@@ -70,32 +67,29 @@ class AccountPageState extends State<AccountPage> {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-
+          // Text field for login input
           Container(
             width: this.textFieldWidth,
             height: this.textFieldHeight,
             child: TextFormField(
               focusNode: (isSecondBlockNeeded==true)? null:_focusNode,
               autofocus: false,
-              textInputAction: TextInputAction.next,
-              
+              textInputAction: TextInputAction.next,         
 
               decoration: InputDecoration(
                 hintText: hintTextVals[0],
                 hintStyle: TextStyle( fontSize: 12, color: Colors.grey.shade500),
                 contentPadding: EdgeInsets.fromLTRB(7, 5, 5, 5),
                 
-                focusedBorder: TextFieldStyle,
-                enabledBorder: TextFieldStyle,
+                focusedBorder: textFieldStyle,
+                enabledBorder: textFieldStyle,
               ),
               
-              onChanged: (value) {
-                this.login = value;
-                print("Name entered : $value");
-              }
+              onChanged: (value) { this.login = value; }
             )
           ),
 
+          // Text field for password input
           Container(
             width: this.textFieldWidth,
             height: this.textFieldHeight,
@@ -108,21 +102,15 @@ class AccountPageState extends State<AccountPage> {
                 hintStyle: TextStyle( fontSize: 12, color: Colors.grey.shade400),
                 contentPadding: EdgeInsets.fromLTRB(7, 5, 5, 5),
                 
-                focusedBorder: TextFieldStyle,
-                enabledBorder: TextFieldStyle,
+                focusedBorder: textFieldStyle,
+                enabledBorder: textFieldStyle,
               ),
               
-              onChanged: (value) {
-                this.password = value;
-                print("Name entered : $value");
-              }
-
+              onChanged: (value) { this.password = value; }
             )
           ),
-          
         ]
       )
     );
   }
-
 }

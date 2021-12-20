@@ -1,12 +1,8 @@
-import 'dart:async';
-
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:geo_journal_v001/Bottom.dart';
 import 'package:geo_journal_v001/folderForWells/SoilSample.dart';
-import 'package:geo_journal_v001/folderForWells/Well.dart';
-import 'package:geo_journal_v001/folderForWells/Wells.dart';
 import 'package:geo_journal_v001/folderForWells/WellPage.dart';
+
 
 /* *************************************************************************
  Classes for page where you can add soil sample and its description
@@ -29,7 +25,6 @@ class AddSoilSampleState extends State<AddSoilSample>{
   var textFieldHeight = 32.0;
 
   late FocusNode _focusNode;
-
   
   @override
   void initState() {
@@ -45,160 +40,151 @@ class AddSoilSampleState extends State<AddSoilSample>{
 
   @override
   Widget build(BuildContext context) {
-    var TextFieldStyle = OutlineInputBorder(
+
+    // Text field decoration
+    OutlineInputBorder textFieldStyle = OutlineInputBorder(
         borderRadius: BorderRadius.all(Radius.circular(10.0)),
         borderSide: BorderSide(color: Colors.grey.shade700, width: 1.0),
     );
 
     return Scaffold(
-        appBar: AppBar(
-          backgroundColor: Colors.brown,
-          title: Text('Ввести дані грунту'),
-        ),
+      appBar: AppBar(backgroundColor: Colors.brown, title: Text('Ввести дані грунту')),
 
-        body: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Padding(
-              padding: EdgeInsets.symmetric(vertical: 20, horizontal: 20),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
+      body: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
 
-                  Container(
-                    width: this.textFieldWidth,
-                    height: this.textFieldHeight,
-                    child: TextFormField(
-                      focusNode: _focusNode,
-                      autofocus: false,
-                      textInputAction: TextInputAction.next,
+          // Text field block for soil type and start depth
+          Padding(
+            padding: EdgeInsets.symmetric(vertical: 20, horizontal: 20),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
 
-                      decoration: InputDecoration(
-                        hintText: 'Тип грунту',
-                        hintStyle: TextStyle( fontSize: 12, color: Colors.grey.shade500),
-                        contentPadding: EdgeInsets.fromLTRB(7, 5, 5, 5),
-                        
-                        focusedBorder: TextFieldStyle,
-                        enabledBorder: TextFieldStyle,
-                      ),
+                // Text field for soil type input
+                Container(
+                  width: this.textFieldWidth,
+                  height: this.textFieldHeight,
+                  child: TextFormField(
+                    focusNode: _focusNode,
+                    autofocus: false,
+                    textInputAction: TextInputAction.next,
+
+                    decoration: InputDecoration(
+                      hintText: 'Тип грунту',
+                      hintStyle: TextStyle( fontSize: 12, color: Colors.grey.shade500),
+                      contentPadding: EdgeInsets.fromLTRB(7, 5, 5, 5),
                       
-                      onChanged: (value) {
-                        this.name = value;
-                      }
-                    )
-                  ),
+                      focusedBorder: textFieldStyle,
+                      enabledBorder: textFieldStyle,
+                    ),
+                    
+                    onChanged: (value) { this.name = value; }
+                  )
+                ),
 
-                  Container(
-                    width: this.textFieldWidth,
-                    height: this.textFieldHeight,
-                    child: TextFormField(
-                      autofocus: false,
-                      textInputAction: TextInputAction.next,
+                // Text field for start depth input
+                Container(
+                  width: this.textFieldWidth,
+                  height: this.textFieldHeight,
+                  child: TextFormField(
+                    autofocus: false,
+                    textInputAction: TextInputAction.next,
 
-                      decoration: InputDecoration(
-                        hintText: 'Початкова глибина',
-                        hintStyle: TextStyle( fontSize: 12, color: Colors.grey.shade400),
-                        contentPadding: EdgeInsets.fromLTRB(7, 5, 5, 5),
-                        
-                        focusedBorder: TextFieldStyle,
-                        enabledBorder: TextFieldStyle,
-                      ),
+                    decoration: InputDecoration(
+                      hintText: 'Початкова глибина',
+                      hintStyle: TextStyle( fontSize: 12, color: Colors.grey.shade400),
+                      contentPadding: EdgeInsets.fromLTRB(7, 5, 5, 5),
                       
-                      onChanged: (value) {
-                        this.depthStart = value;
-                      }
-
-                    )
-                  ),        
-                ]
-              )
-            ),
-
-
-
-            Padding(
-              padding: EdgeInsets.symmetric(vertical: 0, horizontal: 20),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Container(
-                    width: this.textFieldWidth,
-                    height: this.textFieldHeight,
-                    child: TextFormField(
-                      autofocus: false,
-                      textInputAction: TextInputAction.next,
-
-                      decoration: InputDecoration(
-                        hintText: 'Кінцева глибина',
-                        hintStyle: TextStyle( fontSize: 12, color: Colors.grey.shade400),
-                        contentPadding: EdgeInsets.fromLTRB(7, 5, 5, 5),
-                        
-                        focusedBorder: TextFieldStyle,
-                        enabledBorder: TextFieldStyle,
-                      ),
-                      
-                      onChanged: (value) {
-                        this.depthEnd = value;
-                      }
-
-                    )
-                  ),
-
-                  Container(
-                    width: this.textFieldWidth,
-                    height: this.textFieldHeight,
-                    child: TextFormField(
-                      autofocus: false,
-                      textInputAction: TextInputAction.done,
-
-                      decoration: InputDecoration(
-                        hintText: 'Примітки',
-                        hintStyle: TextStyle( fontSize: 12, color: Colors.grey.shade400),
-                        contentPadding: EdgeInsets.fromLTRB(7, 5, 5, 5),
-                        
-                        focusedBorder: TextFieldStyle,
-                        enabledBorder: TextFieldStyle,
-                      ),
-                      
-                      onChanged: (value) {
-                        this.notes = value;
-                      }
-
-                    )
-                  ),           
-                ]
-              )
-            ),
-
-            
-
-            Padding(
-              padding: EdgeInsets.fromLTRB(100.0, 7.0, 0.0, 0.0),
-              child: FlatButton(
-                minWidth: 150.0,
-                child: Text("Додати", style: TextStyle(color: Colors.black87)),
-                onPressed: ()=>{
-                  addToList()
-                },
-                shape: RoundedRectangleBorder(
-                  side: BorderSide(
-                    color: Colors.black87,
-                    width: 1.0,
-                    style: BorderStyle.solid,
-                  ),
-                  borderRadius: BorderRadius.circular(8),
-                ), 
-              ),
+                      focusedBorder: textFieldStyle,
+                      enabledBorder: textFieldStyle,
+                    ),
+                    
+                    onChanged: (value) { this.depthStart = value; }
+                  )
+                ),        
+              ]
             )
-          ]
-        ),
+          ),
+          
+          // Text field block for final depth and notes
+          Padding(
+            padding: EdgeInsets.symmetric(vertical: 0, horizontal: 20),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
 
-        bottomNavigationBar: Bottom(),
+                // Text field for final depth input
+                Container(
+                  width: this.textFieldWidth,
+                  height: this.textFieldHeight,
+                  child: TextFormField(
+                    autofocus: false,
+                    textInputAction: TextInputAction.next,
+
+                    decoration: InputDecoration(
+                      hintText: 'Кінцева глибина',
+                      hintStyle: TextStyle( fontSize: 12, color: Colors.grey.shade400),
+                      contentPadding: EdgeInsets.fromLTRB(7, 5, 5, 5),
+                      
+                      focusedBorder: textFieldStyle,
+                      enabledBorder: textFieldStyle,
+                    ),
+                    
+                    onChanged: (value) { this.depthEnd = value; }
+                  )
+                ),
+
+                // Text field for notes input
+                Container(
+                  width: this.textFieldWidth,
+                  height: this.textFieldHeight,
+                  child: TextFormField(
+                    autofocus: false,
+                    textInputAction: TextInputAction.done,
+
+                    decoration: InputDecoration(
+                      hintText: 'Примітки',
+                      hintStyle: TextStyle( fontSize: 12, color: Colors.grey.shade400),
+                      contentPadding: EdgeInsets.fromLTRB(7, 5, 5, 5),
+                      
+                      focusedBorder: textFieldStyle,
+                      enabledBorder: textFieldStyle,
+                    ),
+                    
+                    onChanged: (value) { this.notes = value; }
+                  )
+                ),           
+              ]
+            )
+          ),
+
+          // Add button
+          Padding(
+            padding: EdgeInsets.fromLTRB(100.0, 7.0, 0.0, 0.0),
+            child: FlatButton(
+              minWidth: 150.0,
+              child: Text("Додати", style: TextStyle(color: Colors.black87)),
+              onPressed: ()=>{ addToList() },
+              shape: RoundedRectangleBorder(
+                side: BorderSide(
+                  color: Colors.black87,
+                  width: 1.0,
+                  style: BorderStyle.solid,
+                ),
+                borderRadius: BorderRadius.circular(8),
+              ), 
+            ),
+          )
+        ]
+      ),
+
+      bottomNavigationBar: Bottom(),
     );
   }
 
-
-  addToList() {
+  // Function for adding soil sample to list
+  Widget addToList() {
     probesList.add(SoilSample(this.name, this.depthStart, this.depthEnd, this.notes));
     return Text('');
   }

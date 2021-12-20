@@ -1,17 +1,12 @@
-import 'dart:async';
-
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:geo_journal_v001/Bottom.dart';
 import 'package:geo_journal_v001/folderForWells/AddSoilSample.dart';
-import 'package:geo_journal_v001/folderForWells/SoilSample.dart';
 
 
 var probesList = [];
 
-
 /* *************************************************************************
- Classes for well page
+  Classes for well page
 ************************************************************************* */
 class WellPage extends StatefulWidget {
   WellPage();
@@ -22,19 +17,18 @@ class WellPage extends StatefulWidget {
 
 
 class WellPageState extends State<WellPage>{
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Colors.brown,
-        title: Text('Проби грунту'),
-      ),
+      appBar: AppBar(backgroundColor: Colors.brown, title: Text('Проби грунту')),
 
       body: Column(
         children: [
           if (probesList.length > 0)
             for (var i in probesList)
               i,
+              
           Padding(
             padding: EdgeInsets.fromLTRB(100.0, 7.0, 0.0, 0.0),
             child: FlatButton(
