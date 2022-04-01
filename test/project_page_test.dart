@@ -1,5 +1,5 @@
 // @dart=2.9
-import 'package:geo_journal_v001/folderForProjects/ProjectPage.dart';
+import 'package:geo_journal_v001/projects/ProjectPage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 

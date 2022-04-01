@@ -1,24 +1,25 @@
 import 'package:flutter/material.dart';
-import 'package:geo_journal_v001/folderForWells/WellPage.dart';
 
 
 /* *************************************************************************
- Classes for well
+ Classes for sounding
 ************************************************************************* */
-class Well extends StatefulWidget {
-  var number;
-  var date;
-  var latitude;
-  var longtitude;
+class Sounding extends StatefulWidget {
+  var depth;
+  var qc;
+  var fs;
+  var notes;
 
-  Well(this.number, this.date, this.latitude, this.longtitude);
+  var projectNumber;
+
+  Sounding(this.depth, this.qc, this.fs, this.notes, this.projectNumber);
   
   @override
-  WellState createState() => WellState();
+  SoundingState createState() => SoundingState();
 }
 
 
-class WellState extends State<Well>{
+class SoundingState extends State<Sounding>{
 
   @override
   Widget build(BuildContext context) {
@@ -37,30 +38,24 @@ class WellState extends State<Well>{
             children: [
               Padding(
                 padding: EdgeInsets.fromLTRB(15.0, 15.0, 0.0, 0.0),
-                child: Text('Свердловина №${widget.number}')
+                child: Text('Кінцева глибина: ${widget.depth}')
               ),
 
               Padding(
                 padding: EdgeInsets.fromLTRB(15.0, 5.0, 0.0, 0.0),
-                child: Text('Дата буріння: ${widget.date}'),
+                child: Text('qc: ${widget.qc}'),
               ),
 
               Padding(
                 padding: EdgeInsets.fromLTRB(15.0, 5.0, 0.0, 15.0),
-                child: Text('Координати: (${widget.latitude}, ${widget.longtitude})'),
+                child: Text('fs: ${widget.fs}'),
+              ),
+
+              Padding(
+                padding: EdgeInsets.fromLTRB(15.0, 5.0, 0.0, 15.0),
+                child: Text('Примітки: ${widget.notes}'),
               )
             ]
-          ),
-  
-          IconButton(        
-            splashColor: Colors.transparent,
-            icon: Icon(Icons.arrow_forward_ios, size: 20),
-            onPressed: () {
-              Navigator.push(
-                context, 
-                MaterialPageRoute(builder: (context) => WellPage())
-              );
-            }
           ),
         ]
       )

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:geo_journal_v001/folderForProjects/ProjectPage.dart';
+import 'package:geo_journal_v001/projects/ProjectPage.dart';
 
 
 /* *************************************************************************
@@ -12,6 +12,7 @@ class Project extends StatefulWidget {
   var notes;
 
   Project(this.name, this.number, this.date, this.notes);
+
   Project.blank();
   Project.fromJson(Map<String, dynamic> json) :
     name = json['name'],
@@ -68,7 +69,7 @@ class ProjectState extends State<Project>{
                     
                     Row(
                       children: [
-                        Icon(Icons.date_range),
+                        Icon(Icons.calendar_today_rounded),
                         SizedBox(width: 3.0),
                         Text('${widget.date}'),
                       ]
@@ -78,7 +79,7 @@ class ProjectState extends State<Project>{
                       padding: EdgeInsets.fromLTRB(150.0, 0.0, 0.0, 0.0),
                       child: IconButton(        
                         splashColor: Colors.transparent,
-                        icon: Icon(Icons.arrow_forward_ios, size: 20),
+                        icon: Icon(Icons.arrow_forward_ios_rounded, size: 20),
                         onPressed: () {
                           Navigator.push(
                             context, 

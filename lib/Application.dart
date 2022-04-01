@@ -1,22 +1,45 @@
 import 'package:flutter/material.dart';
-import 'package:geo_journal_v001/AnimationLogo.dart';
-import 'package:geo_journal_v001/folderForProjects/AddProjectDescription.dart';
-import 'package:geo_journal_v001/AdminPage.dart';
+import 'package:geo_journal_v001/admin_page/AdminPage.dart';
 import 'package:geo_journal_v001/Bottom.dart';
 import 'package:geo_journal_v001/InfoPage.dart';
-import 'package:geo_journal_v001/folderForProjects/Projects.dart';
+import 'package:geo_journal_v001/projects/Projects.dart';
 import 'package:geo_journal_v001/Settings.dart';
-import 'package:geo_journal_v001/SoilTypes.dart';
-import 'package:geo_journal_v001/CoordinatesParser.dart';
-import 'package:geo_journal_v001/weatherForecasts.dart';
+import 'package:geo_journal_v001/soil_types/SoilTypes.dart';
+import 'package:geo_journal_v001/weather/WeatherForecasts.dart';
+import 'package:geo_journal_v001/wells/AddSoilSample.dart';
 import 'package:provider/provider.dart';
+import 'package:translatable_text_field/translatable_text.dart';
 
+
+var appLocale = Locale.fromSubtags(languageCode: 'ua');
 
 /* ************************************************************
   Class for creating application and initializing 
   main settings of the app 
 ************************************************************ */
-class Application extends StatelessWidget {
+class Application extends StatefulWidget {
+  Application();
+
+  @override
+  ApplicationState createState() => ApplicationState();
+  static of(BuildContext context) => context.findAncestorStateOfType<ApplicationState>();
+}
+
+
+class ApplicationState extends State<Application> {
+  Locale _locale = Locale.fromSubtags(languageCode: 'ua');
+
+  void setLocale(Locale value) {
+    setState(() {
+      _locale = value;
+      appLocale = value;
+      print('NEW PROJECT LOCALE: ${_locale}');
+    });
+  }
+
+  get getLocale => _locale;
+
+
   @override 
   Widget build(BuildContext context) { 
     return ChangeNotifierProvider<ThemeModel>( 
@@ -24,27 +47,31 @@ class Application extends StatelessWidget {
       child: Consumer<ThemeModel>( 
         builder: (_, model, __) { 
           return MaterialApp(
-            //locale: Locale.fromSubtags(languageCode: 'en_US'),
+
+            //translations: LocaleString(),
+            locale: _locale,
+
             theme: ThemeData.light(),
             darkTheme: ThemeData.dark(), 
             themeMode: model.mode, // Decides which theme to show.
             debugShowCheckedModeBanner: false,
 
-            initialRoute: '/welcome_page',
+            initialRoute: '/',
             routes: <String, WidgetBuilder>{
               'home': (context) => MainPage(),
-              '/welcome_page': (context) => WelcomePage(),
               '/soil_types': (context) => SoilTypes(),
               '/info_page': (context) => InfoPage(),
               '/projects_page': (context) => Projects(),
               '/forecasts_page': (context) => WeatherForecast(),
               '/settings_page': (context) => Settings(model),
               '/admin_page': (context) => AdminPage(),
-              '/add_project_description': (context) => AddProjectDescription(),
-              '/coordinates_parser_page': (context) => CoordinatesParser(),
+              //'/add_project_description': (context) => AddProjectDescription(),
+              //'/add_well_description': (context) => AddWellDescription(),
+              //'/add_sounding_description': (context) => AddSoundingData(),
+              //'/add_soil_sample_description': (context) => AddSoilSample(),
             },
 
-            home: MainPage(),
+            home: MainPage(model),
           );
         }, 
       ), 
@@ -71,7 +98,8 @@ class ThemeModel with ChangeNotifier {
   Classes for creating main page of an app 
 ************************************************************ */
 class MainPage extends StatefulWidget {
-  MainPage();
+  var model;
+  MainPage([this.model]);
 
   @override
   MainPageState createState() => MainPageState();
@@ -79,13 +107,12 @@ class MainPage extends StatefulWidget {
 
 
 class MainPageState extends State<MainPage> {
-
   @override
   Widget build(BuildContext context) {
     return SafeArea(
       child: Stack(
         children: [
-          DragBox(Offset(0.0, 0.0)),
+          DragBox(Offset(0.0, 0.0), widget.model),
         ],
       ),
     );
@@ -100,8 +127,9 @@ class MainPageState extends State<MainPage> {
 ************************************************************ */
 class DragBox extends StatefulWidget {
   final Offset initPos;
+  var model;
 
-  DragBox(this.initPos);
+  DragBox(this.initPos, this.model);
 
   @override
   DragBoxState createState() => DragBoxState();
@@ -112,11 +140,26 @@ class DragBoxState extends State<DragBox> with SingleTickerProviderStateMixin {
   static const buttonWidth = 210.0;
   Offset position = Offset(0.0, 0.0);
 
+  // LIST OF LANGUAGE LOCALES
+  /*final List locale = [
+    {'name': 'ENGLISH', 'locale': Locale('en', 'US')},
+    {'name': 'УКРАЇНСЬКА', 'locale': Locale('ru', 'UA')},
+  ];
+
+
+  updateLanguage(Locale locale) {
+    Get.back();
+    Get.updateLocale();
+  }*/
+
+  
   @override
   void initState() {
     super.initState();
     position = widget.initPos;
   }
+
+  void _setText() => setState(() {});
 
   @override
   Widget build(BuildContext context) {
@@ -130,20 +173,21 @@ class DragBoxState extends State<DragBox> with SingleTickerProviderStateMixin {
             elevation: 0.000001,
             backgroundColor: Colors.brown,
             title: Text('GeoJournal', style: TextStyle(color: Colors.white)),
-              actions: [
-                IconButton(
-                  splashColor: Colors.transparent,
-                  icon: Icon(Icons.settings),
-                  onPressed: (){ Navigator.pushNamed(context, '/settings_page'); },
-                )
-              ]
+                
+            actions: [
+              IconButton(
+                splashColor: Colors.transparent,
+                icon: Icon(Icons.settings),
+                onPressed: (){ Navigator.pushNamed(context, '/settings_page'); },
+              )
+            ]
           )
         ),
 
         body: Container(
             decoration: BoxDecoration(
               image: DecorationImage(
-                image: AssetImage("assets/black_mount_wallpaper.jpg"),
+                image: AssetImage((widget.model.mode == ThemeMode.dark)? "assets/black_mount_wallpaper.jpg" : "assets/white_mount_wallpaper.jpg"),
                 fit: BoxFit.cover,
               )
             ),
@@ -164,9 +208,9 @@ class DragBoxState extends State<DragBox> with SingleTickerProviderStateMixin {
 
                       child: Column(
                         children: [
-                          buttonConstructor('Сторінка адміністратора', '/admin_page'),
-                          buttonConstructor('Прогноз погоди', '/forecasts_page'),
-                          buttonConstructor('Про застосунок', '/info_page'),
+                          buttonConstructor(['Сторінка адміністратора', 'Admin page'], '/admin_page', widget.model.mode),
+                          buttonConstructor(['Прогноз погоди', 'Weather forecast'], '/forecasts_page', widget.model.mode),
+                          buttonConstructor(['Про застосунок', 'About'], '/info_page', widget.model.mode),
                         ]
                       ),
                     ),
@@ -185,9 +229,9 @@ class DragBoxState extends State<DragBox> with SingleTickerProviderStateMixin {
 
                       child: Column(
                         children: [
-                          buttonConstructor('Сторінка адміністратора', '/admin_page'),
-                          buttonConstructor('Прогноз погоди', '/forecasts_page'),
-                          buttonConstructor('Про застосунок', '/info_page'),
+                          buttonConstructor(['Сторінка адміністратора', 'Admin page'], '/admin_page', widget.model.mode),
+                          buttonConstructor(['Прогноз погоди', 'Weather forecast'], '/forecasts_page', widget.model.mode),
+                          buttonConstructor(['Про застосунок', 'About'], '/info_page', widget.model.mode),
                         ]
                       ),
                     ),
@@ -203,15 +247,37 @@ class DragBoxState extends State<DragBox> with SingleTickerProviderStateMixin {
   }
 
 
-  Widget buttonConstructor(text, route) {
+  Widget buttonConstructor(text, route, mode) {
     return FlatButton(
       minWidth: buttonWidth,
-      child: Text(text, style: TextStyle(color: Colors.white70)),
-      onPressed: (){ Navigator.pushNamed(context, route); },
+
+      child: TranslatableText(
+        style: TextStyle(color: (mode == ThemeMode.dark)? Colors.white70 : Colors.white),
+        displayLanguage: appLocale == 'en'? Languages.english: Languages.ukrainian,
+        options: [
+          TranslateOption(
+            language: Languages.ukrainian, 
+            text: text[0],
+          ),
+
+          TranslateOption(
+            language: Languages.english, 
+            text: text[1],
+          )
+        ] 
+      ), 
+      
+      onPressed: (){
+        setState(() {
+          
+        });
+        Navigator.pushNamed(context, route); 
+      },
+      
       shape: RoundedRectangleBorder(
         side: BorderSide(
-          color: Colors.white70,
-          width: 1.0,
+          color: (mode == ThemeMode.dark)? Colors.white70 : Colors.white,
+          width: (mode == ThemeMode.dark)? 1.0 : 1.5,
           style: BorderStyle.solid,
         ),
         borderRadius: BorderRadius.circular(8),

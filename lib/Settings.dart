@@ -1,8 +1,9 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:geo_journal_v001/AccountPage.dart';
+import 'package:geo_journal_v001/accounts/AccountPage.dart';
+import 'package:geo_journal_v001/Application.dart';
 import 'package:geo_journal_v001/Bottom.dart';
-
+import 'dart:io';
 
 /* ***************************************************************
   Classes for creating settings page
@@ -61,12 +62,24 @@ class SettingsState extends State<Settings>{
                 Text('Мова'),
                 PopupMenuButton(
                   itemBuilder: (context) => [
-                    PopupMenuItem(child: Text('English'), value: 'en_US'),
-                    PopupMenuItem(child: Text('Українська'), value: 'ru'),
+                    PopupMenuItem(child: Text('English'), value: 'en'),
+                    PopupMenuItem(child: Text('Українська'), value: 'ua'),
                   ],
                   onSelected: (value) {
+                    
+                    Application.of(context).setLocale(Locale.fromSubtags(languageCode: value.toString()));
+                    appLocale = Locale.fromSubtags(languageCode: value.toString());
+                    setState(() {
+                      
+                    });
+                  }
+                    //=> 
+                    //widget.model.setLocale(Locale.fromSubtags(languageCode: value.toString())); 
+                  
+
+                  //{  
                     //setState(() { widget.model.locale = Locale.fromSubtags(languageCode: value.toString()); });
-                  },
+                  //},
                 ),
               ],
             ),
@@ -86,7 +99,7 @@ class SettingsState extends State<Settings>{
                   ],
                   onSelected: (value) {
                     setState(() { 
-                      Navigator.push(context, MaterialPageRoute(builder: (context) => AccountPage(value))); 
+                      Navigator.push(context, MaterialPageRoute(builder: (context) => AddAccountPage(value))); 
                     });
                   },
                 ),

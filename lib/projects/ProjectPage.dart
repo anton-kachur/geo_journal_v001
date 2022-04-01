@@ -1,9 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:geo_journal_v001/Bottom.dart';
-import 'package:geo_journal_v001/folderForSoundings.dart/AddSoundingData.dart';
-import 'package:geo_journal_v001/folderForSoundings.dart/Soundigs.dart';
-import 'package:geo_journal_v001/folderForWells/AddWellDescription.dart';
-import 'package:geo_journal_v001/folderForWells/Wells.dart';
+import 'package:geo_journal_v001/projects/project_and_DB/ProjectDBClasses.dart';
+import 'package:geo_journal_v001/soundings/AddSoundingData.dart';
+import 'package:geo_journal_v001/soundings/Soundigs.dart';
+import 'package:geo_journal_v001/soundings/sounding_and_DB/SoundingDBClasses.dart';
+import 'package:geo_journal_v001/wells/AddWellDescription.dart';
+import 'package:geo_journal_v001/wells/Wells.dart';
+import 'package:geo_journal_v001/wells/well_and_DB/WellDBClasses.dart';
+import 'package:hive_flutter/hive_flutter.dart';
 
 
 /* *************************************************************************
@@ -19,10 +23,12 @@ class ProjectPage extends StatefulWidget {
   
   @override
   ProjectPageState createState() => ProjectPageState();
+
 }
 
 
 class ProjectPageState extends State<ProjectPage> {
+
 
   @override
   Widget build(BuildContext context) {
@@ -96,9 +102,8 @@ class ProjectPageState extends State<ProjectPage> {
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text('Свердловини, відкачки і', style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
-                        Text('точки наскрізного', style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
-                        Text('зондування', style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
+                        Text('Свердловини і точки ', style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
+                        Text('наскрізного зондування', style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
                       ]
                     )
                   ]
@@ -112,12 +117,11 @@ class ProjectPageState extends State<ProjectPage> {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Text('Сверловини'),
+                        Text('Свердловини'),
                         Row(
                           children: [
-                            buttonConstructor(Icons.view_list_rounded, Wells()),
-                            buttonConstructor(Icons.add_circle_outline, AddWellDescription()),
-                            buttonConstructor(Icons.edit),
+                            buttonConstructor(Icons.view_list_rounded, route: Wells(widget.number)),
+                            buttonConstructor(Icons.add_circle_outline, route: AddWellDescription(widget.number)),
                           ],
                         ),
                       ]
@@ -129,9 +133,8 @@ class ProjectPageState extends State<ProjectPage> {
                         Text('Точки статичного зондування'),
                         Row(
                           children: [
-                            buttonConstructor(Icons.view_list_rounded, Soundings()),
-                            buttonConstructor(Icons.add_circle_outline, AddSoundingData()),
-                            buttonConstructor(Icons.edit),
+                            buttonConstructor(Icons.view_list_rounded, route: Soundings(widget.number)),
+                            buttonConstructor(Icons.add_circle_outline, route: AddSoundingData(widget.number)),
                           ],
                         ),
                       ]
@@ -144,12 +147,12 @@ class ProjectPageState extends State<ProjectPage> {
         ]
       ),
 
-      bottomNavigationBar: Bottom(),
+      bottomNavigationBar: Bottom.dependOnPage("project_page", widget.name),
     );
   }
 
   // Function for creating button widget
-  Widget buttonConstructor(icon_type, [route]) {
+  Widget buttonConstructor(icon_type, {route}) {
     return Padding(
       padding: EdgeInsets.fromLTRB(0.0, 0.0, 0.0, 0.0),
       child: ClipRRect (
@@ -159,13 +162,16 @@ class ProjectPageState extends State<ProjectPage> {
           padding: EdgeInsets.all(0.0),
           icon: Icon(icon_type, size: 25.0),
           onPressed: ()=>{
+            
             Navigator.push(
               context, 
               MaterialPageRoute(builder: (context) => route),
             )
+            
           },
         )
       )
     );
   }
+
 }

@@ -1,23 +1,26 @@
 import 'package:flutter/material.dart';
+import 'package:geo_journal_v001/wells/WellPage.dart';
 
 
 /* *************************************************************************
- Classes for sounding
+ Classes for well
 ************************************************************************* */
-class Sounding extends StatefulWidget {
-  var depth;
-  var qc;
-  var fs;
-  var notes;
+class Well extends StatefulWidget {
+  var number;
+  var date;
+  var latitude;
+  var longtitude;
 
-  Sounding(this.depth, this.qc, this.fs, this.notes);
+  var projectNumber;
+
+  Well(this.number, this.date, this.latitude, this.longtitude, this.projectNumber);
   
   @override
-  SoundingState createState() => SoundingState();
+  WellState createState() => WellState();
 }
 
 
-class SoundingState extends State<Sounding>{
+class WellState extends State<Well>{
 
   @override
   Widget build(BuildContext context) {
@@ -36,24 +39,30 @@ class SoundingState extends State<Sounding>{
             children: [
               Padding(
                 padding: EdgeInsets.fromLTRB(15.0, 15.0, 0.0, 0.0),
-                child: Text('Точка №${widget.depth}')
+                child: Text('Свердловина №${widget.number}')
               ),
 
               Padding(
                 padding: EdgeInsets.fromLTRB(15.0, 5.0, 0.0, 0.0),
-                child: Text('qc: ${widget.qc}'),
+                child: Text('Дата буріння: ${widget.date}'),
               ),
 
               Padding(
                 padding: EdgeInsets.fromLTRB(15.0, 5.0, 0.0, 15.0),
-                child: Text('fs: ${widget.fs}'),
-              ),
-
-              Padding(
-                padding: EdgeInsets.fromLTRB(15.0, 5.0, 0.0, 15.0),
-                child: Text('Примтітки: ${widget.notes}'),
+                child: Text('Координати: (${widget.latitude}, ${widget.longtitude})'),
               )
             ]
+          ),
+  
+          IconButton(        
+            splashColor: Colors.transparent,
+            icon: Icon(Icons.arrow_forward_ios, size: 20),
+            onPressed: () {
+              Navigator.push(
+                context, 
+                MaterialPageRoute(builder: (context) => WellPage(widget.number))
+              );
+            }
           ),
         ]
       )

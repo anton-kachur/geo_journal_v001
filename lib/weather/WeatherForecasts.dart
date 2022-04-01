@@ -1,5 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:geo_journal_v001/AppUtilites.dart';
 import 'package:geo_journal_v001/Bottom.dart';
+import 'package:geo_journal_v001/accounts/AccountsDBClasses.dart';
+import 'package:geo_journal_v001/weather/WeatherDBClasses.dart';
+import 'package:hive_flutter/hive_flutter.dart';
 
 import 'package:weather/weather.dart';
 
@@ -17,6 +21,7 @@ class WeatherForecast extends StatefulWidget {
 class _WeatherForecastState extends State<WeatherForecast> {
   String key = '856822fd8e22db5e1ba48c0e7d69844a';
   late WeatherFactory ws;
+  var weather;
   List<Weather> weatherData = [];
   WeatherState state = WeatherState.NOT_DOWNLOADED;
   double? latitude;
@@ -24,6 +29,9 @@ class _WeatherForecastState extends State<WeatherForecast> {
   static const buttonWidth = 155.0;
   var textFieldWidth = 155.0;
   var textFieldHeight = 40.0;
+
+  var box;
+  var boxSize;
 
 
   @override
@@ -47,6 +55,35 @@ class _WeatherForecastState extends State<WeatherForecast> {
     });
   }
 
+
+
+
+  // Function for getting data from Hive database
+  void getDataFromBox() async {
+    var boxx;
+    boxx = await Hive.openBox<WeatherDescription>('s_weather');    
+    
+    boxSize = boxx.length;
+    box = boxx;     
+  }  
+
+
+  // Function for adding data to database
+  Widget addToBox() {
+    box.put('weather${boxSize+2}', WeatherDescription([weather.areaName.toString(), weather.toString()]));
+    
+    for (var i in box.values) {
+      print(i.toString());
+    }
+
+    box.close();
+    return Text('');
+  }
+
+
+
+
+
   // Function for getting current weather by location
   void queryWeather() async {
     FocusScope.of(context).requestFocus(FocusNode());
@@ -55,7 +92,7 @@ class _WeatherForecastState extends State<WeatherForecast> {
       state = WeatherState.DOWNLOADING;
     });
 
-    Weather weather = await ws.currentWeatherByLocation(latitude, longtitude);
+    weather = await ws.currentWeatherByLocation(latitude, longtitude);
     setState(() {
       weatherData = [weather];
       state = WeatherState.FINISHED_DOWNLOADING;
@@ -91,8 +128,8 @@ class _WeatherForecastState extends State<WeatherForecast> {
           ),
 
           Container(
-              margin: EdgeInsets.only(top: 50),
-              child: Center(child: CircularProgressIndicator(strokeWidth: 10)))
+            margin: EdgeInsets.only(top: 50),
+            child: Center(child: CircularProgressIndicator(strokeWidth: 10)))
         ]
       ),
     );
@@ -104,9 +141,7 @@ class _WeatherForecastState extends State<WeatherForecast> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Text(
-            '...',
-          ),
+          Text('...'),
         ],
       ),
     );
@@ -134,10 +169,6 @@ class _WeatherForecastState extends State<WeatherForecast> {
 
   // Function for creating widget with text fields for latitude and longtitude
   Widget coordinateInputs() {
-    var textFieldStyle = OutlineInputBorder(
-        borderRadius: BorderRadius.all(Radius.circular(10.0)),
-        borderSide: BorderSide(color: Colors.grey.shade700, width: 1.0),
-    );
 
     return Padding(
       padding: EdgeInsets.fromLTRB(17, 20, 17, 15),
@@ -152,8 +183,8 @@ class _WeatherForecastState extends State<WeatherForecast> {
               textInputAction: TextInputAction.next,
 
               decoration: InputDecoration(
-                hintText: 'Широта',
-                hintStyle: TextStyle( fontSize: 12, color: Colors.grey.shade400),
+                hintText: (latitude == null)? 'Широта' : latitude.toString(),
+                hintStyle: (longtitude != null)? TextStyle(color: Colors.black87) : TextStyle( fontSize: 12, color: Colors.grey.shade400),
                 contentPadding: EdgeInsets.fromLTRB(7, 5, 5, 0),
                 
                 focusedBorder: textFieldStyle,
@@ -174,8 +205,8 @@ class _WeatherForecastState extends State<WeatherForecast> {
               textInputAction: TextInputAction.next,
               
               decoration: InputDecoration(
-                hintText: 'Довгота',
-                hintStyle: TextStyle( fontSize: 12, color: Colors.grey.shade400),
+                hintText: (longtitude == null)? 'Довгота' : longtitude.toString(),
+                hintStyle: (longtitude != null)? TextStyle(color: Colors.black87) : TextStyle( fontSize: 12, color: Colors.grey.shade400),
                 contentPadding: EdgeInsets.fromLTRB(7, 0, 5, 0),
                 
                 focusedBorder: textFieldStyle,
@@ -194,11 +225,17 @@ class _WeatherForecastState extends State<WeatherForecast> {
 
   // Function for creating buttons
   Widget createButtons() {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+    return Column(
       children: [
-        buttonConstructor('Погода сьогодні', queryWeather),
-        buttonConstructor('Прогноз погоди', queryForecast),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          children: [
+            buttonConstructor('Погода сьогодні', queryWeather),
+            buttonConstructor('Прогноз погоди', queryForecast),
+          ],
+        ),
+
+        buttonConstructor('Зберегти', addToBox),
       ],
     );
   }
@@ -222,16 +259,18 @@ class _WeatherForecastState extends State<WeatherForecast> {
 
   @override
   Widget build(BuildContext context) {
+    getDataFromBox();
+
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.brown, 
         title: Text('Прогноз погоди'),
         actions: [
-          IconButton(
+          /*IconButton(
             splashColor: Colors.transparent,
             icon: Icon(Icons.map),
             onPressed: (){ Navigator.pushNamed(context, '/coordinates_parser_page'); },
-          ),
+          ),*/
             
           PopupMenuButton(
             icon: Icon(Icons.info),
@@ -240,10 +279,19 @@ class _WeatherForecastState extends State<WeatherForecast> {
               PopupMenuItem(child: Text('Львів (49.8383, 24.0232)'), value: [49.8383, 24.0232]),
               PopupMenuItem(child: Text('Одеса (46.4775, 30.7326)'), value: [46.4775, 30.7326]),
               PopupMenuItem(child: Text('Харків (49.9808, 36.2527)'), value: [49.9808, 36.2527]),
+              PopupMenuItem(child: Text('Суми (50.9077, 34.7981)'), value: [50.9077, 34.7981]),
+              PopupMenuItem(child: Text('Чернігів (51.5055, 31.2849)'), value: [51.5055, 31.2849]),
+              PopupMenuItem(child: Text('Івано-Франківськ (48.9215, 24.7097)'), value: [48.9215, 24.7097]),
+              PopupMenuItem(child: Text('Ужгород (48.6208, 22.28788)'), value: [48.6208, 22.28788]),
+              PopupMenuItem(child: Text('Вінниця (49.23308, 28.46822)'), value: [49.23308, 28.46822]),
+              PopupMenuItem(child: Text('Донецьк (48.01588, 37.80285)'), value: [48.01588, 37.80285]),
+              PopupMenuItem(child: Text('Луганськ (48.5671, 39.3171)'), value: [48.5671, 39.3171]),
+              PopupMenuItem(child: Text('Сімферополь (44.95212, 34.10242)'), value: [44.95212, 34.10242]),
             ],
             onSelected: (value) {
-              this.latitude = (value as dynamic)[0];
-              this.longtitude = (value as dynamic)[1];
+              latitude = (value as dynamic)[0];
+              longtitude = (value as dynamic)[1];
+              setState(() { });
             },
           ),            
         ]

@@ -1,14 +1,17 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:geo_journal_v001/AppUtilites.dart';
 import 'package:geo_journal_v001/Bottom.dart';
-import 'package:geo_journal_v001/folderForWells/SoilSample.dart';
-import 'package:geo_journal_v001/folderForWells/WellPage.dart';
+import 'package:geo_journal_v001/wells/soil_and_DB/SoilSample.dart';
+import 'package:geo_journal_v001/wells/WellPage.dart';
 
 
 /* *************************************************************************
  Classes for page where you can add soil sample and its description
 ************************************************************************* */
 class AddSoilSample extends StatefulWidget {
-  AddSoilSample();
+  var wellNumber;
+  AddSoilSample(this.wellNumber);
   
   @override
   AddSoilSampleState createState() => AddSoilSampleState();
@@ -41,11 +44,6 @@ class AddSoilSampleState extends State<AddSoilSample>{
   @override
   Widget build(BuildContext context) {
 
-    // Text field decoration
-    OutlineInputBorder textFieldStyle = OutlineInputBorder(
-        borderRadius: BorderRadius.all(Radius.circular(10.0)),
-        borderSide: BorderSide(color: Colors.grey.shade700, width: 1.0),
-    );
 
     return Scaffold(
       appBar: AppBar(backgroundColor: Colors.brown, title: Text('Ввести дані грунту')),
@@ -90,6 +88,10 @@ class AddSoilSampleState extends State<AddSoilSample>{
                   child: TextFormField(
                     autofocus: false,
                     textInputAction: TextInputAction.next,
+                    keyboardType: TextInputType.number,
+                    inputFormatters: [
+                      FilteringTextInputFormatter.allow(RegExp(r'[0-9.,]')),
+                    ],
 
                     decoration: InputDecoration(
                       hintText: 'Початкова глибина',
@@ -121,6 +123,10 @@ class AddSoilSampleState extends State<AddSoilSample>{
                   child: TextFormField(
                     autofocus: false,
                     textInputAction: TextInputAction.next,
+                    keyboardType: TextInputType.number,
+                    inputFormatters: [
+                      FilteringTextInputFormatter.allow(RegExp(r'[0-9.,]')),
+                    ],
 
                     decoration: InputDecoration(
                       hintText: 'Кінцева глибина',

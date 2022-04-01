@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:geo_journal_v001/Bottom.dart';
-import 'package:geo_journal_v001/folderForWells/AddSoilSample.dart';
+import 'package:geo_journal_v001/wells/AddSoilSample.dart';
 
 
 var probesList = [];
@@ -9,7 +9,8 @@ var probesList = [];
   Classes for well page
 ************************************************************************* */
 class WellPage extends StatefulWidget {
-  WellPage();
+  var wellNumber;
+  WellPage(this.wellNumber);
   
   @override
   WellPageState createState() => WellPageState();
@@ -35,7 +36,7 @@ class WellPageState extends State<WellPage>{
               minWidth: 150.0,
               child: Text("Додати пробу", style: TextStyle(color: Colors.black87)),
               onPressed: ()=>{
-                Navigator.push(context, MaterialPageRoute(builder: (context) => AddSoilSample()))
+                Navigator.push(context, MaterialPageRoute(builder: (context) => AddSoilSample(widget.wellNumber)))
               },
               shape: RoundedRectangleBorder(
                 side: BorderSide(
@@ -50,7 +51,7 @@ class WellPageState extends State<WellPage>{
         ]
       ),
 
-      bottomNavigationBar: Bottom(),
+      bottomNavigationBar: Bottom.dependOnPage('soil_sample'),
     );
   }
 }
