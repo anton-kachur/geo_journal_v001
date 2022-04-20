@@ -11,7 +11,7 @@ import '../AppUtilites.dart';
  Classes for page with the list of wells
 ************************************************************************* */
 class Wells extends StatefulWidget {
-  var projectNumber;  // number of project, to which the well belongs
+  final projectNumber;  // number of project, to which the well belongs
   Wells(this.projectNumber);
   
   @override

@@ -4,6 +4,7 @@ import 'package:geo_journal_v001/Bottom.dart';
 import 'package:geo_journal_v001/weather/WeatherDBClasses.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 
+// ignore: import_of_legacy_library_into_null_safe
 import 'package:weather/weather.dart';
 
 // States of downloading weather data

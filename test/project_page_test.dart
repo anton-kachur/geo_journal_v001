@@ -78,7 +78,6 @@ void main() {
 
 
     testWidgets('Test #2: Test function\n', (WidgetTester tester) async {
-      bool found = false;
       await tester.pumpWidget(createWidgetForTesting(
           child: Scaffold(
             body: projectPageState.buttonConstructor(Icons.add)
