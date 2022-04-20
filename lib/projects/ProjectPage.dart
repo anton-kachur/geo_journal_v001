@@ -4,7 +4,6 @@ import 'package:geo_journal_v001/soundings/AddSoundingData.dart';
 import 'package:geo_journal_v001/soundings/Soundigs.dart';
 import 'package:geo_journal_v001/wells/AddWellDescription.dart';
 import 'package:geo_journal_v001/wells/Wells.dart';
-import 'package:google_maps_flutter/google_maps_flutter.dart';
 
 import '../AppUtilites.dart';
 
@@ -26,13 +25,6 @@ class ProjectPage extends StatefulWidget {
 
 
 class ProjectPageState extends State<ProjectPage> {
-  late GoogleMapController mapController;
-
-  final LatLng _center = const LatLng(45.521563, -122.677433);
-
-  void _onMapCreated(GoogleMapController controller) {
-    mapController = controller;
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -99,23 +91,6 @@ class ProjectPageState extends State<ProjectPage> {
                     ],
                   ),
                 ),
-
-
-                Padding(
-                  padding: EdgeInsets.fromLTRB(15.0, 7.0, 0.0, 8.0),
-                  child: Container(
-                    height: 60,
-                    width: 60,
-                    child: GoogleMap(
-                      onMapCreated: _onMapCreated,
-                      initialCameraPosition: CameraPosition(
-                        target: _center,
-                        zoom: 11.0,
-                      ),
-                    ),
-                  ),
-                )
-                
 
               ]
             )

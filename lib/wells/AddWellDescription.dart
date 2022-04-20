@@ -93,6 +93,7 @@ class AddWellDescriptionState extends State<AddWellDescription>{
 
   // Redirect to page with list of wells
   void redirect() {
+    Navigator.pop(context);
     Navigator.push(context, MaterialPageRoute(builder: (context) => Wells(widget.projectNumber)));
   }
 

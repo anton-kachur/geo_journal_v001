@@ -143,13 +143,12 @@ class DragBoxState extends State<DragBox> with SingleTickerProviderStateMixin {
       future: registerStatus,  // data retreived from database
       builder: (BuildContext context, AsyncSnapshot snapshot) {
 
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return waitingOrErrorWindow('Зачекайте...', context);
-        } else {
+        
           if (snapshot.hasError)
             return waitingOrErrorWindow('Помилка: ${snapshot.error}', context);
           else
             return Scaffold(
+              
               appBar: PreferredSize(
                 
                 preferredSize: Size.fromHeight(60),
@@ -172,6 +171,7 @@ class DragBoxState extends State<DragBox> with SingleTickerProviderStateMixin {
               ),
 
               body: Container(
+                
                   decoration: BoxDecoration(
                     image: DecorationImage(
                       image: AssetImage((widget.model.mode == ThemeMode.dark)? "assets/black_mount_wallpaper.jpg" : "assets/white_mount_wallpaper.jpg"),
@@ -231,7 +231,7 @@ class DragBoxState extends State<DragBox> with SingleTickerProviderStateMixin {
               
               bottomNavigationBar: Bottom(),
           );
-        }
+        
       }
     );
   }
@@ -248,7 +248,7 @@ class DragBoxState extends State<DragBox> with SingleTickerProviderStateMixin {
         if (materialRoute == false) {
           Navigator.pushNamed(context, route!); 
         } else {
-          Navigator.push(context, MaterialPageRoute(builder: (context) => AddAccountPage('log_in')));
+          Navigator.push(context, MaterialPageRoute(builder: (context) => AddAccountPage('change')));
         }
       },
       

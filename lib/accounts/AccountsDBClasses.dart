@@ -28,6 +28,8 @@ class UserAccountDescription {
     this.isAdmin  
   );
 
+  get getLogin => this.login;
+
   @override
   String toString() {
     return '${this.login}  ${this.password}\n${this.email}\n${this.phoneNumber}\n${this.position}\nRegistered: ${this.isRegistered}\nIs admin: ${this.isAdmin}';

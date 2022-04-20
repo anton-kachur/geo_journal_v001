@@ -79,7 +79,7 @@ class BottomState extends State<Bottom> {
         
         // When you're on some pages, like projects' page, you can add new project by 'add' button
         // on BottomNavigationBar or edit it. In the other cases there's no such buttons 
-        if ((widget.page!='' || widget.page=='project_page') && currentAccountIsRegistered) 
+        if ((widget.page == 'wells' || widget.page == 'soundings' || widget.page == 'soil_sample' || widget.page == 'projects' || widget.page=='project_page') && currentAccountIsRegistered) 
           
           // Button which can be 'add' or 'edit' depending on page
           BottomNavigationBarItem(

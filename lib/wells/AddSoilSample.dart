@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:geo_journal_v001/AppUtilites.dart';
 import 'package:geo_journal_v001/Bottom.dart';
+import 'package:geo_journal_v001/wells/WellPage.dart';
 import 'package:geo_journal_v001/wells/soil_and_DB/SoilSampleDBClasses.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 
@@ -46,6 +47,12 @@ class AddSoilSampleState extends State<AddSoilSample>{
     _focusNode.dispose();
   }
 
+
+  // Redirect to page with list of wells
+  void redirect() {
+    Navigator.pop(context);
+    Navigator.push(context, MaterialPageRoute(builder: (context) => WellPage(widget.wellNumber, widget.projectNumber)));
+  }
 
   // Function for getting data from Hive database
   Future getDataFromBox() async {
@@ -240,7 +247,7 @@ class AddSoilSampleState extends State<AddSoilSample>{
                     )
                   ),
                   
-                  button(functions: [addToBox], text: "Додати"),
+                  button(functions: [addToBox, redirect], text: "Додати"),
 
                 ]
               ),

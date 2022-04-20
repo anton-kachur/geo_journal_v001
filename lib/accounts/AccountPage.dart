@@ -52,7 +52,7 @@ class AddAccountPageState extends State<AddAccountPage> {
   Widget addToBox() {
 
     box.put(
-      'account${boxSize+2}', 
+      'account${boxSize}', 
       UserAccountDescription(
         fieldValues['login'], 
         fieldValues['password'], 
@@ -64,6 +64,32 @@ class AddAccountPageState extends State<AddAccountPage> {
       )
     );
     
+    return Text('');
+  }
+
+
+   // Function for adding data to database
+  Widget changeInBox() {
+    for (var key in box.keys) {
+      if ((box.get(key)).login == currentAccount.getLogin) {
+        box.put(
+          key, 
+          UserAccountDescription(
+            fieldValues['login'] == ''? box.get(key).login : fieldValues['login'],
+            fieldValues['password'] == ''? box.get(key).password : fieldValues['password'], 
+            fieldValues['email'] == ''? box.get(key).email : fieldValues['email'],
+            fieldValues['phoneNumber'] == ''? box.get(key).phoneNumber : fieldValues['phoneNumber'],
+            fieldValues['position'] == ''? box.get(key).position : fieldValues['position'],
+            fieldValues['isRegistered'] == ''? box.get(key).isRegistered : fieldValues['isRegistered'],
+            fieldValues['isAdmin'] == ''? box.get(key).isAdmin : fieldValues['isAdmin'],          )
+        );
+        
+        currentAccount = box.get(key);
+        statusLogOut = false;
+      }
+    }
+
+
     box.close();
     return Text('');
   }
@@ -80,6 +106,26 @@ class AddAccountPageState extends State<AddAccountPage> {
     if (correct==2) { 
       fieldValues['isRegistered'] = true;
       addToBox();
+      checkIfLogInCorrect();
+
+      alert('Ви успішно зареєструвалися.\nЛаскаво просимо!'); 
+    } else { 
+      alert('Перевірте будь ласка введені дані'); 
+    }
+  }
+
+
+  // Check if 'password' and 'confirm password' fields match and if email adsress is correctly written. 
+  // If true - register new account, else - show alert dialog
+  void checkIfChangeCorrect() {
+    int correct = 0;
+        
+    fieldValues['password'] != fieldValues['confirmPassword']? alert('Паролі не співпадають') : correct++;
+    if (fieldValues['email'] != '') fieldValues['email'].toString().contains('@')? correct++ : alert('Введіть коректну адресу електронної пошти');
+    
+    if (correct>=1) { 
+      fieldValues['isRegistered'] = true;
+      changeInBox();
       statusLogOut = false;
 
       alert('Ви успішно зареєструвалися.\nЛаскаво просимо!'); 
@@ -122,7 +168,6 @@ class AddAccountPageState extends State<AddAccountPage> {
         alert('Ви успішно увішли в акаунт');
         currentAccount = box.get(key);
         statusLogOut = false;
-        print("CURRENT ACCOUNT AFTER LOG IN: ${box.get(key).toString()}");
       }    
     }
 
@@ -184,6 +229,38 @@ class AddAccountPageState extends State<AddAccountPage> {
   }
 
 
+  // Creates input fields if user wishes to change his/her account
+  List<Widget> changeAccountTextFields() {
+    return [
+      createTextFieldsBlock(
+        1, [20.0, 20.0], 
+        [currentAccount.login?? "логін...", "електронна пошта..."], 
+        [TextInputType.text, TextInputType.text],
+        [FilteringTextInputFormatter.allow(RegExp(r"[A-Za-zА-Яа-яЇїІіЄє0-9']")), FilteringTextInputFormatter.allow(RegExp(r"[A-Za-z0-9'@.]"))],
+        ['login', 'email']
+      ),
+
+      createTextFieldsBlock(
+        2, [5.0, 20.0], 
+        ["новий пароль...", "підтвердити новий пароль..."], 
+        [TextInputType.text, TextInputType.text],
+        [FilteringTextInputFormatter.allow(RegExp(r"[A-Za-zА-Яа-яЇїІіЄє0-9'!@#$%^&*]")), FilteringTextInputFormatter.allow(RegExp(r"[A-Za-zА-Яа-яЇїІіЄє0-9'!@#$%^&*]"))],
+        ['password', 'confirmPassword']
+      ),
+
+      createTextFieldsBlock(
+        3, [10.0, 20.0], 
+        ["номер телефону...", "позиція..."], 
+        [TextInputType.number, TextInputType.text],
+        [FilteringTextInputFormatter.allow(RegExp(r"[0-9]")), FilteringTextInputFormatter.allow(RegExp(r"[A-Za-zА-Яа-яЇїІіЄє']"))],
+        ['phoneNumber', 'position']
+      ),
+
+      button(functions: [checkIfChangeCorrect], text: "Зберегти зміни", context: context, route: "/home"),
+    ];
+  }
+
+
   // Creates input fields if user wishes to enter his/her account
   List<Widget> logInTextFields() {
     return [
@@ -214,6 +291,14 @@ class AddAccountPageState extends State<AddAccountPage> {
 
 
 
+  Widget getTitle() {
+    if (widget.mode=='sign_up') return Text('Реєстрація'); 
+    else if (widget.mode=='log_in') return Text('Увійти в акаунт');
+    return Text('Налаштування акаунту');
+  }
+
+
+
   @override
   Widget build(BuildContext context) {
     var boxData = getDataFromBox('accounts');
@@ -233,7 +318,7 @@ class AddAccountPageState extends State<AddAccountPage> {
 
               appBar: AppBar(
                 backgroundColor: Colors.brown, 
-                title: (widget.mode=='sign_up')? Text('Реєстрація'): Text('Увійти в акаунт'),
+                title: getTitle(),
                 automaticallyImplyLeading: false
               ),
 
@@ -244,8 +329,11 @@ class AddAccountPageState extends State<AddAccountPage> {
                   if (widget.mode == 'sign_up') 
                     for (var widget in signUpTextFields())
                       widget
-                  else 
+                  else if (widget.mode == 'log_in')
                     for (var widget in logInTextFields())
+                      widget
+                  else 
+                    for (var widget in changeAccountTextFields())
                       widget
                   
 
@@ -290,7 +378,9 @@ class AddAccountPageState extends State<AddAccountPage> {
         ),
         
         onFieldSubmitted: (String value) { 
-          if (inputValueIndex != null) { fieldValues[inputValueIndex] = value; }
+          if (inputValueIndex != null) {
+            fieldValues[inputValueIndex] = value; 
+          }
         }
       )
     );

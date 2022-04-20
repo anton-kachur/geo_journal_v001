@@ -102,7 +102,6 @@ class SettingsState extends State<Settings>{
                         }
                       );
 
-                      // ДОДЕЛАТЬ НАВИГАЦИЮ
                       
                       if (logOutStatus == false) {
                         Navigator.of(context).pushNamedAndRemoveUntil('/home', (route) => false);
@@ -122,39 +121,31 @@ class SettingsState extends State<Settings>{
           ),
 
 
-          // Account settings / registration / log out
-          Padding(
-            padding: EdgeInsets.symmetric(vertical: 0.0, horizontal: 15.0),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
+          if (currentAccountIsRegistered) 
+            // Account settings
+            Padding(
+              padding: EdgeInsets.symmetric(vertical: 0.0, horizontal: 15.0),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
 
-                Text('Налаштування акаунту'),
-                
-                IconButton(    
-                  splashColor: Colors.transparent,
-                  highlightColor: Colors.transparent,
+                  Text('Налаштування акаунту'),
+                  
+                  IconButton(    
+                    splashColor: Colors.transparent,
+                    highlightColor: Colors.transparent,
 
-                  padding: EdgeInsets.fromLTRB(1.0, 0.0, 0.0, 7.0),
+                    padding: EdgeInsets.fromLTRB(1.0, 0.0, 0.0, 7.0),
 
-                  icon: Icon(Icons.arrow_forward_ios_rounded, size: 20),
-                  onPressed: () {
-                    /*Navigator.push(
-                      context, 
-                      MaterialPageRoute(builder: (context) => ProjectPage(
-                        name: '${widget.name}', 
-                        number: '${widget.number}', 
-                        date: '${widget.date}',
-                        notes: '${widget.notes}'
-                      )
-                      )
-                    );*/
-                  }
-                ),
+                    icon: Icon(Icons.arrow_forward_ios_rounded, size: 20),
+                    onPressed: () {
+                      Navigator.push(context, MaterialPageRoute(builder: (context) => AddAccountPage('change')));
+                    }
+                  ),
 
-              ],
-            ),
-          ),
+                ],
+              ),
+            ), 
 
         ],
       ),

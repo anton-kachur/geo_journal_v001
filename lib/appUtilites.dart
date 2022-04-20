@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:geo_journal_v001/accounts/AccountsDBClasses.dart';
 import 'package:geo_journal_v001/projects/Projects.dart';
 import 'package:geo_journal_v001/soundings/Soundigs.dart';
+import 'package:geo_journal_v001/wells/WellPage.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 
 
@@ -133,7 +134,7 @@ Widget button({List<Function>? functions, String? text, BuildContext? context, S
 
         if (route!=null && context!=null) { 
           switch(route) {
-            case '/projects_page': Navigator.of(context).popUntil(ModalRoute.withName(route)); break;
+            case '/projects_page': Navigator.pushNamedAndRemoveUntil(context, route, ModalRoute.withName(route)); break;
             case '/home': Navigator.pushNamedAndRemoveUntil(context, route, ModalRoute.withName(route)); break;
             case 'soundings': Navigator.push(context, MaterialPageRoute(builder: (context) => Soundings(routingArgs![0]))); break;
             case 'projects': Navigator.push(context, MaterialPageRoute(builder: (context) => Projects())); break;
