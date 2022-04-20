@@ -80,7 +80,6 @@ Future checkIfUserIsRegistered() async {
   }
 
   currentAccountIsRegistered = isRegistered;
-  print('ACCOUNT REGISTRATION STATUS: ${currentAccountIsRegistered}');
 
   return [isRegistered, (isAdmin == true && isRegistered == true)? true : false];
 }

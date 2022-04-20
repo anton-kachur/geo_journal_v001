@@ -1,18 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:geo_journal_v001/Application.dart';
 import 'package:geo_journal_v001/accounts/AccountsDBClasses.dart';
-import 'package:geo_journal_v001/projects/ProjectPage.dart';
 import 'package:geo_journal_v001/projects/project_and_DB/ProjectDBClasses.dart';
 import 'package:geo_journal_v001/soil_types/SoilTypesDBClasses.dart';
 import 'package:geo_journal_v001/soundings/sounding_and_DB/SoundingDBClasses.dart';
 import 'package:geo_journal_v001/weather/WeatherDBClasses.dart';
-import 'package:geo_journal_v001/weather/WeatherForecasts.dart';
 import 'package:geo_journal_v001/wells/soil_and_DB/SoilSampleDBClasses.dart';
 import 'package:geo_journal_v001/wells/well_and_DB/WellDBClasses.dart';
 import 'package:geo_journal_v001/info/InfoPageDBClasses.dart';
-import 'package:geo_journal_v001/AppUtilites.dart';
 import 'package:hive_flutter/hive_flutter.dart';
-import 'package:dcdg/dcdg.dart';
 
 
 
@@ -92,55 +88,3 @@ void main() async {
   // Running app
   runApp(Application());
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-  //box.put('soil3', SoilDescription.desc('Средний суглинок', 'Описания пока нет'));
-  
-  // Change element data
-  //sd?.type = 'Trrraaarrrf';
-  //await sd?.save();
-  
-  //var gettedBox = await Hive.openBox('testBox');
-  //gettedBox.deleteFromDisk();
-  //var sd = SoilDescriptionDB('SOMETHING...');
-  //await box.put('test_soil', 'KKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKK');
-
-
-  // Get element data
-  //print('${box.get('Как определить состав грунта').toString()}\n');
-
-  //for (var i in box.values) {
-  //  print(i.toString());
-  //}

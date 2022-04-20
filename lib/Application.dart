@@ -4,15 +4,11 @@ import 'package:geo_journal_v001/accounts/AccountPage.dart';
 import 'package:geo_journal_v001/admin_page/AdminPage.dart';
 import 'package:geo_journal_v001/Bottom.dart';
 import 'package:geo_journal_v001/info/InfoPage.dart';
-import 'package:geo_journal_v001/main.dart';
 import 'package:geo_journal_v001/projects/Projects.dart';
 import 'package:geo_journal_v001/Settings.dart';
 import 'package:geo_journal_v001/soil_types/SoilTypes.dart';
-import 'package:geo_journal_v001/soundings/Soundigs.dart';
 import 'package:geo_journal_v001/weather/WeatherForecasts.dart';
-import 'package:geo_journal_v001/wells/AddSoilSample.dart';
 import 'package:provider/provider.dart';
-import 'package:translatable_text_field/translatable_text.dart';
 
 
 /* ************************************************************
@@ -54,10 +50,6 @@ class ApplicationState extends State<Application> {
               '/forecasts_page': (context) => WeatherForecast(),
               '/settings_page': (context) => Settings(model),
               '/admin_page': (context) => AdminPage(),
-              //'/add_project_description': (context) => AddProjectDescription(),
-              //'/add_well_description': (context) => AddWellDescription(),
-              //'/add_sounding_description': (context) => AddSoundingData(),
-              //'/add_soil_sample_description': (context) => AddSoilSample(),
             },
 
             home: MainPage(model),

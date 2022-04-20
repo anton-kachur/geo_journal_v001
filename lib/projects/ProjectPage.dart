@@ -1,13 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:geo_journal_v001/Bottom.dart';
-import 'package:geo_journal_v001/projects/project_and_DB/ProjectDBClasses.dart';
 import 'package:geo_journal_v001/soundings/AddSoundingData.dart';
 import 'package:geo_journal_v001/soundings/Soundigs.dart';
-import 'package:geo_journal_v001/soundings/sounding_and_DB/SoundingDBClasses.dart';
 import 'package:geo_journal_v001/wells/AddWellDescription.dart';
 import 'package:geo_journal_v001/wells/Wells.dart';
-import 'package:geo_journal_v001/wells/well_and_DB/WellDBClasses.dart';
-import 'package:hive_flutter/hive_flutter.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 
 import '../AppUtilites.dart';
@@ -201,7 +197,6 @@ class ProjectPageState extends State<ProjectPage> {
           padding: EdgeInsets.all(0.0),
           icon: Icon(icon, size: 25.0),
           onPressed: () {
-            print('ACCOUNT REGISTRATION STATUS: ${currentAccountIsRegistered}');
             if (currentAccountIsRegistered)
               Navigator.push(context, MaterialPageRoute(builder: (context) => route));
             

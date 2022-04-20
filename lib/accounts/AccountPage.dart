@@ -3,7 +3,6 @@ import 'package:flutter/services.dart';
 import 'package:geo_journal_v001/AppUtilites.dart';
 import 'package:geo_journal_v001/Bottom.dart';
 import 'package:geo_journal_v001/accounts/AccountsDBClasses.dart';
-import 'package:geo_journal_v001/main.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 
 

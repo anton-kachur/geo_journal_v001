@@ -1,4 +1,3 @@
-import 'package:flutter/material.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 
 
@@ -34,35 +33,6 @@ class UserAccountDescription {
     return '${this.login}  ${this.password}\n${this.email}\n${this.phoneNumber}\n${this.position}\nRegistered: ${this.isRegistered}\nIs admin: ${this.isAdmin}';
   }
 }
-
-
-/* ***************************************************************
-  Class for creating page of soil sample with description
-**************************************************************** */
-/*class AccountDescriptionPage extends StatelessWidget{
-  var login;
-  var password;
-  var email;
-  var phoneNumber;
-  
-  AccountDescriptionPage(this.login, this.password, this.email, this.phoneNumber);
-
-
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Colors.brown, 
-        title: Text(login),
-        automaticallyImplyLeading: false
-      ),
-
-      body: Padding(
-        padding: EdgeInsets.all(15.0),
-        child: Text('$password \n $email \n $phoneNumber'),
-      )
-    );
-  }
-}*/
 
 
 class UserAccountDescriptionAdapter extends TypeAdapter<UserAccountDescription>{

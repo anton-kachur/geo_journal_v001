@@ -122,7 +122,7 @@ class WellState extends State<Well>{
                         padding: EdgeInsets.fromLTRB(5.0, 0.0, 0.0, 0.0),
                         icon: Icon(Icons.edit, size: 20),
                         onPressed: () {
-                          // TODO    Make edit page
+                          // Edit page
                         }
                       ),
 
