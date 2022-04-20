@@ -26,7 +26,6 @@ class _WeatherForecastState extends State<WeatherForecast> {
   WeatherState state = WeatherState.NOT_DOWNLOADED;
   double? latitude;
   double? longtitude;
-  static const buttonWidth = 155.0;
   var textFieldWidth = 155.0;
   var textFieldHeight = 40.0;
 
@@ -158,13 +157,11 @@ class _WeatherForecastState extends State<WeatherForecast> {
   // Function for saving latitude
   void saveLatitude(String input) {
     latitude = double.tryParse(input);
-    print(latitude);
   }
 
   // Function for saving longtitude
   void saveLongtitude(String input) {
     longtitude = double.tryParse(input);
-    print(longtitude);
   }
 
   // Function for creating widget with text fields for latitude and longtitude
@@ -175,16 +172,22 @@ class _WeatherForecastState extends State<WeatherForecast> {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
+          
           Container(
             width: textFieldWidth,
             height: textFieldHeight,
+
             child: TextField(
               autofocus: false,
               textInputAction: TextInputAction.next,
+              
+              cursorRadius: const Radius.circular(10.0),
+              cursorColor: Colors.black,
 
               decoration: InputDecoration(
                 hintText: (latitude == null)? 'Широта' : latitude.toString(),
-                hintStyle: (longtitude != null)? TextStyle(color: Colors.black87) : TextStyle( fontSize: 12, color: Colors.grey.shade400),
+                hintStyle: (longtitude != null)? TextStyle(color: lightingMode == ThemeMode.dark? Colors.black26 : Colors.black) : TextStyle( fontSize: 12, color: Colors.grey.shade400),
+                
                 contentPadding: EdgeInsets.fromLTRB(7, 5, 5, 0),
                 
                 focusedBorder: textFieldStyle,
@@ -203,10 +206,14 @@ class _WeatherForecastState extends State<WeatherForecast> {
             child: TextField(
               autofocus: false,
               textInputAction: TextInputAction.next,
+
+              cursorRadius: const Radius.circular(10.0),
+              cursorColor: Colors.black,
               
               decoration: InputDecoration(
                 hintText: (longtitude == null)? 'Довгота' : longtitude.toString(),
-                hintStyle: (longtitude != null)? TextStyle(color: Colors.black87) : TextStyle( fontSize: 12, color: Colors.grey.shade400),
+                hintStyle: (longtitude != null)? TextStyle(color: lightingMode == ThemeMode.dark? Colors.black26 : Colors.black) : TextStyle( fontSize: 12, color: Colors.grey.shade400),
+                
                 contentPadding: EdgeInsets.fromLTRB(7, 0, 5, 0),
                 
                 focusedBorder: textFieldStyle,
@@ -226,43 +233,30 @@ class _WeatherForecastState extends State<WeatherForecast> {
   // Function for creating buttons
   Widget createButtons() {
     return Column(
-      children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-          children: [
-            buttonConstructor('Погода сьогодні', queryWeather),
-            buttonConstructor('Прогноз погоди', queryForecast),
-          ],
-        ),
+        children: [
 
-        buttonConstructor('Зберегти', addToBox),
-      ],
+          Row(
+            children: [
+              button(functions: [queryWeather], text: 'Погода сьогодні', minWidth: 155.0, edgeInsetsGeometry: EdgeInsets.fromLTRB(17, 0, 0, 0)),
+              button(functions: [queryForecast], text: 'Прогноз погоди', minWidth: 155.0, edgeInsetsGeometry: EdgeInsets.fromLTRB(17, 0, 0, 0)),
+            ],
+          ),
+          
+          button(functions: [addToBox], text: 'Зберегти', minWidth: 155.0, edgeInsetsGeometry: EdgeInsets.fromLTRB(0, 3, 0, 0)),
+
+        ],
     );
   }
 
-  // Function for creating button widget
-  Widget buttonConstructor(text, action) {
-    return FlatButton(
-      minWidth: buttonWidth,
-      child: Text(text, style: TextStyle(color: Colors.black87)),
-      onPressed: action,
-      shape: RoundedRectangleBorder(
-        side: BorderSide(
-          color: Colors.black87,
-          width: 1.0,
-          style: BorderStyle.solid,
-        ),
-        borderRadius: BorderRadius.circular(8),
-      ), 
-    );
-  }
 
   @override
   Widget build(BuildContext context) {
     getDataFromBox();
 
     return Scaffold(
+
       appBar: AppBar(
+        automaticallyImplyLeading: false,
         backgroundColor: Colors.brown, 
         title: Text('Прогноз погоди'),
         actions: [
@@ -275,18 +269,18 @@ class _WeatherForecastState extends State<WeatherForecast> {
           PopupMenuButton(
             icon: Icon(Icons.info),
             itemBuilder: (context) => [
-              PopupMenuItem(child: Text('Київ (50.4536, 30.5164)'), value: [50.4536, 30.5164]),
-              PopupMenuItem(child: Text('Львів (49.8383, 24.0232)'), value: [49.8383, 24.0232]),
-              PopupMenuItem(child: Text('Одеса (46.4775, 30.7326)'), value: [46.4775, 30.7326]),
-              PopupMenuItem(child: Text('Харків (49.9808, 36.2527)'), value: [49.9808, 36.2527]),
-              PopupMenuItem(child: Text('Суми (50.9077, 34.7981)'), value: [50.9077, 34.7981]),
-              PopupMenuItem(child: Text('Чернігів (51.5055, 31.2849)'), value: [51.5055, 31.2849]),
-              PopupMenuItem(child: Text('Івано-Франківськ (48.9215, 24.7097)'), value: [48.9215, 24.7097]),
-              PopupMenuItem(child: Text('Ужгород (48.6208, 22.28788)'), value: [48.6208, 22.28788]),
-              PopupMenuItem(child: Text('Вінниця (49.23308, 28.46822)'), value: [49.23308, 28.46822]),
-              PopupMenuItem(child: Text('Донецьк (48.01588, 37.80285)'), value: [48.01588, 37.80285]),
-              PopupMenuItem(child: Text('Луганськ (48.5671, 39.3171)'), value: [48.5671, 39.3171]),
-              PopupMenuItem(child: Text('Сімферополь (44.95212, 34.10242)'), value: [44.95212, 34.10242]),
+              PopupMenuItem(child: Text('Київ'), value: [50.4536, 30.5164]),
+              PopupMenuItem(child: Text('Львів'), value: [49.8383, 24.0232]),
+              PopupMenuItem(child: Text('Одеса'), value: [46.4775, 30.7326]),
+              PopupMenuItem(child: Text('Харків'), value: [49.9808, 36.2527]),
+              PopupMenuItem(child: Text('Суми'), value: [50.9077, 34.7981]),
+              PopupMenuItem(child: Text('Чернігів'), value: [51.5055, 31.2849]),
+              PopupMenuItem(child: Text('Івано-Франківськ'), value: [48.9215, 24.7097]),
+              PopupMenuItem(child: Text('Ужгород'), value: [48.6208, 22.28788]),
+              PopupMenuItem(child: Text('Вінниця'), value: [49.23308, 28.46822]),
+              PopupMenuItem(child: Text('Донецьк'), value: [48.01588, 37.80285]),
+              PopupMenuItem(child: Text('Луганськ'), value: [48.5671, 39.3171]),
+              PopupMenuItem(child: Text('Сімферополь'), value: [44.95212, 34.10242]),
             ],
             onSelected: (value) {
               latitude = (value as dynamic)[0];
@@ -303,12 +297,12 @@ class _WeatherForecastState extends State<WeatherForecast> {
           createButtons(),
           SizedBox(height: 15),
           Text('Результати:', style: TextStyle(fontSize: 20)),
-          Divider(height: 20.0, thickness: 2.0),
+          Divider(height: 19.0, thickness: 1.0),
           Expanded(child: resultView())
         ],
       ),
 
-      bottomNavigationBar: Bottom(),
+      bottomNavigationBar: Bottom.dependOnPage('forecasts'),
     );
   }
 }

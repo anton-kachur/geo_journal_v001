@@ -12,7 +12,7 @@ import 'package:hive_flutter/hive_flutter.dart';
  Classes for page where you can add description of the new sounding
 ************************************************************************* */
 class AddSoundingData extends StatefulWidget {
-  var projectNumber;
+  var projectNumber;  // number of project, to which the sounding belongs
   
   AddSoundingData(this.projectNumber);
   
@@ -51,14 +51,10 @@ class AddSoundingDataState extends State<AddSoundingData>{
 
   // Function for getting data from Hive database
   Future getDataFromBox() async {
-    var boxx;
-    
-    boxx = await Hive.openBox<SoundingDescription>('s_soundings');
-    
-    boxSize = boxx.length;
-    box = boxx;
+    box = await Hive.openBox<SoundingDescription>('s_soundings');
+    boxSize = box.length;
 
-    return Future.value(boxx.values);     
+    return Future.value(box.values);     
   }  
 
 
@@ -96,29 +92,14 @@ class AddSoundingDataState extends State<AddSoundingData>{
   }
 
 
-  Widget waitingOrErrorWindow(var text, var context) {
-    return Container(
-      height: MediaQuery.of(context).size.height, 
-      width: MediaQuery.of(context).size.width,
-      color: Colors.white,
-      child: Padding(
-        padding: EdgeInsets.fromLTRB(130, MediaQuery.of(context).size.height/2, 0.0, 0.0),
-
-        child: Text(
-          text,
-          style: TextStyle(fontSize: 20, decoration: TextDecoration.none, color: Colors.black),
-        ),
-      )
-    );
-  }
-
 
   @override
   Widget build(BuildContext context) {
     var boxData = getDataFromBox();
 
+
     return FutureBuilder(
-      future: boxData,
+      future: boxData,  // data retreived from database
       builder: (BuildContext context, AsyncSnapshot snapshot) {
 
         if (snapshot.connectionState == ConnectionState.waiting) {
@@ -128,7 +109,13 @@ class AddSoundingDataState extends State<AddSoundingData>{
             return waitingOrErrorWindow('Помилка: ${snapshot.error}', context);
           else
             return Scaffold(
-              appBar: AppBar(backgroundColor: Colors.brown, title: Text('Ввести дані')),
+
+              appBar: AppBar(
+                backgroundColor: Colors.brown, 
+                title: Text('Ввести дані'),
+                automaticallyImplyLeading: false
+              ),
+
               body: Scrollbar(
                 child: SingleChildScrollView(
                   child: Column(
@@ -146,27 +133,35 @@ class AddSoundingDataState extends State<AddSoundingData>{
                             Container(
                               width: this.textFieldWidth,
                               height: this.textFieldHeight,
+
                               child: TextFormField(
                                 focusNode: _focusNode,
                                 autofocus: false,
                                 textInputAction: TextInputAction.next,
+
+                                cursorRadius: const Radius.circular(10.0),
+                                cursorColor: Colors.black,
+
                                 keyboardType: TextInputType.number,
                                 inputFormatters: [
                                   FilteringTextInputFormatter.allow(RegExp(r'[0-9.,]')),
                                 ],
 
                                 decoration: InputDecoration(
-                                  hintText: 'Глибина',
-                                  hintStyle: TextStyle( fontSize: 12, color: Colors.grey.shade500),
+                                  labelText: 'Глибина',
+                                  hintStyle: TextStyle( fontSize: 12, color: Colors.grey.shade400),
+                                  labelStyle: TextStyle( fontSize: 12, color: Colors.grey.shade400),
+                                  
                                   contentPadding: EdgeInsets.fromLTRB(7, 5, 5, 5),
                                   
                                   focusedBorder: textFieldStyle,
                                   enabledBorder: textFieldStyle,
                                 ),
                                 
-                                onChanged: (value) { depth = double.parse(value); }
+                                onFieldSubmitted: (String value) { depth = double.parse(value); }
                               )
                             ),
+                            
 
                             // Text field for qc input
                             Container(
@@ -175,21 +170,26 @@ class AddSoundingDataState extends State<AddSoundingData>{
                               child: TextFormField(
                                 autofocus: false,
                                 textInputAction: TextInputAction.next,
+
+                                cursorRadius: const Radius.circular(10.0),
+                                cursorColor: Colors.black,
+
                                 keyboardType: TextInputType.number,
                                 inputFormatters: [
                                   FilteringTextInputFormatter.allow(RegExp(r'[0-9.,]')),
                                 ],
 
                                 decoration: InputDecoration(
-                                  hintText: 'Ввести qc',
+                                  labelText: 'Ввести qc',
                                   hintStyle: TextStyle( fontSize: 12, color: Colors.grey.shade400),
+                                  labelStyle: TextStyle( fontSize: 12, color: Colors.grey.shade400),
                                   contentPadding: EdgeInsets.fromLTRB(7, 5, 5, 5),
                                   
                                   focusedBorder: textFieldStyle,
                                   enabledBorder: textFieldStyle,
                                 ),
                                 
-                                onChanged: (value) { qc = double.parse(value); }
+                                onFieldSubmitted: (String value) { qc = double.parse(value); }
                               )
                             ),        
                           ]
@@ -210,21 +210,26 @@ class AddSoundingDataState extends State<AddSoundingData>{
                               child: TextFormField(
                                 autofocus: false,
                                 textInputAction: TextInputAction.next,
+
+                                cursorRadius: const Radius.circular(10.0),
+                                cursorColor: Colors.black,
+                                
                                 keyboardType: TextInputType.number,
                                 inputFormatters: [
                                   FilteringTextInputFormatter.allow(RegExp(r'[0-9.,]')),
                                 ],
 
                                 decoration: InputDecoration(
-                                  hintText: 'Ввести fs',
+                                  labelText: 'Ввести fs',
                                   hintStyle: TextStyle( fontSize: 12, color: Colors.grey.shade400),
+                                  labelStyle: TextStyle( fontSize: 12, color: Colors.grey.shade400),
                                   contentPadding: EdgeInsets.fromLTRB(7, 5, 5, 5),
                                   
                                   focusedBorder: textFieldStyle,
                                   enabledBorder: textFieldStyle,
                                 ),
                                 
-                                onChanged: (value) { fs = double.parse(value); }
+                                onFieldSubmitted: (String value) { fs = double.parse(value); }
                               )
                             ),   
 
@@ -236,42 +241,28 @@ class AddSoundingDataState extends State<AddSoundingData>{
                                 autofocus: false,
                                 textInputAction: TextInputAction.done,
 
+                                cursorRadius: const Radius.circular(10.0),
+                                cursorColor: Colors.black,
+
                                 decoration: InputDecoration(
-                                  hintText: 'Примітки',
+                                  labelText: 'Примітки',
                                   hintStyle: TextStyle( fontSize: 12, color: Colors.grey.shade400),
+                                  labelStyle: TextStyle( fontSize: 12, color: Colors.grey.shade400),
+                                  
                                   contentPadding: EdgeInsets.fromLTRB(7, 5, 5, 5),
                                   
                                   focusedBorder: textFieldStyle,
                                   enabledBorder: textFieldStyle,
                                 ),
                                 
-                                onChanged: (value) { notes = value; }
+                                onFieldSubmitted: (String value) { notes = value; }
                               )
                             ),        
                           ]
                         )
                       ),
-
-                      // Add button
-                      Padding(
-                        padding: EdgeInsets.fromLTRB(100.0, 7.0, 0.0, 0.0),
-                        child: FlatButton(
-                          minWidth: 150.0,
-                          child: Text("Додати", style: TextStyle(color: Colors.black87)),
-                          onPressed: ()=>{ 
-                            addToBox(),
-                            Navigator.push(context, MaterialPageRoute(builder: (context) => Soundings(widget.projectNumber))),
-                          },
-                          shape: RoundedRectangleBorder(
-                            side: BorderSide(
-                              color: Colors.black87,
-                              width: 1.0,
-                              style: BorderStyle.solid,
-                            ),
-                            borderRadius: BorderRadius.circular(8),
-                          ), 
-                        ),
-                      )
+                      
+                      button(functions: [addToBox], text: "Додати", context: context, route: 'soundings', routingArgs: [widget.projectNumber]),
                     
                     ],
                   ),
@@ -283,7 +274,6 @@ class AddSoundingDataState extends State<AddSoundingData>{
         }
       }     
     );
-    
   }
 
 }

@@ -8,47 +8,61 @@ import 'package:geo_journal_v001/wells/AddWellDescription.dart';
 import 'package:geo_journal_v001/wells/Wells.dart';
 import 'package:geo_journal_v001/wells/well_and_DB/WellDBClasses.dart';
 import 'package:hive_flutter/hive_flutter.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
+
+import '../AppUtilites.dart';
 
 
 /* *************************************************************************
- Classes for page of additional project
+ Classes for page of project
 ************************************************************************* */
 class ProjectPage extends StatefulWidget {
-  final String name;
-  final String number;
-  final String date;
-  final String notes;
+  var name;
+  var number;
+  var date;
+  var notes;
 
-  const ProjectPage({Key? key, required this.name, required this.number, required this.date, required this.notes}): super(key: key);
+  ProjectPage(this.name, this.number, this.date, this.notes);
   
   @override
   ProjectPageState createState() => ProjectPageState();
-
 }
 
 
 class ProjectPageState extends State<ProjectPage> {
+  late GoogleMapController mapController;
 
+  final LatLng _center = const LatLng(45.521563, -122.677433);
+
+  void _onMapCreated(GoogleMapController controller) {
+    mapController = controller;
+  }
 
   @override
   Widget build(BuildContext context) {
     var dateNow = DateTime.now();
+
     var dateToEnd = DateTime(
       int.tryParse(widget.date.substring(6, 10)) ?? 0, 
       int.tryParse(widget.date.substring(3, 5)) ?? 0, 
       int.tryParse(widget.date.substring(0, 2)) ?? 0,
     );
 
+
     return Scaffold(
+
       appBar: AppBar(
         backgroundColor: Colors.brown,
         title: Text(widget.name),
+        automaticallyImplyLeading: false
       ),
 
       body: Column(
         children: [
+
           Container(
             height: 200.0,
+
             decoration: BoxDecoration(
               border: Border(
                 bottom: BorderSide(color: Colors.black45, width: 1.0),
@@ -58,6 +72,7 @@ class ProjectPageState extends State<ProjectPage> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                
                 Padding(
                   padding: EdgeInsets.fromLTRB(15.0, 15.0, 0.0, 8.0),
                   child: Row(
@@ -88,6 +103,24 @@ class ProjectPageState extends State<ProjectPage> {
                     ],
                   ),
                 ),
+
+
+                Padding(
+                  padding: EdgeInsets.fromLTRB(15.0, 7.0, 0.0, 8.0),
+                  child: Container(
+                    height: 60,
+                    width: 60,
+                    child: GoogleMap(
+                      onMapCreated: _onMapCreated,
+                      initialCameraPosition: CameraPosition(
+                        target: _center,
+                        zoom: 11.0,
+                      ),
+                    ),
+                  ),
+                )
+                
+
               ]
             )
           ),
@@ -95,6 +128,7 @@ class ProjectPageState extends State<ProjectPage> {
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+
               Padding(
                 padding: EdgeInsets.fromLTRB(13.0, 10.0, 0.0, 8.0),
                 child: Row(
@@ -111,7 +145,7 @@ class ProjectPageState extends State<ProjectPage> {
               ),
 
               Padding(
-                padding: EdgeInsets.fromLTRB(8.0, 8.0, 0.0, 8.0),
+                padding: EdgeInsets.fromLTRB(15.0, 8.0, 0.0, 8.0),
                 child: Column(
                   children: [
                     Row(
@@ -139,20 +173,25 @@ class ProjectPageState extends State<ProjectPage> {
                         ),
                       ]
                     ),
+
                   ]
                 ) 
               ),
+            
             ]
           )
+        
         ]
       ),
 
       bottomNavigationBar: Bottom.dependOnPage("project_page", widget.name),
     );
+
   }
 
-  // Function for creating button widget
-  Widget buttonConstructor(icon_type, {route}) {
+
+  // Function for creating buttons on project page
+  Widget buttonConstructor(icon, {route}) {
     return Padding(
       padding: EdgeInsets.fromLTRB(0.0, 0.0, 0.0, 0.0),
       child: ClipRRect (
@@ -160,13 +199,11 @@ class ProjectPageState extends State<ProjectPage> {
         child: IconButton(       
           color: Colors.black,
           padding: EdgeInsets.all(0.0),
-          icon: Icon(icon_type, size: 25.0),
-          onPressed: ()=>{
-            
-            Navigator.push(
-              context, 
-              MaterialPageRoute(builder: (context) => route),
-            )
+          icon: Icon(icon, size: 25.0),
+          onPressed: () {
+            print('ACCOUNT REGISTRATION STATUS: ${currentAccountIsRegistered}');
+            if (currentAccountIsRegistered)
+              Navigator.push(context, MaterialPageRoute(builder: (context) => route));
             
           },
         )

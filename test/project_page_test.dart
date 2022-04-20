@@ -16,14 +16,13 @@ void main() {
   // Group of tests for ProjectPage
   group('Project Page tests\n', (){
     setUp(() {
-      testKey = Key('new proj');
-
+      
       projectPage = ProjectPage(
-                        key: testKey, 
-                        name: 'project1', 
-                        number: '12', 
-                        date: '13-09-2023', 
-                        notes: 'notes'
+                        
+                        'project1', 
+                        '12', 
+                        '13-09-2023', 
+                        'notes'
                       );
     });
 

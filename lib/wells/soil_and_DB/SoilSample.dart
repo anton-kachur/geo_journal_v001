@@ -2,15 +2,18 @@ import 'package:flutter/material.dart';
 
 
 /* *************************************************************************
-  Classes for project in soil samples' list
+  Classes for soil samples
 ************************************************************************* */
 class SoilSample extends StatefulWidget {
   var name;
   var depthStart;
   var depthEnd;
   var notes;
+  
+  var wellNumber;
+  var projectNumber;
 
-  SoilSample(this.name, this.depthStart, this.depthEnd, this.notes);
+  SoilSample(this.name, this.depthStart, this.depthEnd, this.notes, this.wellNumber, this.projectNumber);
   
   @override
   SoilSampleState createState() => SoilSampleState();

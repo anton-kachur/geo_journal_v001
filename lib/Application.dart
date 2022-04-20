@@ -1,20 +1,22 @@
 import 'package:flutter/material.dart';
+import 'package:geo_journal_v001/AppUtilites.dart';
+import 'package:geo_journal_v001/accounts/AccountPage.dart';
 import 'package:geo_journal_v001/admin_page/AdminPage.dart';
 import 'package:geo_journal_v001/Bottom.dart';
-import 'package:geo_journal_v001/InfoPage.dart';
+import 'package:geo_journal_v001/info/InfoPage.dart';
+import 'package:geo_journal_v001/main.dart';
 import 'package:geo_journal_v001/projects/Projects.dart';
 import 'package:geo_journal_v001/Settings.dart';
 import 'package:geo_journal_v001/soil_types/SoilTypes.dart';
+import 'package:geo_journal_v001/soundings/Soundigs.dart';
 import 'package:geo_journal_v001/weather/WeatherForecasts.dart';
 import 'package:geo_journal_v001/wells/AddSoilSample.dart';
 import 'package:provider/provider.dart';
 import 'package:translatable_text_field/translatable_text.dart';
 
 
-var appLocale = Locale.fromSubtags(languageCode: 'ua');
-
 /* ************************************************************
-  Class for creating application and initializing 
+  Classes for creating application and initializing 
   main settings of the app 
 ************************************************************ */
 class Application extends StatefulWidget {
@@ -22,23 +24,10 @@ class Application extends StatefulWidget {
 
   @override
   ApplicationState createState() => ApplicationState();
-  static of(BuildContext context) => context.findAncestorStateOfType<ApplicationState>();
 }
 
 
 class ApplicationState extends State<Application> {
-  Locale _locale = Locale.fromSubtags(languageCode: 'ua');
-
-  void setLocale(Locale value) {
-    setState(() {
-      _locale = value;
-      appLocale = value;
-      print('NEW PROJECT LOCALE: ${_locale}');
-    });
-  }
-
-  get getLocale => _locale;
-
 
   @override 
   Widget build(BuildContext context) { 
@@ -46,10 +35,10 @@ class ApplicationState extends State<Application> {
       create: (_) => ThemeModel(), 
       child: Consumer<ThemeModel>( 
         builder: (_, model, __) { 
-          return MaterialApp(
+          
+          lightingMode = model.mode;
 
-            //translations: LocaleString(),
-            locale: _locale,
+          return MaterialApp(
 
             theme: ThemeData.light(),
             darkTheme: ThemeData.dark(), 
@@ -58,7 +47,7 @@ class ApplicationState extends State<Application> {
 
             initialRoute: '/',
             routes: <String, WidgetBuilder>{
-              'home': (context) => MainPage(),
+              '/home': (context) => MainPage(model),
               '/soil_types': (context) => SoilTypes(),
               '/info_page': (context) => InfoPage(),
               '/projects_page': (context) => Projects(),
@@ -107,8 +96,10 @@ class MainPage extends StatefulWidget {
 
 
 class MainPageState extends State<MainPage> {
+
   @override
   Widget build(BuildContext context) {
+    
     return SafeArea(
       child: Stack(
         children: [
@@ -137,141 +128,136 @@ class DragBox extends StatefulWidget {
 
 
 class DragBoxState extends State<DragBox> with SingleTickerProviderStateMixin {
-  static const buttonWidth = 210.0;
   Offset position = Offset(0.0, 0.0);
 
-  // LIST OF LANGUAGE LOCALES
-  /*final List locale = [
-    {'name': 'ENGLISH', 'locale': Locale('en', 'US')},
-    {'name': 'УКРАЇНСЬКА', 'locale': Locale('ru', 'UA')},
-  ];
 
-
-  updateLanguage(Locale locale) {
-    Get.back();
-    Get.updateLocale();
-  }*/
-
-  
   @override
   void initState() {
     super.initState();
     position = widget.initPos;
   }
 
-  void _setText() => setState(() {});
 
   @override
   Widget build(BuildContext context) {
     var height = MediaQuery.of(context).size.height;
     var width = MediaQuery.of(context).size.width;
     
-    return Scaffold(   
-        appBar: PreferredSize(
-          preferredSize: Size.fromHeight(60),
-          child: AppBar(
-            elevation: 0.000001,
-            backgroundColor: Colors.brown,
-            title: Text('GeoJournal', style: TextStyle(color: Colors.white)),
+
+    var registerStatus = checkIfUserIsRegistered();
+
+
+    return FutureBuilder(
+      future: registerStatus,  // data retreived from database
+      builder: (BuildContext context, AsyncSnapshot snapshot) {
+
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return waitingOrErrorWindow('Зачекайте...', context);
+        } else {
+          if (snapshot.hasError)
+            return waitingOrErrorWindow('Помилка: ${snapshot.error}', context);
+          else
+            return Scaffold(
+              appBar: PreferredSize(
                 
-            actions: [
-              IconButton(
-                splashColor: Colors.transparent,
-                icon: Icon(Icons.settings),
-                onPressed: (){ Navigator.pushNamed(context, '/settings_page'); },
-              )
-            ]
-          )
-        ),
+                preferredSize: Size.fromHeight(60),
 
-        body: Container(
-            decoration: BoxDecoration(
-              image: DecorationImage(
-                image: AssetImage((widget.model.mode == ThemeMode.dark)? "assets/black_mount_wallpaper.jpg" : "assets/white_mount_wallpaper.jpg"),
-                fit: BoxFit.cover,
-              )
-            ),
+                child: AppBar(
+                  elevation: 0.000001,
+                  backgroundColor: Colors.brown,
+                  title: Text('GeoJournal', style: TextStyle(color: Colors.white)),
+                  automaticallyImplyLeading: false,
+                      
+                  actions: [
+                    IconButton(
+                      splashColor: Colors.transparent,
+                      icon: Icon(Icons.settings),
+                      onPressed: () { Navigator.pushNamed(context, '/settings_page'); }
+                    )
+                  ]
+                )
 
-            child: Stack(
-              children: [
-                Positioned(
-                  left: position.dx,
-                  top: position.dy,
-                  child: Draggable(
-                    child: Padding(
-                      padding: EdgeInsets.fromLTRB(
-                        width/5, 
-                        height/24,
-                        width, 
-                        height
-                      ),
+              ),
 
-                      child: Column(
-                        children: [
-                          buttonConstructor(['Сторінка адміністратора', 'Admin page'], '/admin_page', widget.model.mode),
-                          buttonConstructor(['Прогноз погоди', 'Weather forecast'], '/forecasts_page', widget.model.mode),
-                          buttonConstructor(['Про застосунок', 'About'], '/info_page', widget.model.mode),
-                        ]
-                      ),
-                    ),
-                    onDraggableCanceled: (velocity, offset) {
-                      setState(() {
-                        position = offset;
-                      });
-                    },
-                    feedback: Padding(
-                      padding: EdgeInsets.fromLTRB(
-                        width/5, 
-                        height/24,
-                        width, 
-                        height
-                      ),
-
-                      child: Column(
-                        children: [
-                          buttonConstructor(['Сторінка адміністратора', 'Admin page'], '/admin_page', widget.model.mode),
-                          buttonConstructor(['Прогноз погоди', 'Weather forecast'], '/forecasts_page', widget.model.mode),
-                          buttonConstructor(['Про застосунок', 'About'], '/info_page', widget.model.mode),
-                        ]
-                      ),
-                    ),
+              body: Container(
+                  decoration: BoxDecoration(
+                    image: DecorationImage(
+                      image: AssetImage((widget.model.mode == ThemeMode.dark)? "assets/black_mount_wallpaper.jpg" : "assets/white_mount_wallpaper.jpg"),
+                      fit: BoxFit.cover,
+                    )
                   ),
 
-                ),
-              ],
-            ),
-        ),
-        
-        bottomNavigationBar: Bottom(),
+                  child: Stack(
+                    children: [
+                      Positioned(
+                        left: position.dx,
+                        top: position.dy,
+
+                        child: Draggable(
+                          child: Padding(
+                            padding: EdgeInsets.fromLTRB(width/5, height/24, width, height),
+
+                            child: Column(
+                              children: [
+
+                                if (snapshot.data[0] == true && snapshot.data[1] == true)
+                                  buttonConstructor('Сторінка адміністратора', widget.model.mode, route: '/admin_page'),
+                                
+                                if (snapshot.data[0] == true && snapshot.data[1] == false)
+                                  buttonConstructor('Налаштування акаунта', widget.model.mode, materialRoute: true),
+
+                                buttonConstructor('Прогноз погоди', widget.model.mode, route: '/forecasts_page'),
+                                buttonConstructor('Про застосунок', widget.model.mode, route: '/info_page'),
+                              ]
+                            )
+                          ),
+                          
+                          onDraggableCanceled: (velocity, offset) { setState(() { position = offset; }); },
+
+                          feedback: Padding(
+                            padding: EdgeInsets.fromLTRB(width/5, height/24, width, height),
+                            child: Column(
+                              children: [
+                                if (snapshot.data[0] == true && snapshot.data[1] == true)
+                                  buttonConstructor('Сторінка адміністратора', widget.model.mode, route: '/admin_page'),
+                                
+                                if (snapshot.data[0] == true && snapshot.data[1] == false)
+                                  buttonConstructor('Налаштування акаунта', widget.model.mode, materialRoute: true),
+
+                                buttonConstructor('Прогноз погоди', widget.model.mode, route: '/forecasts_page'),
+                                buttonConstructor('Про застосунок', widget.model.mode, route: '/info_page'),
+                              ]
+                            ),
+                          ),
+
+                        ),
+                      ),
+
+                    ],
+                  ),
+              ),
+              
+              bottomNavigationBar: Bottom(),
+          );
+        }
+      }
     );
   }
 
 
-  Widget buttonConstructor(text, route, mode) {
+  // Create buttons on home page
+  Widget buttonConstructor(String? text, ThemeMode? mode, {String? route, bool materialRoute = false}) {
     return FlatButton(
-      minWidth: buttonWidth,
+      minWidth: 210.0,
 
-      child: TranslatableText(
-        style: TextStyle(color: (mode == ThemeMode.dark)? Colors.white70 : Colors.white),
-        displayLanguage: appLocale == 'en'? Languages.english: Languages.ukrainian,
-        options: [
-          TranslateOption(
-            language: Languages.ukrainian, 
-            text: text[0],
-          ),
-
-          TranslateOption(
-            language: Languages.english, 
-            text: text[1],
-          )
-        ] 
-      ), 
+      child: Text(text!, style: TextStyle(color: (mode == ThemeMode.dark)? Colors.white70 : Colors.white)), 
       
-      onPressed: (){
-        setState(() {
-          
-        });
-        Navigator.pushNamed(context, route); 
+      onPressed: () { 
+        if (materialRoute == false) {
+          Navigator.pushNamed(context, route!); 
+        } else {
+          Navigator.push(context, MaterialPageRoute(builder: (context) => AddAccountPage('log_in')));
+        }
       },
       
       shape: RoundedRectangleBorder(
@@ -281,7 +267,9 @@ class DragBoxState extends State<DragBox> with SingleTickerProviderStateMixin {
           style: BorderStyle.solid,
         ),
         borderRadius: BorderRadius.circular(8),
-      ), 
+      ),
+
     );
   }
+
 }

@@ -1,16 +1,21 @@
 import 'package:flutter/material.dart';
 import 'package:geo_journal_v001/Bottom.dart';
 import 'package:geo_journal_v001/wells/AddSoilSample.dart';
+import 'package:geo_journal_v001/wells/soil_and_DB/SoilSample.dart';
+import 'package:geo_journal_v001/wells/soil_and_DB/SoilSampleDBClasses.dart';
+import 'package:hive_flutter/hive_flutter.dart';
 
+import '../AppUtilites.dart';
 
-var probesList = [];
 
 /* *************************************************************************
   Classes for well page
 ************************************************************************* */
 class WellPage extends StatefulWidget {
   var wellNumber;
-  WellPage(this.wellNumber);
+  var projectNumber;  // number of project, to which the well belongs
+
+  WellPage(this.wellNumber, this.projectNumber);
   
   @override
   WellPageState createState() => WellPageState();
@@ -18,40 +23,58 @@ class WellPage extends StatefulWidget {
 
 
 class WellPageState extends State<WellPage>{
+  var box;
+  var boxSize;
+  
+
+  // Function for getting data from Hive database
+  Future getDataFromBox() async {
+    box = await Hive.openBox<SoilForWellDescription>('well_soil_samples');
+    boxSize = box.length;
+
+    return Future.value(box.values);     
+  }
+
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(backgroundColor: Colors.brown, title: Text('Проби грунту')),
+    var boxData = getDataFromBox();
 
-      body: Column(
-        children: [
-          if (probesList.length > 0)
-            for (var i in probesList)
-              i,
-              
-          Padding(
-            padding: EdgeInsets.fromLTRB(100.0, 7.0, 0.0, 0.0),
-            child: FlatButton(
-              minWidth: 150.0,
-              child: Text("Додати пробу", style: TextStyle(color: Colors.black87)),
-              onPressed: ()=>{
-                Navigator.push(context, MaterialPageRoute(builder: (context) => AddSoilSample(widget.wellNumber)))
-              },
-              shape: RoundedRectangleBorder(
-                side: BorderSide(
-                  color: Colors.black87,
-                  width: 1.0,
-                  style: BorderStyle.solid,
-                ),
-                borderRadius: BorderRadius.circular(8),
-              ), 
-            ),
-          )
-        ]
-      ),
 
-      bottomNavigationBar: Bottom.dependOnPage('soil_sample'),
+    return FutureBuilder(
+      future: boxData,  // data, retreived from database
+      builder: (BuildContext context, AsyncSnapshot snapshot) {
+
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return waitingOrErrorWindow('Зачекайте...', context);
+        } else {
+          if (snapshot.hasError)
+            return waitingOrErrorWindow('Помилка: ${snapshot.error}', context);
+          else
+            return Scaffold(
+
+              appBar: AppBar(
+                backgroundColor: Colors.brown, 
+                title: Text('Проби грунту'),
+                automaticallyImplyLeading: false
+              ),
+
+              body: Column(
+                children: [
+
+                  // output the list of soil samples from current well
+                  for (var element in snapshot.data)
+                    if (element.wellNumber == widget.wellNumber && element.projectNumber == widget.projectNumber)
+                      SoilSample(element.name, element.depthStart, element.depthEnd, element.notes, element.wellNumber, element.projectNumber),
+                      
+                ]
+              ),
+
+              bottomNavigationBar: Bottom.dependOnPage('soil_sample', widget.wellNumber, widget.projectNumber),
+            );
+        }
+      }
     );
   }
+
 }

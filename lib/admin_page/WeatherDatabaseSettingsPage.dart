@@ -77,29 +77,6 @@ class WeatherDatabaseSettingsPageState extends State<WeatherDatabaseSettingsPage
     return Text('');
   }
 
-  
-  /*getNameByTypeOfDatabase() {
-    switch (widget.value) {
-      case 's_accounts': return 'Акаунти користувачів';
-      case 's_projects': return 'Проекти';
-      case 'soil_types': return 'Типи грунтів';
-      case 's_weather': return 'Погода';
-      case 's_other': return 'Інші налаштування';
-    }
-  }*/
-
-  /*getHintTextByTypeOfDatabase([var blockNumber]) {
-    if (widget.value == 's_accounts') {
-      return ['Логін...', 'Пароль...', 'Електронна пошта...', 'Моб. телефон...'];
-    } else if (widget.value == 'soil_types') {
-      return ['Тип грунту...', 'Опис...'];
-    }/* else if (widget.value == 's_accounts') {
-      return (blockNumber == 1)? ['Логін...', 'Пароль...'] : ['Електронна пошта...', 'Моб. телефон...'];
-    } else if (widget.value == 's_accounts') {
-      return (blockNumber == 1)? ['Логін...', 'Пароль...'] : ['Електронна пошта...', 'Моб. телефон...'];
-    }*/
-  }*/
-
 
   textFieldBlockForAdding() {
     return Padding(
@@ -114,6 +91,9 @@ class WeatherDatabaseSettingsPageState extends State<WeatherDatabaseSettingsPage
               child: TextFormField(
                 autofocus: false,
                 textInputAction: TextInputAction.next,
+
+                cursorRadius: const Radius.circular(10.0),
+                cursorColor: Colors.black,
 
                 decoration: InputDecoration(
                   hintText: 'Місто...',
@@ -138,18 +118,21 @@ class WeatherDatabaseSettingsPageState extends State<WeatherDatabaseSettingsPage
                 autofocus: false,
                 textInputAction: TextInputAction.done,
 
+                cursorRadius: const Radius.circular(10.0),
+                cursorColor: Colors.black,
+
                 decoration: InputDecoration(
-                  hintText: 'Погода...',
+                  labelText: 'Погода...',
                   hintStyle: TextStyle( fontSize: 12, color: Colors.grey.shade400),
+                  labelStyle: TextStyle( fontSize: 12, color: Colors.grey.shade400),
+
                   contentPadding: EdgeInsets.fromLTRB(7, 5, 5, 5),
                   
                   focusedBorder: textFieldStyle,
                   enabledBorder: textFieldStyle,
                 ),
                 
-                onChanged: (value) {
-                  weatherValues[1] = value;
-                }
+                onFieldSubmitted: (String value) { weatherValues[1] = value; }
               )
             ),                          
           ]
@@ -173,18 +156,21 @@ class WeatherDatabaseSettingsPageState extends State<WeatherDatabaseSettingsPage
               autofocus: false,
               textInputAction: TextInputAction.next,
 
+              cursorRadius: const Radius.circular(10.0),
+              cursorColor: Colors.black,
+
               decoration: InputDecoration(
-                hintText: 'Місто...',
+                labelText: 'Місто...',
                 hintStyle: TextStyle( fontSize: 12, color: Colors.grey.shade400),
+                labelStyle: TextStyle( fontSize: 12, color: Colors.grey.shade400),
+
                 contentPadding: EdgeInsets.fromLTRB(7, 5, 5, 5),
                 
                 focusedBorder: textFieldStyle,
                 enabledBorder: textFieldStyle,
               ),
               
-              onChanged: (value) {
-                elementToFind = value; 
-              }
+              onFieldSubmitted: (String value) { elementToFind = value; }
             )
           ),
 
@@ -195,18 +181,21 @@ class WeatherDatabaseSettingsPageState extends State<WeatherDatabaseSettingsPage
               autofocus: false,
               textInputAction: TextInputAction.done,
 
+              cursorRadius: const Radius.circular(10.0),
+              cursorColor: Colors.black,
+
               decoration: InputDecoration(
-                hintText: 'Погода...',
+                labelText: 'Погода...',
                 hintStyle: TextStyle( fontSize: 12, color: Colors.grey.shade400),
+                labelStyle: TextStyle( fontSize: 12, color: Colors.grey.shade400),
+
                 contentPadding: EdgeInsets.fromLTRB(7, 5, 5, 5),
                 
                 focusedBorder: textFieldStyle,
                 enabledBorder: textFieldStyle,
               ),
               
-              onChanged: (value) { 
-                weatherValues[1] = value;
-              }
+              onFieldSubmitted: (String value) { weatherValues[1] = value; }
             )
           ),
         ]
@@ -249,7 +238,12 @@ class WeatherDatabaseSettingsPageState extends State<WeatherDatabaseSettingsPage
             return waitingOrErrorWindow('Помилка: ${snapshot.error}', context);
           else
             return Scaffold(
-              appBar: AppBar(backgroundColor: Colors.brown, title: Text('Налаштування бази даних')),
+              appBar: AppBar(
+                backgroundColor: Colors.brown, 
+                title: Text('Налаштування бази даних'),
+                automaticallyImplyLeading: false
+              ),
+
               body: Scrollbar(
                 child: SingleChildScrollView(
                   child: Column(
@@ -358,18 +352,20 @@ class WeatherDatabaseSettingsPageState extends State<WeatherDatabaseSettingsPage
                                       autofocus: false,
                                       textInputAction: TextInputAction.done,
 
+                                      cursorRadius: const Radius.circular(10.0),
+                                      cursorColor: Colors.black,
+
                                       decoration: InputDecoration(
-                                        hintText: 'Місто...',
+                                        labelText: 'Місто...',
                                         hintStyle: TextStyle( fontSize: 12, color: Colors.grey.shade400),
+                                        labelStyle: TextStyle( fontSize: 12, color: Colors.grey.shade400),
                                         contentPadding: EdgeInsets.fromLTRB(7, 5, 5, 5),
                                         
                                         focusedBorder: textFieldStyle,
                                         enabledBorder: textFieldStyle,
                                       ),
                                       
-                                      onChanged: (value) { 
-                                        elementToFind = value; 
-                                      }
+                                      onFieldSubmitted: (String value) { elementToFind = value; }
                                     )
                                   ),
 

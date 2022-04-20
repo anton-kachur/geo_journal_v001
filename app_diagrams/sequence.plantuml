@@ -1,0 +1,775 @@
+@startuml
+set namespaceSeparator ::
+
+class "geo_journal_v001::accounts::AccountPage.dart::AddAccountPage" {
+  +dynamic mode
+  +AddAccountPageState createState()
+}
+
+"flutter::src::widgets::framework.dart::StatefulWidget" <|-- "geo_journal_v001::accounts::AccountPage.dart::AddAccountPage"
+
+class "geo_journal_v001::accounts::AccountPage.dart::AddAccountPageState" {
+  +Map<String, Object> fieldValues
+  +dynamic box
+  +dynamic boxSize
+  +double textFieldWidth
+  +double textFieldHeight
+  +Future<dynamic> getDataFromBox()
+  +Widget addToBox()
+  +dynamic checkIfAllCorrect()
+  +dynamic mismatchAlert()
+  +Widget waitingOrErrorWindow()
+  +Widget build()
+  +Widget textField()
+  +Widget createTextFieldsBlock()
+}
+
+"flutter::src::widgets::framework.dart::State" <|-- "geo_journal_v001::accounts::AccountPage.dart::AddAccountPageState"
+
+class "geo_journal_v001::accounts::AccountsDBClasses.dart::UserAccountDescription" {
+  +dynamic login
+  +dynamic password
+  +dynamic email
+  +dynamic phoneNumber
+  +dynamic position
+  +dynamic isRegistered
+  +dynamic isAdmin
+  +String toString()
+}
+
+class "geo_journal_v001::accounts::AccountsDBClasses.dart::UserAccountDescriptionAdapter" {
+  +int typeId
+  +UserAccountDescription read()
+  +void write()
+}
+
+"hive::hive.dart::TypeAdapter" <|-- "geo_journal_v001::accounts::AccountsDBClasses.dart::UserAccountDescriptionAdapter"
+
+class "geo_journal_v001::admin_page::AdminPage.dart::AdminPage" {
+  +Widget build()
+}
+
+"flutter::src::widgets::framework.dart::StatelessWidget" <|-- "geo_journal_v001::admin_page::AdminPage.dart::AdminPage"
+
+class "geo_journal_v001::admin_page::DatabaseSettingsPage.dart::DatabaseSettingsPage" {
+  +dynamic value
+  +DatabaseSettingsPageState createState()
+}
+
+"flutter::src::widgets::framework.dart::StatefulWidget" <|-- "geo_journal_v001::admin_page::DatabaseSettingsPage.dart::DatabaseSettingsPage"
+
+class "geo_journal_v001::admin_page::DatabaseSettingsPage.dart::DatabaseSettingsPageState" {
+  +Map<int, String> fieldValues
+  +dynamic elementToFind
+  +dynamic hintText
+  +dynamic formatters
+  +dynamic boxSize
+  +dynamic box
+  +double textFieldWidth
+  +double textFieldHeight
+  +void refresh()
+  +bool isEmpty()
+  +Future<dynamic> getDataFromBox()
+  +Widget addToBox()
+  +Widget changeElementInBox()
+  +Widget deleteElementInBox()
+  +dynamic getNameByTypeOfDatabase()
+  +dynamic getHintTextByTypeOfDatabase()
+  +dynamic getKeyboardTypeAndAllowedValues()
+  +Widget textField()
+  +Widget textFieldBlockForAdding()
+  +dynamic textFieldBlockForEditing()
+  +Widget waitingOrErrorWindow()
+  +Widget build()
+}
+
+"flutter::src::widgets::framework.dart::State" <|-- "geo_journal_v001::admin_page::DatabaseSettingsPage.dart::DatabaseSettingsPageState"
+
+class "geo_journal_v001::admin_page::InfoDataBaseSettings.dart::InfoDatabaseSettingsPage" {
+  +dynamic value
+  +InfoDatabaseSettingsPageState createState()
+}
+
+"flutter::src::widgets::framework.dart::StatefulWidget" <|-- "geo_journal_v001::admin_page::InfoDataBaseSettings.dart::InfoDatabaseSettingsPage"
+
+class "geo_journal_v001::admin_page::InfoDataBaseSettings.dart::InfoDatabaseSettingsPageState" {
+  +Map<int, String> fieldValues
+  +dynamic elementToFind
+  +dynamic hintText
+  +dynamic box
+  +double textFieldWidth
+  +double textFieldHeight
+  +Future<dynamic> getDataFromBox()
+  +Widget addToBox()
+  +dynamic textField()
+  +Widget waitingOrErrorWindow()
+  +Widget build()
+}
+
+"flutter::src::widgets::framework.dart::State" <|-- "geo_journal_v001::admin_page::InfoDataBaseSettings.dart::InfoDatabaseSettingsPageState"
+
+class "geo_journal_v001::admin_page::WeatherDatabaseSettingsPage.dart::WeatherDatabaseSettingsPage" {
+  +WeatherDatabaseSettingsPageState createState()
+}
+
+"flutter::src::widgets::framework.dart::StatefulWidget" <|-- "geo_journal_v001::admin_page::WeatherDatabaseSettingsPage.dart::WeatherDatabaseSettingsPage"
+
+class "geo_journal_v001::admin_page::WeatherDatabaseSettingsPage.dart::WeatherDatabaseSettingsPageState" {
+  +List<String> weatherValues
+  +dynamic elementToFind
+  +dynamic hintText
+  +dynamic boxSize
+  +dynamic box
+  +double textFieldWidth
+  +double textFieldHeight
+  +Future<dynamic> getDataFromBox()
+  +Widget addToBox()
+  +Widget changeElementInBox()
+  +Widget deleteElementInBox()
+  +dynamic textFieldBlockForAdding()
+  +dynamic textFieldBlockForEditing()
+  +Widget waitingOrErrorWindow()
+  +Widget build()
+}
+
+"flutter::src::widgets::framework.dart::State" <|-- "geo_journal_v001::admin_page::WeatherDatabaseSettingsPage.dart::WeatherDatabaseSettingsPageState"
+
+class "geo_journal_v001::Application.dart::Application" {
+  +ApplicationState createState()
+  {static} +dynamic of()
+}
+
+"flutter::src::widgets::framework.dart::StatefulWidget" <|-- "geo_journal_v001::Application.dart::Application"
+
+class "geo_journal_v001::Application.dart::ApplicationState" {
+  -Locale _locale
+  +dynamic getLocale
+  +void setLocale()
+  +Widget build()
+}
+
+"geo_journal_v001::Application.dart::ApplicationState" o-- "dart::ui::Locale"
+"flutter::src::widgets::framework.dart::State" <|-- "geo_journal_v001::Application.dart::ApplicationState"
+
+class "geo_journal_v001::Application.dart::ThemeModel" {
+  -ThemeMode _mode
+  +ThemeMode mode
+  +void toggleMode()
+}
+
+"geo_journal_v001::Application.dart::ThemeModel" o-- "flutter::src::material::app.dart::ThemeMode"
+"flutter::src::foundation::change_notifier.dart::ChangeNotifier" <|-- "geo_journal_v001::Application.dart::ThemeModel"
+
+class "geo_journal_v001::Application.dart::MainPage" {
+  +dynamic model
+  +MainPageState createState()
+}
+
+"flutter::src::widgets::framework.dart::StatefulWidget" <|-- "geo_journal_v001::Application.dart::MainPage"
+
+class "geo_journal_v001::Application.dart::MainPageState" {
+  +Widget build()
+}
+
+"flutter::src::widgets::framework.dart::State" <|-- "geo_journal_v001::Application.dart::MainPageState"
+
+class "geo_journal_v001::Application.dart::DragBox" {
+  +Offset initPos
+  +dynamic model
+  +DragBoxState createState()
+}
+
+"geo_journal_v001::Application.dart::DragBox" o-- "dart::ui::Offset"
+"flutter::src::widgets::framework.dart::StatefulWidget" <|-- "geo_journal_v001::Application.dart::DragBox"
+
+class "geo_journal_v001::Application.dart::DragBoxState" {
+  +Offset position
+  +void initState()
+  -void _setText()
+  +Widget build()
+  +Widget buttonConstructor()
+}
+
+"geo_journal_v001::Application.dart::DragBoxState" o-- "dart::ui::Offset"
+"flutter::src::widgets::framework.dart::State" <|-- "geo_journal_v001::Application.dart::DragBoxState"
+"flutter::src::widgets::ticker_provider.dart::SingleTickerProviderStateMixin" <|-- "geo_journal_v001::Application.dart::DragBoxState"
+
+class "geo_journal_v001::Bottom.dart::Bottom" {
+  +String page
+  +dynamic changeableVal
+  +dynamic secondChangeableVal
+  +CreateBottom createState()
+}
+
+"flutter::src::widgets::framework.dart::StatefulWidget" <|-- "geo_journal_v001::Bottom.dart::Bottom"
+
+class "geo_journal_v001::Bottom.dart::CreateBottom" {
+  +int i
+  +Map<int, int> counter
+  +double iconSize
+  +Widget build()
+}
+
+"flutter::src::widgets::framework.dart::State" <|-- "geo_journal_v001::Bottom.dart::CreateBottom"
+
+class "geo_journal_v001::info::InfoPage.dart::InfoPage" {
+  +dynamic box
+  +Future<dynamic> getDataFromBox()
+  +Widget waitingOrErrorWindow()
+  +Widget build()
+}
+
+"flutter::src::widgets::framework.dart::StatelessWidget" <|-- "geo_journal_v001::info::InfoPage.dart::InfoPage"
+
+class "geo_journal_v001::info::InfoPageDBClasses.dart::InfoDescription" {
+  +dynamic title
+  +dynamic developer
+  +dynamic version
+}
+
+class "geo_journal_v001::info::InfoPageDBClasses.dart::InfoDescriptionAdapter" {
+  +int typeId
+  +InfoDescription read()
+  +void write()
+}
+
+"hive::hive.dart::TypeAdapter" <|-- "geo_journal_v001::info::InfoPageDBClasses.dart::InfoDescriptionAdapter"
+
+class "geo_journal_v001::LocaleString.dart::LocaleString" {
+  +Map<String, Map<String, String>> keys
+}
+
+"get::get_navigation::src::root::internacionalization.dart::Translations" <|-- "geo_journal_v001::LocaleString.dart::LocaleString"
+
+class "geo_journal_v001::projects::AddProjectDescription.dart::AddProjectDescription" {
+  +dynamic value
+  +dynamic projectName
+  +AddProjectDescriptionState createState()
+}
+
+"flutter::src::widgets::framework.dart::StatefulWidget" <|-- "geo_journal_v001::projects::AddProjectDescription.dart::AddProjectDescription"
+
+class "geo_journal_v001::projects::AddProjectDescription.dart::AddProjectDescriptionState" {
+  +dynamic name
+  +dynamic number
+  +dynamic date
+  +dynamic notes
+  +dynamic boxSize
+  +dynamic box
+  +double textFieldWidth
+  +double textFieldHeight
+  -FocusNode _focusNode
+  +Project projectSave
+  +Project projectLoad
+  +void initState()
+  +void dispose()
+  +Future<dynamic> getDataFromBox()
+  +Widget addToBox()
+  +Widget changeElementInBox()
+  +Widget deleteElementInBox()
+  +dynamic getPageName()
+  +dynamic textFieldForAdd()
+  +dynamic textFieldForDelete()
+  +dynamic textFieldForChange()
+  +dynamic addProjectTextField()
+  +Widget waitingOrErrorWindow()
+  +Widget build()
+}
+
+"geo_journal_v001::projects::AddProjectDescription.dart::AddProjectDescriptionState" o-- "flutter::src::widgets::focus_manager.dart::FocusNode"
+"geo_journal_v001::projects::AddProjectDescription.dart::AddProjectDescriptionState" o-- "geo_journal_v001::projects::project_and_DB::Project.dart::Project"
+"flutter::src::widgets::framework.dart::State" <|-- "geo_journal_v001::projects::AddProjectDescription.dart::AddProjectDescriptionState"
+
+class "geo_journal_v001::projects::ProjectPage.dart::ProjectPage" {
+  +String name
+  +String number
+  +String date
+  +String notes
+  +ProjectPageState createState()
+}
+
+"flutter::src::widgets::framework.dart::StatefulWidget" <|-- "geo_journal_v001::projects::ProjectPage.dart::ProjectPage"
+
+class "geo_journal_v001::projects::ProjectPage.dart::ProjectPageState" {
+  +Widget build()
+  +Widget buttonConstructor()
+}
+
+"flutter::src::widgets::framework.dart::State" <|-- "geo_journal_v001::projects::ProjectPage.dart::ProjectPageState"
+
+class "geo_journal_v001::projects::Projects.dart::Projects" {
+  +ProjectsState createState()
+}
+
+"flutter::src::widgets::framework.dart::StatefulWidget" <|-- "geo_journal_v001::projects::Projects.dart::Projects"
+
+class "geo_journal_v001::projects::Projects.dart::ProjectsState" {
+  +dynamic box
+  +dynamic box_size
+  +Future<dynamic> getDataFromBox()
+  +Widget waitingOrErrorWindow()
+  +Widget build()
+}
+
+"flutter::src::widgets::framework.dart::State" <|-- "geo_journal_v001::projects::Projects.dart::ProjectsState"
+
+class "geo_journal_v001::projects::project_and_DB::Project.dart::Project" {
+  +dynamic name
+  +dynamic number
+  +dynamic date
+  +dynamic notes
+  +Map<String, dynamic> toJson()
+  +ProjectState createState()
+}
+
+"flutter::src::widgets::framework.dart::StatefulWidget" <|-- "geo_journal_v001::projects::project_and_DB::Project.dart::Project"
+
+class "geo_journal_v001::projects::project_and_DB::Project.dart::ProjectState" {
+  +dynamic thisProjectBox
+  +dynamic projectSoundingsBox
+  +dynamic projectWellsBox
+  +dynamic projectSoilSamplesBox
+  +Future<dynamic> getDataFromBox()
+  +Widget deleteElementInBox()
+  +Widget waitingOrErrorWindow()
+  +Widget build()
+}
+
+"flutter::src::widgets::framework.dart::State" <|-- "geo_journal_v001::projects::project_and_DB::Project.dart::ProjectState"
+
+class "geo_journal_v001::projects::project_and_DB::ProjectDBClasses.dart::ProjectDescription" {
+  +dynamic name
+  +dynamic number
+  +dynamic date
+  +dynamic notes
+  +String toString()
+}
+
+class "geo_journal_v001::projects::project_and_DB::ProjectDBClasses.dart::ProjectDescriptionAdapter" {
+  +int typeId
+  +ProjectDescription read()
+  +void write()
+}
+
+"hive::hive.dart::TypeAdapter" <|-- "geo_journal_v001::projects::project_and_DB::ProjectDBClasses.dart::ProjectDescriptionAdapter"
+
+class "geo_journal_v001::Settings.dart::Settings" {
+  +dynamic model
+  +SettingsState createState()
+}
+
+"flutter::src::widgets::framework.dart::StatefulWidget" <|-- "geo_journal_v001::Settings.dart::Settings"
+
+class "geo_journal_v001::Settings.dart::SettingsState" {
+  -bool _switchValue
+  +Widget build()
+}
+
+"flutter::src::widgets::framework.dart::State" <|-- "geo_journal_v001::Settings.dart::SettingsState"
+
+class "geo_journal_v001::soil_types::SoilTypes.dart::SoilTypes" {
+  +dynamic box_size
+  +dynamic box
+  +Future<dynamic> getDataFromBox()
+  +Widget build()
+}
+
+"flutter::src::widgets::framework.dart::StatelessWidget" <|-- "geo_journal_v001::soil_types::SoilTypes.dart::SoilTypes"
+
+class "geo_journal_v001::soil_types::SoilTypes.dart::SoilType" {
+  +String type
+  +String description
+  +CreateSoilType createState()
+}
+
+"flutter::src::widgets::framework.dart::StatefulWidget" <|-- "geo_journal_v001::soil_types::SoilTypes.dart::SoilType"
+
+class "geo_journal_v001::soil_types::SoilTypes.dart::CreateSoilType" {
+  +Widget build()
+}
+
+"flutter::src::widgets::framework.dart::State" <|-- "geo_journal_v001::soil_types::SoilTypes.dart::CreateSoilType"
+
+class "geo_journal_v001::soil_types::SoilTypesDBClasses.dart::SoilDescription" {
+  +dynamic type
+  +dynamic description
+  +String toString()
+}
+
+class "geo_journal_v001::soil_types::SoilTypesDBClasses.dart::SoilDescriptionPage" {
+  +dynamic type
+  +dynamic description
+  +dynamic getSoilType
+  +dynamic getSoilDescription
+  +Widget build()
+}
+
+"flutter::src::widgets::framework.dart::StatelessWidget" <|-- "geo_journal_v001::soil_types::SoilTypesDBClasses.dart::SoilDescriptionPage"
+
+class "geo_journal_v001::soil_types::SoilTypesDBClasses.dart::SoilDescriptionAdapter" {
+  +int typeId
+  +SoilDescription read()
+  +void write()
+}
+
+"hive::hive.dart::TypeAdapter" <|-- "geo_journal_v001::soil_types::SoilTypesDBClasses.dart::SoilDescriptionAdapter"
+
+class "geo_journal_v001::soundings::AddSoundingData.dart::AddSoundingData" {
+  +dynamic projectNumber
+  +AddSoundingDataState createState()
+}
+
+"flutter::src::widgets::framework.dart::StatefulWidget" <|-- "geo_journal_v001::soundings::AddSoundingData.dart::AddSoundingData"
+
+class "geo_journal_v001::soundings::AddSoundingData.dart::AddSoundingDataState" {
+  +dynamic depth
+  +dynamic qc
+  +dynamic fs
+  +dynamic notes
+  +dynamic box
+  +dynamic boxSize
+  +double textFieldWidth
+  +double textFieldHeight
+  -FocusNode _focusNode
+  +void initState()
+  +void dispose()
+  +Future<dynamic> getDataFromBox()
+  +Widget addToBox()
+  +Widget deleteElementInBox()
+  +Widget waitingOrErrorWindow()
+  +Widget build()
+}
+
+"geo_journal_v001::soundings::AddSoundingData.dart::AddSoundingDataState" o-- "flutter::src::widgets::focus_manager.dart::FocusNode"
+"flutter::src::widgets::framework.dart::State" <|-- "geo_journal_v001::soundings::AddSoundingData.dart::AddSoundingDataState"
+
+class "geo_journal_v001::soundings::Soundigs.dart::Soundings" {
+  +dynamic projectNumber
+  +SoundingsState createState()
+}
+
+"flutter::src::widgets::framework.dart::StatefulWidget" <|-- "geo_journal_v001::soundings::Soundigs.dart::Soundings"
+
+class "geo_journal_v001::soundings::Soundigs.dart::SoundingsState" {
+  +dynamic box_size
+  +dynamic box
+  +Future<dynamic> getDataFromBox()
+  +Widget waitingOrErrorWindow()
+  +Widget build()
+}
+
+"flutter::src::widgets::framework.dart::State" <|-- "geo_journal_v001::soundings::Soundigs.dart::SoundingsState"
+
+class "geo_journal_v001::soundings::SoundingPage.dart::SoundingPage" {
+  +SoundingPageState createState()
+}
+
+"flutter::src::widgets::framework.dart::StatefulWidget" <|-- "geo_journal_v001::soundings::SoundingPage.dart::SoundingPage"
+
+class "geo_journal_v001::soundings::SoundingPage.dart::SoundingPageState" {
+  +Widget build()
+}
+
+"flutter::src::widgets::framework.dart::State" <|-- "geo_journal_v001::soundings::SoundingPage.dart::SoundingPageState"
+
+class "geo_journal_v001::soundings::sounding_and_DB::Sounding.dart::Sounding" {
+  +dynamic depth
+  +dynamic qc
+  +dynamic fs
+  +dynamic notes
+  +dynamic projectNumber
+  +SoundingState createState()
+}
+
+"flutter::src::widgets::framework.dart::StatefulWidget" <|-- "geo_journal_v001::soundings::sounding_and_DB::Sounding.dart::Sounding"
+
+class "geo_journal_v001::soundings::sounding_and_DB::Sounding.dart::SoundingState" {
+  +Widget build()
+}
+
+"flutter::src::widgets::framework.dart::State" <|-- "geo_journal_v001::soundings::sounding_and_DB::Sounding.dart::SoundingState"
+
+class "geo_journal_v001::soundings::sounding_and_DB::SoundingDBClasses.dart::SoundingDescription" {
+  +dynamic depth
+  +dynamic qc
+  +dynamic fs
+  +dynamic notes
+  +dynamic projectNumber
+  +String toString()
+}
+
+class "geo_journal_v001::soundings::sounding_and_DB::SoundingDBClasses.dart::SoundingDescriptionAdapter" {
+  +int typeId
+  +SoundingDescription read()
+  +void write()
+}
+
+"hive::hive.dart::TypeAdapter" <|-- "geo_journal_v001::soundings::sounding_and_DB::SoundingDBClasses.dart::SoundingDescriptionAdapter"
+
+class "geo_journal_v001::weather::WeatherDBClasses.dart::WeatherDescription" {
+  +dynamic weatherData
+  +String toString()
+}
+
+class "geo_journal_v001::weather::WeatherDBClasses.dart::WeatherDescriptionPage" {
+  +dynamic weatherData
+  +Widget build()
+}
+
+"flutter::src::widgets::framework.dart::StatelessWidget" <|-- "geo_journal_v001::weather::WeatherDBClasses.dart::WeatherDescriptionPage"
+
+class "geo_journal_v001::weather::WeatherDBClasses.dart::WeatherDescriptionAdapter" {
+  +int typeId
+  +WeatherDescription read()
+  +void write()
+}
+
+"hive::hive.dart::TypeAdapter" <|-- "geo_journal_v001::weather::WeatherDBClasses.dart::WeatherDescriptionAdapter"
+
+class "geo_journal_v001::weather::WeatherForecasts.dart::WeatherForecast" {
+  +_WeatherForecastState createState()
+}
+
+"flutter::src::widgets::framework.dart::StatefulWidget" <|-- "geo_journal_v001::weather::WeatherForecasts.dart::WeatherForecast"
+
+class "geo_journal_v001::weather::WeatherForecasts.dart::_WeatherForecastState" {
+  +String key
+  +WeatherFactory ws
+  +dynamic weather
+  +List<Weather> weatherData
+  +WeatherState state
+  +double? latitude
+  +double? longtitude
+  {static} +double buttonWidth
+  +double textFieldWidth
+  +double textFieldHeight
+  +dynamic box
+  +dynamic boxSize
+  +void initState()
+  +void queryForecast()
+  +void getDataFromBox()
+  +Widget addToBox()
+  +void queryWeather()
+  +Widget contentFinishedDownload()
+  +Widget contentDownloading()
+  +Widget contentNotDownloaded()
+  +Widget resultView()
+  +void saveLatitude()
+  +void saveLongtitude()
+  +Widget coordinateInputs()
+  +Widget createButtons()
+  +Widget buttonConstructor()
+  +Widget build()
+}
+
+"geo_journal_v001::weather::WeatherForecasts.dart::_WeatherForecastState" o-- "weather::weather.dart::WeatherFactory"
+"geo_journal_v001::weather::WeatherForecasts.dart::_WeatherForecastState" o-- "geo_journal_v001::weather::WeatherForecasts.dart::WeatherState"
+"flutter::src::widgets::framework.dart::State" <|-- "geo_journal_v001::weather::WeatherForecasts.dart::_WeatherForecastState"
+
+class "geo_journal_v001::weather::WeatherForecasts.dart::WeatherState" {
+  +int index
+  {static} +List<WeatherState> values
+  {static} +WeatherState NOT_DOWNLOADED
+  {static} +WeatherState DOWNLOADING
+  {static} +WeatherState FINISHED_DOWNLOADING
+}
+
+"geo_journal_v001::weather::WeatherForecasts.dart::WeatherState" o-- "geo_journal_v001::weather::WeatherForecasts.dart::WeatherState"
+"dart::core::Enum" <|-- "geo_journal_v001::weather::WeatherForecasts.dart::WeatherState"
+
+class "geo_journal_v001::wells::AddSoilSample.dart::AddSoilSample" {
+  +dynamic wellNumber
+  +dynamic projectNumber
+  +AddSoilSampleState createState()
+}
+
+"flutter::src::widgets::framework.dart::StatefulWidget" <|-- "geo_journal_v001::wells::AddSoilSample.dart::AddSoilSample"
+
+class "geo_journal_v001::wells::AddSoilSample.dart::AddSoilSampleState" {
+  +dynamic name
+  +dynamic depthStart
+  +dynamic depthEnd
+  +dynamic notes
+  +dynamic boxSize
+  +dynamic box
+  +double textFieldWidth
+  +double textFieldHeight
+  -FocusNode _focusNode
+  +void initState()
+  +void dispose()
+  +Future<dynamic> getDataFromBox()
+  +Widget addToBox()
+  +Widget deleteElementInBox()
+  +Widget waitingOrErrorWindow()
+  +Widget build()
+}
+
+"geo_journal_v001::wells::AddSoilSample.dart::AddSoilSampleState" o-- "flutter::src::widgets::focus_manager.dart::FocusNode"
+"flutter::src::widgets::framework.dart::State" <|-- "geo_journal_v001::wells::AddSoilSample.dart::AddSoilSampleState"
+
+class "geo_journal_v001::wells::AddWellDescription.dart::AddWellDescription" {
+  +dynamic projectNumber
+  +AddWellDescriptionState createState()
+}
+
+"flutter::src::widgets::framework.dart::StatefulWidget" <|-- "geo_journal_v001::wells::AddWellDescription.dart::AddWellDescription"
+
+class "geo_journal_v001::wells::AddWellDescription.dart::AddWellDescriptionState" {
+  +dynamic number
+  +dynamic date
+  +dynamic latitude
+  +dynamic longtitude
+  +dynamic box
+  +dynamic boxSize
+  +double textFieldWidth
+  +double textFieldHeight
+  -FocusNode _focusNode
+  +void initState()
+  +void dispose()
+  +Future<dynamic> getDataFromBox()
+  +Widget addToBox()
+  +Widget deleteElementInBox()
+  +Widget waitingOrErrorWindow()
+  +void redirect()
+  +Widget build()
+}
+
+"geo_journal_v001::wells::AddWellDescription.dart::AddWellDescriptionState" o-- "flutter::src::widgets::focus_manager.dart::FocusNode"
+"flutter::src::widgets::framework.dart::State" <|-- "geo_journal_v001::wells::AddWellDescription.dart::AddWellDescriptionState"
+
+class "geo_journal_v001::wells::soil_and_DB::SoilSample.dart::SoilSample" {
+  +dynamic name
+  +dynamic depthStart
+  +dynamic depthEnd
+  +dynamic notes
+  +dynamic wellNumber
+  +dynamic projectNumber
+  +SoilSampleState createState()
+}
+
+"flutter::src::widgets::framework.dart::StatefulWidget" <|-- "geo_journal_v001::wells::soil_and_DB::SoilSample.dart::SoilSample"
+
+class "geo_journal_v001::wells::soil_and_DB::SoilSample.dart::SoilSampleState" {
+  +Widget build()
+}
+
+"flutter::src::widgets::framework.dart::State" <|-- "geo_journal_v001::wells::soil_and_DB::SoilSample.dart::SoilSampleState"
+
+class "geo_journal_v001::wells::soil_and_DB::SoilSampleDBClasses.dart::SoilForWellDescription" {
+  +dynamic name
+  +dynamic depthStart
+  +dynamic depthEnd
+  +dynamic notes
+  +dynamic wellNumber
+  +dynamic projectNumber
+  +String toString()
+}
+
+class "geo_journal_v001::wells::soil_and_DB::SoilSampleDBClasses.dart::SoilForWellDescriptionAdapter" {
+  +int typeId
+  +SoilForWellDescription read()
+  +void write()
+}
+
+"hive::hive.dart::TypeAdapter" <|-- "geo_journal_v001::wells::soil_and_DB::SoilSampleDBClasses.dart::SoilForWellDescriptionAdapter"
+
+class "geo_journal_v001::wells::WellPage.dart::WellPage" {
+  +dynamic wellNumber
+  +dynamic projectNumber
+  +WellPageState createState()
+}
+
+"flutter::src::widgets::framework.dart::StatefulWidget" <|-- "geo_journal_v001::wells::WellPage.dart::WellPage"
+
+class "geo_journal_v001::wells::WellPage.dart::WellPageState" {
+  +dynamic box_size
+  +dynamic box
+  +Future<dynamic> getDataFromBox()
+  +Widget waitingOrErrorWindow()
+  +Widget build()
+}
+
+"flutter::src::widgets::framework.dart::State" <|-- "geo_journal_v001::wells::WellPage.dart::WellPageState"
+
+class "geo_journal_v001::wells::Wells.dart::Wells" {
+  +dynamic projectNumber
+  +WellsState createState()
+}
+
+"flutter::src::widgets::framework.dart::StatefulWidget" <|-- "geo_journal_v001::wells::Wells.dart::Wells"
+
+class "geo_journal_v001::wells::Wells.dart::WellsState" {
+  +dynamic box_size
+  +dynamic box
+  +Future<dynamic> getDataFromBox()
+  +Widget waitingOrErrorWindow()
+  +Widget build()
+}
+
+"flutter::src::widgets::framework.dart::State" <|-- "geo_journal_v001::wells::Wells.dart::WellsState"
+
+class "geo_journal_v001::wells::well_and_DB::Well.dart::Well" {
+  +dynamic number
+  +dynamic date
+  +dynamic latitude
+  +dynamic longtitude
+  +dynamic projectNumber
+  +WellState createState()
+}
+
+"flutter::src::widgets::framework.dart::StatefulWidget" <|-- "geo_journal_v001::wells::well_and_DB::Well.dart::Well"
+
+class "geo_journal_v001::wells::well_and_DB::Well.dart::WellState" {
+  +dynamic thisProjectBox
+  +dynamic thisWellsBox
+  +dynamic soilSamplesBox
+  +Future<dynamic> getDataFromBox()
+  +Widget deleteElementInBox()
+  +Widget waitingOrErrorWindow()
+  +Widget build()
+}
+
+"flutter::src::widgets::framework.dart::State" <|-- "geo_journal_v001::wells::well_and_DB::Well.dart::WellState"
+
+class "geo_journal_v001::wells::well_and_DB::WellDBClasses.dart::WellDescription" {
+  +dynamic number
+  +dynamic date
+  +dynamic latitude
+  +dynamic longtitude
+  +dynamic projectNumber
+  +String toString()
+}
+
+class "geo_journal_v001::wells::well_and_DB::WellDBClasses.dart::WellDescriptionAdapter" {
+  +int typeId
+  +WellDescription read()
+  +void write()
+}
+
+"hive::hive.dart::TypeAdapter" <|-- "geo_journal_v001::wells::well_and_DB::WellDBClasses.dart::WellDescriptionAdapter"
+
+class "geo_journal_v001::wells::well_and_DB::WellDBClasses.dart::WellDescriptionAdapter" {
+  +int typeId
+  +WellDescription read()
+  +void write()
+}
+
+"hive::hive.dart::TypeAdapter" <|-- "geo_journal_v001::wells::well_and_DB::WellDBClasses.dart::WellDescriptionAdapter"
+
+
+@enduml
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+@enduml

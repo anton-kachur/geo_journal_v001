@@ -12,7 +12,7 @@ import 'package:hive_flutter/hive_flutter.dart';
  Classes for page where you can add new well with description
 ************************************************************************* */
 class AddWellDescription extends StatefulWidget {
-  var projectNumber;
+  var projectNumber;  // number of project, to which the well belongs
   AddWellDescription(this.projectNumber);
   
   @override
@@ -33,6 +33,7 @@ class AddWellDescriptionState extends State<AddWellDescription>{
   var textFieldWidth = 155.0;
   var textFieldHeight = 32.0;
 
+
   late FocusNode _focusNode;
   
   @override
@@ -50,14 +51,10 @@ class AddWellDescriptionState extends State<AddWellDescription>{
 
   // Function for getting data from Hive database
   Future getDataFromBox() async {
-    var boxx;
-    
-    boxx = await Hive.openBox<WellDescription>('s_wells');
-    
-    boxSize = boxx.length;
-    box = boxx;
+    box = await Hive.openBox<WellDescription>('s_wells');
+    boxSize = box.length;
 
-    return Future.value(boxx.values);     
+    return Future.value(box.values);     
   }
 
 
@@ -95,20 +92,9 @@ class AddWellDescriptionState extends State<AddWellDescription>{
   }
 
 
-  Widget waitingOrErrorWindow(var text, var context) {
-    return Container(
-      height: MediaQuery.of(context).size.height, 
-      width: MediaQuery.of(context).size.width,
-      color: Colors.white,
-      child: Padding(
-        padding: EdgeInsets.fromLTRB(130, MediaQuery.of(context).size.height/2, 0.0, 0.0),
-
-        child: Text(
-          text,
-          style: TextStyle(fontSize: 20, decoration: TextDecoration.none, color: Colors.black),
-        ),
-      )
-    );
+  // Redirect to page with list of wells
+  void redirect() {
+    Navigator.push(context, MaterialPageRoute(builder: (context) => Wells(widget.projectNumber)));
   }
 
 
@@ -117,8 +103,9 @@ class AddWellDescriptionState extends State<AddWellDescription>{
   Widget build(BuildContext context) {
     var boxData = getDataFromBox();
 
+
     return FutureBuilder(
-      future: boxData,
+      future: boxData,  // data, retreived from database
       builder: (BuildContext context, AsyncSnapshot snapshot) {
 
         if (snapshot.connectionState == ConnectionState.waiting) {
@@ -128,14 +115,17 @@ class AddWellDescriptionState extends State<AddWellDescription>{
             return waitingOrErrorWindow('Помилка: ${snapshot.error}', context);
           else
             return Scaffold(
+
               appBar: AppBar(
                 backgroundColor: Colors.brown,
                 title: Text('Ввести дані свердловини'),
+                automaticallyImplyLeading: false
               ),
 
               body: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+
                   Padding(
                     padding: EdgeInsets.symmetric(vertical: 20, horizontal: 20),
                     child: Row(
@@ -150,21 +140,27 @@ class AddWellDescriptionState extends State<AddWellDescription>{
                             focusNode: _focusNode,
                             autofocus: false,
                             textInputAction: TextInputAction.next,
+
+                            cursorRadius: const Radius.circular(10.0),
+                            cursorColor: Colors.black,
+
                             keyboardType: TextInputType.number,
                             inputFormatters: [
                               FilteringTextInputFormatter.allow(RegExp(r'[0-9]')),
                             ],
 
                             decoration: InputDecoration(
-                              hintText: 'Номер свердловини',
-                              hintStyle: TextStyle( fontSize: 12, color: Colors.grey.shade500),
+                              labelText: 'Номер свердловини',
+                              hintStyle: TextStyle( fontSize: 12, color: Colors.grey.shade400),
+                              labelStyle: TextStyle( fontSize: 12, color: Colors.grey.shade400),
+
                               contentPadding: EdgeInsets.fromLTRB(7, 5, 5, 5),
                               
                               focusedBorder: textFieldStyle,
                               enabledBorder: textFieldStyle,
                             ),
                             
-                            onChanged: (value) { number = value; }
+                            onFieldSubmitted: (String value) { number = value; }
                           )
                         ),
 
@@ -175,21 +171,27 @@ class AddWellDescriptionState extends State<AddWellDescription>{
                           child: TextFormField(
                             autofocus: false,
                             textInputAction: TextInputAction.next,
+                            
+                            cursorRadius: const Radius.circular(10.0),
+                            cursorColor: Colors.black,
+
                             keyboardType: TextInputType.datetime,
                             inputFormatters: [
                               FilteringTextInputFormatter.allow(RegExp(r'[0-9/]')),
                             ],
 
                             decoration: InputDecoration(
-                              hintText: 'Дата буріння (ДД-ММ-РРРР)',
+                              labelText: 'Дата буріння (ДД-ММ-РРРР)',
                               hintStyle: TextStyle( fontSize: 12, color: Colors.grey.shade400),
+                              labelStyle: TextStyle( fontSize: 12, color: Colors.grey.shade400),
+
                               contentPadding: EdgeInsets.fromLTRB(7, 5, 5, 5),
                               
                               focusedBorder: textFieldStyle,
                               enabledBorder: textFieldStyle,
                             ),
                             
-                            onChanged: (value) { date = value; }
+                            onFieldSubmitted: (String value) { date = value; }
                           )
                         ),        
                       ]
@@ -209,6 +211,10 @@ class AddWellDescriptionState extends State<AddWellDescription>{
                           child: TextFormField(
                             autofocus: false,
                             textInputAction: TextInputAction.next,
+
+                            cursorRadius: const Radius.circular(10.0),
+                            cursorColor: Colors.black,
+
                             keyboardType: TextInputType.number,
                             inputFormatters: [
                               FilteringTextInputFormatter.allow(RegExp(r'[0-9.,]')),
@@ -217,13 +223,15 @@ class AddWellDescriptionState extends State<AddWellDescription>{
                             decoration: InputDecoration(
                               hintText: 'Широта',
                               hintStyle: TextStyle( fontSize: 12, color: Colors.grey.shade400),
+                              labelStyle: TextStyle( fontSize: 12, color: Colors.grey.shade400),
+
                               contentPadding: EdgeInsets.fromLTRB(7, 5, 5, 5),
                               
                               focusedBorder: textFieldStyle,
                               enabledBorder: textFieldStyle,
                             ),
                             
-                            onChanged: (value) { latitude = double.parse(value); }
+                            onFieldSubmitted: (String value) { latitude = double.parse(value); }
                           )
                         ),
 
@@ -234,47 +242,35 @@ class AddWellDescriptionState extends State<AddWellDescription>{
                           child: TextFormField(
                             autofocus: false,
                             textInputAction: TextInputAction.done,
+                            
+                            cursorRadius: const Radius.circular(10.0),
+                            cursorColor: Colors.black,
+
                             keyboardType: TextInputType.number,
                             inputFormatters: [
                               FilteringTextInputFormatter.allow(RegExp(r'[0-9.,]')),
                             ],
 
                             decoration: InputDecoration(
-                              hintText: 'Довгота',
+                              labelText: 'Довгота',
                               hintStyle: TextStyle( fontSize: 12, color: Colors.grey.shade400),
+                              labelStyle: TextStyle( fontSize: 12, color: Colors.grey.shade400),
+
                               contentPadding: EdgeInsets.fromLTRB(7, 5, 5, 5),
                               
                               focusedBorder: textFieldStyle,
                               enabledBorder: textFieldStyle,
                             ),
                             
-                            onChanged: (value) { longtitude = double.parse(value); }
+                            onFieldSubmitted: (String value) { longtitude = double.parse(value); }
                           )
                         ),           
                       ]
                     )
                   ),
-
-                  // Add button 
-                  Padding(
-                    padding: EdgeInsets.fromLTRB(100.0, 7.0, 0.0, 0.0),
-                    child: FlatButton(
-                      minWidth: 150.0,
-                      child: Text("Додати", style: TextStyle(color: Colors.black87)),
-                      onPressed: ()=>{
-                        addToBox(),
-                        Navigator.push(context, MaterialPageRoute(builder: (context) => Wells(widget.projectNumber))),  
-                      },
-                      shape: RoundedRectangleBorder(
-                        side: BorderSide(
-                          color: Colors.black87,
-                          width: 1.0,
-                          style: BorderStyle.solid,
-                        ),
-                        borderRadius: BorderRadius.circular(8),
-                      ), 
-                    ),
-                  )
+                  
+                  button(functions: [addToBox, redirect], text: "Додати"),
+                  
                 ]
               ),
 
@@ -284,4 +280,5 @@ class AddWellDescriptionState extends State<AddWellDescription>{
         }
     );
   }
+
 }

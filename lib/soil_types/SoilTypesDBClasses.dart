@@ -40,7 +40,11 @@ class SoilDescriptionPage extends StatelessWidget{
 
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(backgroundColor: Colors.brown, title: Text(type)),
+      appBar: AppBar(
+        backgroundColor: Colors.brown, 
+        title: Text(type),
+        automaticallyImplyLeading: false
+      ),
 
       body: Padding(
         padding: EdgeInsets.all(15.0),

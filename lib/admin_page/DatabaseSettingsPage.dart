@@ -1,4 +1,7 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:geo_journal_v001/AppUtilites.dart';
 import 'package:geo_journal_v001/Bottom.dart';
 import 'package:geo_journal_v001/accounts/AccountsDBClasses.dart';
@@ -21,9 +24,10 @@ class DatabaseSettingsPage extends StatefulWidget {
 
 
 class DatabaseSettingsPageState extends State<DatabaseSettingsPage> {
-  Map<int, String> fieldValues = {0: '', 1: '', 2: '', 3: ''};
+  Map<int, String> fieldValues = {0: '', 1: '', 2: '', 3: '', 4: '', 5: '', 6: '', 7: '', 8: ''};
   var elementToFind;
   var hintText;
+  var formatters;
 
   var boxSize;
   var box;
@@ -31,99 +35,142 @@ class DatabaseSettingsPageState extends State<DatabaseSettingsPage> {
   var textFieldWidth = 155.0;
   var textFieldHeight = 32.0;
 
+
+  // Refresh page
+  void refresh() { setState(() {}); }
+
+
+  // Check if some values in fieldValues are empty
+  bool isEmpty(List indexes) {
+    int counter = 0;
+    for (var i in fieldValues.values) {
+      if (i[indexes[counter]] == '') return true;  
+    } 
+    
+    return false;
+  }
+
+
   // Function for getting data from Hive database
   Future getDataFromBox(var boxName) async {
-    var boxx;
     switch (boxName) {
-      case 's_accounts':
-        boxx = await Hive.openBox<AccountDescription>(boxName);    
+      case 'accounts':
+        box = await Hive.openBox<UserAccountDescription>(boxName);    
         break;
       case 'soil_types':
-        boxx = await Hive.openBox<SoilDescription>(boxName);
+        box = await Hive.openBox<SoilDescription>(boxName);
         break;
       case 's_projects':
-        boxx = await Hive.openBox<ProjectDescription>(boxName);
+        box = await Hive.openBox<ProjectDescription>(boxName);
         break;
     }
     
-    boxSize = boxx.length;
-    box = boxx;
+    boxSize = box.length;
 
-    return Future.value(boxx.values);     
+    return Future.value(box.values);     
   }  
 
 
   // Function for adding data to database
   Widget addToBox() {
-    if (widget.value == 'soil_types' && fieldValues[0]!='')
+    if (widget.value == 'soil_types' && !isEmpty([0, 1]))
       box.put('soil${boxSize+2}', SoilDescription.desc(fieldValues[0], fieldValues[1]));
-    else if (widget.value == 's_accounts' && fieldValues[0]!='')
-      box.put('account${boxSize+2}', AccountDescription(fieldValues[0], fieldValues[1], fieldValues[2], fieldValues[3]));
-    else if (widget.value == 's_projects' && fieldValues[0]!='')
+
+    else if (widget.value == 'accounts' && !isEmpty([0, 1, 2, 3]))
+      box.put('account${boxSize+2}', UserAccountDescription(fieldValues[0], fieldValues[1], fieldValues[2], fieldValues[3], '', true, false));
+    
+    else if (widget.value == 's_projects' && !isEmpty([0, 1, 2, 3]))
       box.put('project${boxSize+2}', ProjectDescription(fieldValues[0], fieldValues[1], fieldValues[2], fieldValues[3]));
     
-    box.close();
     return Text('');
   }
 
 
   // Function for changing data in database
-  Widget changeElementInBox(var element, var par1, [var par2, var par3]) {
+  Widget changeElementInBox() {
     if (widget.value == 'soil_types') {
       for (var key in box.keys) {
-        if ((box.get(key)).type == element) {
-          box.put(key, SoilDescription.desc(element, par1));
+        if ((box.get(key)).type == elementToFind) {
+
+          box.put(key, SoilDescription.desc(elementToFind, fieldValues[1]));
+        
         }
       }
-    } else if (widget.value == 's_accounts') {
+    } else if (widget.value == 'accounts') {
       for (var key in box.keys) {
-        if ((box.get(key)).login == element) {
-          box.put(key, AccountDescription(element, par1, par2, par3));
+        if ((box.get(key)).login == elementToFind) {
+
+          box.put(
+            key, 
+            UserAccountDescription(
+              elementToFind, 
+              fieldValues[1] == ''? box.get(key).password : fieldValues[1], 
+              fieldValues[2] == ''? box.get(key).email : fieldValues[2],
+              fieldValues[3] == ''? box.get(key).phoneNumber : fieldValues[3],
+              '', true, false
+            )
+          );
+
         }
       }
     } else if (widget.value == 's_projects') {
       for (var key in box.keys) {
-        if ((box.get(key)).name == element) {
-          box.put(key, ProjectDescription(element, par1, par2, par3));
+        if ((box.get(key)).name == elementToFind) {
+
+          box.put(
+            key, 
+            ProjectDescription(
+              elementToFind, 
+              fieldValues[1] == ''? box.get(key).number : fieldValues[1], 
+              fieldValues[2] == ''? box.get(key).date : fieldValues[2],
+              fieldValues[3] == ''? box.get(key).notes : fieldValues[3]
+            )
+          );
+
         }
       }
     }
     
-    box.close();
     return Text('');
   }
 
 
   // Function for deleting data in database
-  Widget deleteElementInBox(var element,) {
+  Widget deleteElementInBox() {
     if (widget.value == 'soil_types') {
       for (var key in box.keys) {
-        if ((box.get(key)).type == element) {
+        if ((box.get(key)).type == elementToFind) {
+          
           box.delete(key);
+        
         }
       }
-    } else if (widget.value == 's_accounts') {
+    } else if (widget.value == 'accounts') {
       for (var key in box.keys) {
-        if ((box.get(key)).login == element) {
+        if ((box.get(key)).login == elementToFind) {
+          
           box.delete(key);
+        
         }
       }
     }  else if (widget.value == 's_projects') {
       for (var key in box.keys) {
-        if ((box.get(key)).name == element) {
+        if ((box.get(key)).name == elementToFind) {
+          
           box.delete(key);
+        
         }
       }
     }
     
-    box.close();
     return Text('');
   }
 
   
+  // Set page title depending on database name
   getNameByTypeOfDatabase() {
     switch (widget.value) {
-      case 's_accounts': return 'Акаунти користувачів';
+      case 'accounts': return 'Акаунти користувачів';
       case 's_projects': return 'Проекти';
       case 'soil_types': return 'Типи грунтів';
       case 's_weather': return 'Погода';
@@ -131,172 +178,187 @@ class DatabaseSettingsPageState extends State<DatabaseSettingsPage> {
     }
   }
 
+
+  // Set hint text for text fields depending on database name
   getHintTextByTypeOfDatabase([var blockNumber]) {
-    if (widget.value == 's_accounts') {
-      return ['Логін...', 'Пароль...', 'Електронна пошта...', 'Моб. телефон...'];
+    if (widget.value == 'accounts') {
+      return ['Логін...', 'Пароль...', 'Електронна пошта...', 'Моб. телефон...', 'Посада', 'Зробити адміном (так/ні)'];
     } else if (widget.value == 'soil_types') {
       return ['Тип грунту...', 'Опис...'];
     } else if (widget.value == 's_projects') {
       return ['Назва проекту...', 'Номер...', 'Дата закінчення...', 'Примітки...'];
-    }/* else if (widget.value == 's_accounts') {
-      return (blockNumber == 1)? ['Логін...', 'Пароль...'] : ['Електронна пошта...', 'Моб. телефон...'];
-    } else if (widget.value == 's_accounts') {
-      return (blockNumber == 1)? ['Логін...', 'Пароль...'] : ['Електронна пошта...', 'Моб. телефон...'];
-    }*/
+    }
   }
 
 
-  textFieldBlockForAdding(var blockNumber, var text) {
+  // Set settings for text fields (input type and allowed keyboard values) depending on database name
+  getKeyboardTypeAndAllowedValues() {
+    if (widget.value == 'accounts') {
+      return [
+        [TextInputType.text, FilteringTextInputFormatter.allow(RegExp(r"[A-Za-zА-Яа-яЇїІіЄє0-9']"))], 
+        [TextInputType.text, FilteringTextInputFormatter.allow(RegExp(r"[A-Za-zА-Яа-яЇїІіЄє0-9'!@#$%^&*']"))], 
+        [TextInputType.text, FilteringTextInputFormatter.allow(RegExp(r"[A-Za-zА-Яа-яЇїІіЄє@.']"))], 
+        [TextInputType.number, FilteringTextInputFormatter.allow(RegExp(r"[0-9]"))],
+        [TextInputType.text, FilteringTextInputFormatter.allow(RegExp(r"[A-Za-zА-Яа-яЇїІіЄє']"))],
+        [TextInputType.text, FilteringTextInputFormatter.allow(RegExp(r"[A-Za-zА-Яа-яЇїІіЄє']"))], 
+      ];
+    } else if (widget.value == 'soil_types') {
+      return [
+        [TextInputType.text, FilteringTextInputFormatter.allow(RegExp(r"[A-Za-zА-Яа-яЇїІіЄє']"))], 
+        [TextInputType.text, FilteringTextInputFormatter.allow(RegExp(r"[A-Za-zА-Яа-яЇїІіЄє']"))], 
+      ];
+    } else if (widget.value == 's_projects') {
+      return [
+        [TextInputType.text, FilteringTextInputFormatter.allow(RegExp(r"[A-Za-zА-Яа-яЇїІіЄє']"))], 
+        [TextInputType.number, FilteringTextInputFormatter.allow(RegExp(r"[0-9]"))], 
+        [TextInputType.datetime, FilteringTextInputFormatter.allow(RegExp(r"[0-9/]"))], 
+        [TextInputType.text, FilteringTextInputFormatter.allow(RegExp(r"[A-Za-zА-Яа-яЇїІіЄє']"))]
+      ];
+    }
+  }
+
+
+  // Create text field with parameters
+  Widget textField(var textInputAction, var labelText, var keyboardType, var inputFormatters, {var width, var height, var inputValueIndex, var otherValue}) {
+    
+    return Container(
+      width: width,
+      height: height,
+
+      child: TextFormField(
+        autofocus: false,
+        textInputAction: textInputAction,
+
+        keyboardType: keyboardType,
+        inputFormatters: [
+          inputFormatters
+        ],
+
+        cursorRadius: const Radius.circular(10.0),
+        cursorColor: Colors.black,
+
+        decoration: InputDecoration(
+          labelText: labelText,
+          hintStyle: TextStyle( fontSize: 12, color: Colors.grey.shade400),
+          labelStyle: TextStyle( fontSize: 12, color: Colors.grey.shade400),
+
+          contentPadding: EdgeInsets.fromLTRB(7, 5, 5, 5),
+          
+          focusedBorder: textFieldStyle,
+          enabledBorder: textFieldStyle,
+        ),
+        
+        onFieldSubmitted: (String value) { 
+          if (inputValueIndex != null) { fieldValues[inputValueIndex] = value; }
+          else { 
+            if (otherValue == 'find') { elementToFind = value; } 
+            else { fieldValues[otherValue] = value; }
+          }
+        }
+
+      )
+    );
+
+  }
+
+
+  // Create block of text fields for add fields
+  Widget textFieldBlockForAdding(var textFieldBlockNumber, var labelText) {
+    
     return Padding(
         padding: EdgeInsets.fromLTRB(1.0, 7.0, 0.0, 0.0),
+        
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            
-            Container(
-              width: textFieldWidth,
-              height: textFieldHeight,
-              child: TextFormField(
-                autofocus: false,
-                textInputAction: TextInputAction.next,
 
-                decoration: InputDecoration(
-                  hintText: text[0],
-                  hintStyle: TextStyle( fontSize: 12, color: Colors.grey.shade400),
-                  contentPadding: EdgeInsets.fromLTRB(7, 5, 5, 5),
-                  
-                  focusedBorder: textFieldStyle,
-                  enabledBorder: textFieldStyle,
-                ),
-                
-                onChanged: (value) { 
-                  if (blockNumber == 1)
-                    fieldValues[0] = value; 
-                  else
-                    fieldValues[2] = value;
-                }
-              )
+            textField(
+              TextInputAction.next, 
+              labelText[0],
+              textFieldBlockNumber == 1? formatters[0][0] : formatters[2][0],
+              textFieldBlockNumber == 1? formatters[0][1] : formatters[2][1], 
+              inputValueIndex: textFieldBlockNumber == 1? 0 : 2,
+              width: textFieldWidth,
+              height: textFieldHeight
             ),
 
-            // Text field for notes input
-            Container(
-              width: this.textFieldWidth,
-              height: this.textFieldHeight,
-              child: TextFormField(
-                autofocus: false,
-                textInputAction: TextInputAction.done,
+            textField(
+              textFieldBlockNumber == 1? TextInputAction.next : TextInputAction.done, 
+              labelText[1], 
+              textFieldBlockNumber == 1? formatters[1][0] : formatters[3][0],
+              textFieldBlockNumber == 1? formatters[1][1] : formatters[3][1], 
+              inputValueIndex: textFieldBlockNumber == 1? 1 : 3,
+              width: textFieldWidth,
+              height: textFieldHeight
+            ),
 
-                decoration: InputDecoration(
-                  hintText: text[1],
-                  hintStyle: TextStyle( fontSize: 12, color: Colors.grey.shade400),
-                  contentPadding: EdgeInsets.fromLTRB(7, 5, 5, 5),
-                  
-                  focusedBorder: textFieldStyle,
-                  enabledBorder: textFieldStyle,
-                ),
-                
-                onChanged: (value) {
-                  if (blockNumber == 1)
-                    fieldValues[1] = value; 
-                  else
-                    fieldValues[3] = value;
-                }
-              )
-            ),                          
+            /*if (widget.value == 'accounts')
+              textField(
+                textFieldBlockNumber != 3? TextInputAction.next : TextInputAction.done, 
+                labelText[2], 
+                textFieldBlockNumber == 1? formatters[1][0] : formatters[3][0],
+                textFieldBlockNumber == 1? formatters[1][1] : formatters[3][1], 
+                inputValueIndex: textFieldBlockNumber == 1? 1 : 3,
+                width: textFieldWidth,
+                height: textFieldHeight
+              ),*/
+                         
           ]
         ),
       );
   }
 
 
-  textFieldBlockForEditing(var blockNumber, var text) {
+  // Create block of text fields for editing
+  textFieldBlockForEditing(var textFieldBlockNumber, var labelText) {
+
     return Padding(
       padding: EdgeInsets.fromLTRB(1.0, 7.0, 0.0, 0.0),
-        child: Row(
+      
+      child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          
 
-          Container(
-            width: this.textFieldWidth,
-            height: this.textFieldHeight,
-            child: TextFormField(
-              autofocus: false,
-              textInputAction: TextInputAction.next,
-
-              decoration: InputDecoration(
-                hintText: text[0],
-                hintStyle: TextStyle( fontSize: 12, color: Colors.grey.shade400),
-                contentPadding: EdgeInsets.fromLTRB(7, 5, 5, 5),
-                
-                focusedBorder: textFieldStyle,
-                enabledBorder: textFieldStyle,
-              ),
-              
-              onChanged: (value) {
-                if (blockNumber == 1)
-                  elementToFind = value;
-                else
-                  fieldValues[2] = value; 
-              }
-            )
+          textField(
+            TextInputAction.next, 
+            labelText[0], 
+            textFieldBlockNumber == 1? formatters[0][0] : formatters[2][0],
+            textFieldBlockNumber == 1? formatters[0][1] : formatters[2][1], 
+            otherValue: textFieldBlockNumber == 1? 'find' : 2,
+            width: textFieldWidth,
+            height: textFieldHeight
           ),
 
-          Container(
-            width: this.textFieldWidth,
-            height: this.textFieldHeight,
-            child: TextFormField(
-              autofocus: false,
-              textInputAction: TextInputAction.done,
-
-              decoration: InputDecoration(
-                hintText: text[1],
-                hintStyle: TextStyle( fontSize: 12, color: Colors.grey.shade400),
-                contentPadding: EdgeInsets.fromLTRB(7, 5, 5, 5),
-                
-                focusedBorder: textFieldStyle,
-                enabledBorder: textFieldStyle,
-              ),
-              
-              onChanged: (value) { 
-                if (blockNumber == 1)
-                  fieldValues[1] = value;
-                else
-                  fieldValues[3] = value;
-              }
-            )
+          textField(
+            textFieldBlockNumber == 1? TextInputAction.next : TextInputAction.done, 
+            labelText[1], 
+            textFieldBlockNumber == 1? formatters[1][0] : formatters[3][0],
+            textFieldBlockNumber == 1? formatters[1][1] : formatters[3][1], 
+            inputValueIndex: textFieldBlockNumber == 1? 1 : 3,
+            width: textFieldWidth,
+            height: textFieldHeight
           ),
+
         ]
       ),
     );
   }
 
-  
-  Widget waitingOrErrorWindow(var text, var context) {
-    return Container(
-      height: MediaQuery.of(context).size.height, 
-      width: MediaQuery.of(context).size.width,
-      color: Colors.white,
-      child: Padding(
-        padding: EdgeInsets.fromLTRB(130, MediaQuery.of(context).size.height/2, 0.0, 0.0),
-
-        child: Text(
-          text,
-          style: TextStyle(fontSize: 20, decoration: TextDecoration.none, color: Colors.black),
-        ),
-      )
-    );
-  }
 
 
   @override
   Widget build(BuildContext context) {
 
+    // Retreive data from database, 
+    // set hint text for text fields and
+    // set input settings for them  
     var boxData = getDataFromBox(widget.value);
     hintText = getHintTextByTypeOfDatabase();
+    formatters = getKeyboardTypeAndAllowedValues();
+
 
     return FutureBuilder(
-      future: boxData,
+      future: boxData,  // data retreived from database
       builder: (BuildContext context, AsyncSnapshot snapshot) {
 
         if (snapshot.connectionState == ConnectionState.waiting) {
@@ -306,7 +368,13 @@ class DatabaseSettingsPageState extends State<DatabaseSettingsPage> {
             return waitingOrErrorWindow('Помилка: ${snapshot.error}', context);
           else
             return Scaffold(
-              appBar: AppBar(backgroundColor: Colors.brown, title: Text('Налаштування бази даних')),
+
+              appBar: AppBar(
+                backgroundColor: Colors.brown, 
+                title: Text('Налаштування бази даних'),
+                automaticallyImplyLeading: false
+              ),
+
               body: Scrollbar(
                 child: SingleChildScrollView(
                   child: Column(
@@ -320,34 +388,16 @@ class DatabaseSettingsPageState extends State<DatabaseSettingsPage> {
                           crossAxisAlignment: CrossAxisAlignment.start,
 
                           children: [
-                            Text('${getNameByTypeOfDatabase()}\n'),
+
+                            Text('${getNameByTypeOfDatabase()}\n'), // title
                             Text('Додати елемент'),
 
-                            textFieldBlockForAdding(1, [hintText[0], hintText[1]]),
+                            // Create text fields for adding new data to database, stored in blocks
+                            textFieldBlockForAdding(1, [hintText[0], hintText[1]]), 
                             (widget.value != 'soil_types')? textFieldBlockForAdding(2, [hintText[2], hintText[3]]) : Text(''),
                             
-                            // Add button
-                            Padding(
-                              padding: EdgeInsets.fromLTRB(90.0, 7.0, 0.0, 0.0),
-                              child: FlatButton(
-                                minWidth: 150.0,
-                                child: Text("Додати", style: TextStyle(color: Colors.black87)),
-                                
-                                onPressed: () => { 
-                                  addToBox(),
-                                  setState(() {})
-                                },
-
-                                shape: RoundedRectangleBorder(
-                                  side: BorderSide(
-                                    color: Colors.black87,
-                                    width: 1.0,
-                                    style: BorderStyle.solid,
-                                  ),
-                                  borderRadius: BorderRadius.circular(8),
-                                ), 
-                              ),
-                            )
+                            button(functions: [addToBox, refresh], text: "Додати"),
+                            
                           ],
                         ),
                       ),
@@ -363,31 +413,11 @@ class DatabaseSettingsPageState extends State<DatabaseSettingsPage> {
                           children: [
                             Text('Редагувати елемент'),
                             
+                            // Create text fields for editing data from database, stored in blocks
                             textFieldBlockForEditing(1, [hintText[0], hintText[1]]),
                             (widget.value != 'soil_types')? textFieldBlockForEditing(2, [hintText[2], hintText[3]]) : Text(''),
                             
-                            // Add button
-                            Padding(
-                              padding: EdgeInsets.fromLTRB(90.0, 7.0, 0.0, 0.0),
-                              child: FlatButton(
-                                minWidth: 150.0,
-                                child: Text("Змінити", style: TextStyle(color: Colors.black87)),
-                                onPressed: () => { 
-                                  changeElementInBox(elementToFind, fieldValues[1], fieldValues[2], fieldValues[3]),
-                                  setState(() {
-                                    
-                                  })
-                                },
-                                shape: RoundedRectangleBorder(
-                                  side: BorderSide(
-                                    color: Colors.black87,
-                                    width: 1.0,
-                                    style: BorderStyle.solid,
-                                  ),
-                                  borderRadius: BorderRadius.circular(8),
-                                ), 
-                              ),
-                            )
+                            button(functions: [changeElementInBox, refresh], text: "Змінити"),
 
                           ]
                         )
@@ -409,93 +439,64 @@ class DatabaseSettingsPageState extends State<DatabaseSettingsPage> {
                                 child: Row(
                                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                 children: [
-                                
-                                  Container(
-                                    width: this.textFieldWidth,
-                                    height: this.textFieldHeight,
-                                    child: TextFormField(
-                                      autofocus: false,
-                                      textInputAction: TextInputAction.done,
 
-                                      decoration: InputDecoration(
-                                        hintText: hintText[0],
-                                        hintStyle: TextStyle( fontSize: 12, color: Colors.grey.shade400),
-                                        contentPadding: EdgeInsets.fromLTRB(7, 5, 5, 5),
-                                        
-                                        focusedBorder: textFieldStyle,
-                                        enabledBorder: textFieldStyle,
-                                      ),
-                                      
-                                      onChanged: (value) { 
-                                        elementToFind = value; 
-                                      }
-                                    )
+                                  // Create text field for deleting data in database
+                                  textField(
+                                    TextInputAction.done, 
+                                    hintText[0], 
+                                    formatters[0][0],
+                                    formatters[0][1], 
+                                    otherValue: 'find',
+                                    width: textFieldWidth,
+                                    height: textFieldHeight
                                   ),
-
-                                  
+                                      
                                 ]
                               ),
                             ),
 
-                            
-                            
-                            // Add button
-                            Padding(
-                              padding: EdgeInsets.fromLTRB(90.0, 7.0, 0.0, 0.0),
-                              child: FlatButton(
-                                minWidth: 150.0,
-                                child: Text("Видалити", style: TextStyle(color: Colors.black87)),
-                                onPressed: () => { 
-                                  deleteElementInBox(elementToFind),
-                                  setState(() {
-                                    
-                                  })
-                                },
-                                shape: RoundedRectangleBorder(
-                                  side: BorderSide(
-                                    color: Colors.black87,
-                                    width: 1.0,
-                                    style: BorderStyle.solid,
-                                  ),
-                                  borderRadius: BorderRadius.circular(8),
-                                ), 
-                              ),
-                            )
+                            button(functions: [deleteElementInBox, refresh], text: "Видалити"),
 
                           ]
                         )
                       ),
 
-                    // Get list of elements in DB
-                    Padding(
-                      padding: EdgeInsets.symmetric(vertical: 15.0, horizontal: 15.0),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [                 
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text('Список елементів'),
-                              
-                              for (var element in snapshot.data)
-                                Container(
-                                  width: 330,
-                                  decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.all(Radius.circular(5.0)),
-                                    boxShadow: [
-                                      BoxShadow(color: Colors.amber.shade50),
-                                      BoxShadow(color: Colors.white, spreadRadius: -12.0, blurRadius: 12.0),
-                                    ],
-                                    border: Border.all(color: Colors.grey.shade800),
-                                  ),
 
-                                  child: Text("${element.toString()}"),
-                                )
+                      // Get list of elements in DB
+                      Padding(
+                        padding: EdgeInsets.symmetric(vertical: 15.0, horizontal: 15.0),
+
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [     
+
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text('Список елементів'),
+                                
+                                for (var element in snapshot.data)
+                                  Container(
+                                    width: 330,
+                                    decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.all(Radius.circular(5.0)),
+                                      boxShadow: [
+                                        BoxShadow(color: Colors.amber.shade50),
+                                        BoxShadow(color: Colors.white, spreadRadius: -12.0, blurRadius: 12.0),
+                                      ],
+                                      border: Border.all(color: Colors.grey.shade800),
+                                    ),
+
+                                    child: Text("${element.toString()}"),
+                                  )
+                                  
                               ]
                             ), 
+
                           ]
                         )
                       ),
+
                     ],
                   ),
                 ),
@@ -507,4 +508,5 @@ class DatabaseSettingsPageState extends State<DatabaseSettingsPage> {
       }     
     ); 
   }
+  
 }

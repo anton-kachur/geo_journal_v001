@@ -10,7 +10,7 @@ class Sounding extends StatefulWidget {
   var fs;
   var notes;
 
-  var projectNumber;
+  var projectNumber;  // number of project, to which the well belongs
 
   Sounding(this.depth, this.qc, this.fs, this.notes, this.projectNumber);
   
@@ -23,7 +23,9 @@ class SoundingState extends State<Sounding>{
 
   @override
   Widget build(BuildContext context) {
+
     return Container(
+      
       decoration: BoxDecoration(
         border: Border(
         bottom: BorderSide(color: Colors.black45, width: 1.0),
@@ -33,9 +35,11 @@ class SoundingState extends State<Sounding>{
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
+
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              
               Padding(
                 padding: EdgeInsets.fromLTRB(15.0, 15.0, 0.0, 0.0),
                 child: Text('Кінцева глибина: ${widget.depth}')
@@ -55,10 +59,13 @@ class SoundingState extends State<Sounding>{
                 padding: EdgeInsets.fromLTRB(15.0, 5.0, 0.0, 15.0),
                 child: Text('Примітки: ${widget.notes}'),
               )
+
             ]
           ),
+
         ]
       )
     );
   }
+
 }

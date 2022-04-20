@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:geo_journal_v001/AppUtilites.dart';
 import 'package:geo_journal_v001/Bottom.dart';
 import 'package:geo_journal_v001/accounts/AccountsDBClasses.dart';
+import 'package:geo_journal_v001/main.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 
 
@@ -20,10 +21,17 @@ class AddAccountPage extends StatefulWidget {
 
 
 class AddAccountPageState extends State<AddAccountPage> {
-  var login;
-  var password;
-  var email;
-  var phoneNumber;
+
+  Map<String, Object> fieldValues = {
+    'login': '', 
+    'password': '', 
+    'email': '', 
+    'phoneNumber': '', 
+    'position': '',
+    'confirmPassword': '',
+    'isRegistered': false,
+    'isAdmin': false
+  };
 
   var box;
   var boxSize;
@@ -31,35 +39,30 @@ class AddAccountPageState extends State<AddAccountPage> {
   var textFieldWidth = 155.0;
   var textFieldHeight = 32.0;
 
-  late FocusNode _focusNode;
-  
-  @override
-  void initState() {
-    super.initState();
-    _focusNode = FocusNode();
-  }
-
-  @override
-  void dispose() {
-    super.dispose();
-    _focusNode.dispose();
-  }
-
 
   // Function for getting data from Hive database
   Future getDataFromBox(var boxName) async {
-    var boxx = await Hive.openBox<AccountDescription>(boxName);
-    boxSize = boxx.length;
-    box = boxx;
-
-    return Future.value(boxx.values);     
+    box = await Hive.openBox<UserAccountDescription>(boxName);
+    boxSize = box.length;
+    
+    return Future.value(box.values);     
   }  
+
 
   // Function for adding data to database
   Widget addToBox() {
+
     box.put(
       'account${boxSize+2}', 
-      AccountDescription(login, password, email, phoneNumber)
+      UserAccountDescription(
+        fieldValues['login'], 
+        fieldValues['password'], 
+        fieldValues['email'], 
+        fieldValues['phoneNumber'], 
+        fieldValues['position'],
+        fieldValues['isRegistered'],
+        fieldValues['isAdmin'],
+      )
     );
     
     box.close();
@@ -67,101 +70,268 @@ class AddAccountPageState extends State<AddAccountPage> {
   }
 
 
-  @override
-  Widget build(BuildContext context) {
+  // Check if 'password' and 'confirm password' fields match and if email adsress is correctly written. 
+  // If true - register new account, else - show alert dialog
+  void checkIfSignUpCorrect() {
+    int correct = 0;
+        
+    fieldValues['password'] != fieldValues['confirmPassword']? alert('Введені паролі не співпадають') : correct++;
+    fieldValues['email'].toString().contains('@')? correct++ : alert('Введіть коректну адресу електронної пошти');
+    
+    if (correct==2) { 
+      fieldValues['isRegistered'] = true;
+      addToBox();
+      statusLogOut = false;
 
-    return Scaffold(
-      appBar: AppBar(backgroundColor: Colors.brown, title: (widget.mode=='sign_up')? Text('Реєстрація'): Text('Увійти в акаунт')),
+      alert('Ви успішно зареєструвалися.\nЛаскаво просимо!'); 
+    } else { 
+      alert('Перевірте будь ласка введені дані'); 
+    }
+  }
 
-      body: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
 
-          createTextFieldsBlock(20.0, 20.0, ["логін...", "пароль..."]),
-          if (widget.mode == 'sign_up') createTextFieldsBlock(0.0, 20.0, ["електронна пошта...", "номер телефону..."], true),
-         
-          // Add button 
-          Padding(
-            padding: EdgeInsets.fromLTRB(100.0, 7.0, 0.0, 0.0),
-            child: FlatButton(
-              minWidth: 150.0,
-              child: Text("Додати", style: TextStyle(color: Colors.black87)),
-              onPressed: ()=>{ addToBox() },
-              shape: RoundedRectangleBorder(
-                side: BorderSide(
-                  color: Colors.black87,
-                  width: 1.0,
-                  style: BorderStyle.solid,
-                ),
-                borderRadius: BorderRadius.circular(8),
-              ), 
-            ),
+  // Check if 'password' and 'confirm password' fields match. 
+  // If true - register new account, else - show mismatch alert dialog
+  void checkIfLogInCorrect() {
+    int correct = 0;
+
+    for (var key in box.keys) {
+      if ((
+          (box.get(key)).login == fieldValues['login'] || 
+          (box.get(key)).email == fieldValues['email'] || 
+          (box.get(key)).phoneNumber == fieldValues['phoneNumber']) && 
+          (box.get(key)).password == fieldValues['password']
+        ) {
+        
+        correct++;
+
+        box.get(key).isRegistered = true; 
+    
+        box.put(
+          key, 
+          UserAccountDescription(
+            (box.get(key)).login, 
+            (box.get(key)).password,
+            (box.get(key)).email, 
+            (box.get(key)).phoneNumber,
+            (box.get(key)).position,
+            true,
+            (box.get(key)).isAdmin,
           )
+        );
+        
+        alert('Ви успішно увішли в акаунт');
+        currentAccount = box.get(key);
+        statusLogOut = false;
+        print("CURRENT ACCOUNT AFTER LOG IN: ${box.get(key).toString()}");
+      }    
+    }
 
-        ]
-      ),
+    if (correct == 0) { alert('Перевірте будь-ласка введені дані'); }
+  }
 
-      bottomNavigationBar: Bottom(),
+
+  // Alert dialog, which is shown if 'password' and 'confirm password' fields mismatch 
+  alert(var alertText) {
+
+    return showDialog(
+      context: context, 
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text(''),
+          content: Text(alertText, style: TextStyle(fontSize: 18)),
+          actions: [
+            // Press 'OK' to proceed
+            FlatButton(
+              child: const Text('ОК'),
+              onPressed: () { Navigator.of(context).pop(); },
+            )
+          ],
+        );
+      }
     );
   }
 
+
+  // Creates input fields if user wishes to register new account
+  List<Widget> signUpTextFields() {
+    return [
+      createTextFieldsBlock(
+        1, [20.0, 20.0], 
+        ["*логін...", "*електронна пошта..."], 
+        [TextInputType.text, TextInputType.text],
+        [FilteringTextInputFormatter.allow(RegExp(r"[A-Za-zА-Яа-яЇїІіЄє0-9']")), FilteringTextInputFormatter.allow(RegExp(r"[A-Za-z0-9'@.]"))],
+        ['login', 'email']
+      ),
+
+      createTextFieldsBlock(
+        2, [5.0, 20.0], 
+        ["*пароль...", "*підтвердити пароль..."], 
+        [TextInputType.text, TextInputType.text],
+        [FilteringTextInputFormatter.allow(RegExp(r"[A-Za-zА-Яа-яЇїІіЄє0-9'!@#$%^&*]")), FilteringTextInputFormatter.allow(RegExp(r"[A-Za-zА-Яа-яЇїІіЄє0-9'!@#$%^&*]"))],
+        ['password', 'confirmPassword']
+      ),
+
+      createTextFieldsBlock(
+        3, [10.0, 20.0], 
+        ["номер телефону...", "позиція..."], 
+        [TextInputType.number, TextInputType.text],
+        [FilteringTextInputFormatter.allow(RegExp(r"[0-9]")), FilteringTextInputFormatter.allow(RegExp(r"[A-Za-zА-Яа-яЇїІіЄє']"))],
+        ['phoneNumber', 'position']
+      ),
+
+      button(functions: [checkIfSignUpCorrect], text: "Зареєструватися", context: context, route: "/home"),
+    ];
+  }
+
+
+  // Creates input fields if user wishes to enter his/her account
+  List<Widget> logInTextFields() {
+    return [
+      Padding(
+        padding: EdgeInsets.fromLTRB(20, 15, 15, 0),
+        child: Text('Ви можете увійти за допомогою логіну, пошти або номера телефона'),
+      ),
+
+      createTextFieldsBlock(
+        1, [20.0, 20.0], 
+        ["логін...", "електронна пошта..."], 
+        [TextInputType.text, TextInputType.text],
+        [FilteringTextInputFormatter.allow(RegExp(r"[A-Za-zА-Яа-яЇїІіЄє0-9']")), FilteringTextInputFormatter.allow(RegExp(r"[A-Za-z0-9'@.]"))],
+        ['login', 'email']
+      ),
+
+      createTextFieldsBlock(
+        2, [0.0, 20.0], 
+        ["номер телефону", "пароль..."], 
+        [TextInputType.number, TextInputType.text],
+        [FilteringTextInputFormatter.allow(RegExp(r"[0-9]")), FilteringTextInputFormatter.allow(RegExp(r"[A-Za-zА-Яа-яЇїІіЄє0-9'!@#$%^&*]"))],
+        ['phoneNumber', 'password']
+      ),
+
+      button(functions: [checkIfLogInCorrect], text: "Увійти", context: context, route: "/home"),
+    ];
+  }
+
+
+
+  @override
+  Widget build(BuildContext context) {
+    var boxData = getDataFromBox('accounts');
+
+    
+    return FutureBuilder(
+      future: boxData,  // data retreived from database
+      builder: (BuildContext context, AsyncSnapshot snapshot) {
+
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return waitingOrErrorWindow('Зачекайте...', context);
+        } else {
+          if (snapshot.hasError)
+            return waitingOrErrorWindow('Помилка: ${snapshot.error}', context);
+          else
+            return Scaffold(
+
+              appBar: AppBar(
+                backgroundColor: Colors.brown, 
+                title: (widget.mode=='sign_up')? Text('Реєстрація'): Text('Увійти в акаунт'),
+                automaticallyImplyLeading: false
+              ),
+
+              body: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+
+                  if (widget.mode == 'sign_up') 
+                    for (var widget in signUpTextFields())
+                      widget
+                  else 
+                    for (var widget in logInTextFields())
+                      widget
+                  
+
+                ]
+              ),
+
+              bottomNavigationBar: Bottom(),
+            );
+        }
+      }
+    );
+  }
+
+
+
+  // Create text field with parameters
+  Widget textField(var textInputAction, var labelText, var keyboardType, var inputFormatters, {var width, var height, var inputValueIndex, var otherValue}) {
+    return Container(
+      width: width,
+      height: height,
+      child: TextFormField(
+        autofocus: false,
+        textInputAction: textInputAction,
+
+        keyboardType: keyboardType,
+        inputFormatters: [
+          inputFormatters
+        ],
+
+        cursorRadius: const Radius.circular(10.0),
+        cursorColor: Colors.black,
+
+        decoration: InputDecoration(
+          labelText: labelText,
+          hintStyle: TextStyle( fontSize: 12, color: Colors.grey.shade400),
+          labelStyle: TextStyle( fontSize: 12, color: Colors.grey.shade400),
+
+          contentPadding: EdgeInsets.fromLTRB(7, 5, 5, 5),
+          
+          focusedBorder: textFieldStyle,
+          enabledBorder: textFieldStyle,
+        ),
+        
+        onFieldSubmitted: (String value) { 
+          if (inputValueIndex != null) { fieldValues[inputValueIndex] = value; }
+        }
+      )
+    );
+  }
+  
+
+
+
   // Function for creating widget of text fields, stored in block
-  Widget createTextFieldsBlock(verticalPadding, horizontalPadding, hintTextVals, [isSecondBlockNeeded]) {
+  Widget createTextFieldsBlock(blockNumber, padding, hintTextVals, textInputTypes, inputFormatters, inputValueIndexes) {
     
     return Padding(
-      padding: EdgeInsets.symmetric(vertical: verticalPadding, horizontal: horizontalPadding),
+      padding: EdgeInsets.symmetric(vertical: padding[0], horizontal: padding[1]),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          // Text field for login input
-          Container(
-            width: this.textFieldWidth,
-            height: this.textFieldHeight,
-            child: TextFormField(
-              focusNode: (isSecondBlockNeeded==true)? null : _focusNode,
-              autofocus: false,
-              textInputAction: TextInputAction.next,         
 
-              decoration: InputDecoration(
-                hintText: hintTextVals[0],
-                hintStyle: TextStyle( fontSize: 12, color: Colors.grey.shade500),
-                contentPadding: EdgeInsets.fromLTRB(7, 5, 5, 5),
-                
-                focusedBorder: textFieldStyle,
-                enabledBorder: textFieldStyle,
-              ),
-              
-              onChanged: (value) { this.login = value; }
-            )
+          textField(
+            TextInputAction.next, 
+            hintTextVals[0], 
+            textInputTypes[0], 
+            inputFormatters[0],
+            width: textFieldWidth,
+            height: textFieldHeight,
+            inputValueIndex: inputValueIndexes[0]
           ),
 
-          // Text field for password input
-          Container(
-            width: this.textFieldWidth,
-            height: this.textFieldHeight,
-            child: TextFormField(
-              autofocus: false,
-              textInputAction: (isSecondBlockNeeded==true)? TextInputAction.done: TextInputAction.next,
-              
-              keyboardType: (hintTextVals[1] == "номер телефону...")? TextInputType.number : TextInputType.text,
-              inputFormatters: [
-                if (hintTextVals[1] == "номер телефону...") FilteringTextInputFormatter.allow(RegExp(r'[0-9]')),
-              ],
-
-              decoration: InputDecoration(
-                hintText: hintTextVals[1],
-                hintStyle: TextStyle( fontSize: 12, color: Colors.grey.shade400),
-                contentPadding: EdgeInsets.fromLTRB(7, 5, 5, 5),
-                
-                focusedBorder: textFieldStyle,
-                enabledBorder: textFieldStyle,
-              ),
-              
-              onChanged: (value) { this.password = value; }
-            )
+          textField(
+            blockNumber == 3? TextInputAction.done : TextInputAction.next, 
+            hintTextVals[1], 
+            textInputTypes[1], 
+            inputFormatters[1],
+            width: textFieldWidth,
+            height: textFieldHeight,
+            inputValueIndex: inputValueIndexes[1]
           ),
+
         ]
       )
     );
   }
+
 }

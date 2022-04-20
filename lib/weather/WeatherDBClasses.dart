@@ -30,7 +30,11 @@ class WeatherDescriptionPage extends StatelessWidget{
 
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(backgroundColor: Colors.brown, title: Text('weather')),
+      appBar: AppBar(
+        backgroundColor: Colors.brown,
+        title: Text('weather'),
+        automaticallyImplyLeading: false
+      ),
 
       body: Padding(
         padding: EdgeInsets.all(15.0),

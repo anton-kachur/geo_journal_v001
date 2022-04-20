@@ -7,8 +7,13 @@ import 'package:geo_journal_v001/soil_types/SoilTypesDBClasses.dart';
 import 'package:geo_journal_v001/soundings/sounding_and_DB/SoundingDBClasses.dart';
 import 'package:geo_journal_v001/weather/WeatherDBClasses.dart';
 import 'package:geo_journal_v001/weather/WeatherForecasts.dart';
+import 'package:geo_journal_v001/wells/soil_and_DB/SoilSampleDBClasses.dart';
 import 'package:geo_journal_v001/wells/well_and_DB/WellDBClasses.dart';
+import 'package:geo_journal_v001/info/InfoPageDBClasses.dart';
+import 'package:geo_journal_v001/AppUtilites.dart';
 import 'package:hive_flutter/hive_flutter.dart';
+import 'package:dcdg/dcdg.dart';
+
 
 
 void main() async {   
@@ -20,8 +25,8 @@ void main() async {
     Hive.registerAdapter(SoilDescriptionAdapter());  // Adding adapter for soil description
   }
 
-  if (!Hive.isAdapterRegistered(1)) {
-    Hive.registerAdapter(AccountDescriptionAdapter());  // Adding adapter for account description
+  if (!Hive.isAdapterRegistered(12)) {
+    Hive.registerAdapter(UserAccountDescriptionAdapter());  // Adding adapter for account description
   }
 
   if (!Hive.isAdapterRegistered(2)) {
@@ -33,11 +38,19 @@ void main() async {
   }
 
   if (!Hive.isAdapterRegistered(4)) {
-    Hive.registerAdapter(SoundingDescriptionAdapter());  // Adding adapter for project description
+    Hive.registerAdapter(SoundingDescriptionAdapter());  // Adding adapter for sounding description
   }
 
   if (!Hive.isAdapterRegistered(5)) {
     Hive.registerAdapter(WellDescriptionAdapter());  // Adding adapter for well description
+  }
+
+  if (!Hive.isAdapterRegistered(16)) {
+    Hive.registerAdapter(SoilForWellDescriptionAdapter());  // Adding adapter for soil sample description
+  }
+
+  if (!Hive.isAdapterRegistered(9)) {
+    Hive.registerAdapter(InfoDescriptionAdapter());  // Adding adapter for app info description
   }
 
 
@@ -47,7 +60,7 @@ void main() async {
   box.close();
 
   // Creating box for accounts
-  var box1 = await Hive.openBox<AccountDescription>('s_accounts');
+  var box1 = await Hive.openBox<UserAccountDescription>('accounts');
   box1.close();
 
   // Creating box for weather forecasts
@@ -58,18 +71,23 @@ void main() async {
   var box3 = await Hive.openBox<ProjectDescription>('s_projects');
   box3.close();
 
-  // Creating box for projects
+  // Creating box for soundings
   var box4 = await Hive.openBox<SoundingDescription>('s_soundings');
   box4.close();
 
-  // Creating box for projects
+  // Creating box for wells
   var box5 = await Hive.openBox<WellDescription>('s_wells');
-  /*await box5.put('well1', WellDescription('1', '12/12/2088', 50.8891, 45.8899, '1'));
-  for (var i in box5.values) {
-    print(i.toString());
-  }*/
   box5.close();
 
+  // Creating box for soil_samples
+  var box6 = await Hive.openBox<SoilForWellDescription>('well_soil_samples');
+  box6.close();
+
+
+  // Creating box for app info
+  var box7 = await Hive.openBox<InfoDescription>('info');
+  box7.close();
+  
 
   // Running app
   runApp(Application());

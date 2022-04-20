@@ -1,0 +1,12 @@
+@startuml Order Taking
+
+actor user
+participant backend
+database weatherDatabase
+
+user -> backend: Send http request to get weather
+backend -> weatherDatabase: Check in DB
+weatherDatabase -> backend: Success response
+backend -> user: Show weather
+
+@enduml

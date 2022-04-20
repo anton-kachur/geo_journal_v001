@@ -11,7 +11,7 @@ import 'package:hive_flutter/hive_flutter.dart';
 
 
 /* *************************************************************************
- Classes for page where you can add description of the new project
+ Classes for page where you can add/edit project with description 
 ************************************************************************* */
 class AddProjectDescription extends StatefulWidget {
   var value;
@@ -30,9 +30,9 @@ class AddProjectDescriptionState extends State<AddProjectDescription>{
   var date;
   var notes;
 
-  var boxSize;
   var box;
-
+  var boxSize;
+  
 
   var textFieldWidth = 135.0;
   var textFieldHeight = 32.0;
@@ -58,14 +58,10 @@ class AddProjectDescriptionState extends State<AddProjectDescription>{
 
   // Function for getting data from Hive database
   Future getDataFromBox() async {
-    var boxx;
-    
-    boxx = await Hive.openBox<ProjectDescription>('s_projects');
-    
-    boxSize = boxx.length;
-    box = boxx;
+    box = await Hive.openBox<ProjectDescription>('s_projects');
+    boxSize = box.length;
 
-    return Future.value(boxx.values);     
+    return Future.value(box.values);     
   }  
 
 
@@ -73,7 +69,6 @@ class AddProjectDescriptionState extends State<AddProjectDescription>{
   Widget addToBox() {
     box.put('project${boxSize+2}', ProjectDescription(name, number, date, notes));
     
-    box.close();
     return Text('');
   }
 
@@ -83,7 +78,16 @@ class AddProjectDescriptionState extends State<AddProjectDescription>{
     for (var key in box.keys) {
       if ((box.get(key)).name == widget.projectName) {
 
-        box.put(key, ProjectDescription(name, number, date, notes));
+        box.put(
+          key, 
+          ProjectDescription(
+            name == null? box.get(key).name : name, 
+            number ==null? box.get(key).number : number,
+            date == null? box.get(key).date : date,
+            notes == null? box.get(key).notes : notes,
+          )
+        );
+      
       }
     }
 
@@ -104,14 +108,16 @@ class AddProjectDescriptionState extends State<AddProjectDescription>{
   }
 
 
+  // Function to set title of the add/edit page
   getPageName() {
     if (widget.value == 'projects') return 'Ввести опис проекту';
     else if (widget.value == 'project_page') return 'Редагувати проект';
   }
 
 
-    
-  textFieldForAdd() {
+  // Create textfield for add page
+  Widget textFieldForAdd() {
+
     return Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -127,14 +133,19 @@ class AddProjectDescriptionState extends State<AddProjectDescription>{
                 Container(
                   width: this.textFieldWidth,
                   height: this.textFieldHeight,
+
                   child: TextFormField(
                     focusNode: _focusNode,
                     autofocus: false,
                     textInputAction: TextInputAction.next,
 
+                    cursorRadius: const Radius.circular(10.0),
+                    cursorColor: Colors.black,
+
                     decoration: InputDecoration(
-                      hintText: (widget.value == 'project_page' && widget.projectName != '')? widget.projectName.toString() : 'Назва проекту',
-                      hintStyle: (widget.value == 'project_page' && widget.projectName != '')? TextStyle(fontSize: 12, color: Colors.black87) : TextStyle( fontSize: 12, color: Colors.grey.shade500),
+                      labelText: (widget.value == 'project_page' && widget.projectName != '')? widget.projectName.toString() : 'Назва проекту',
+                      hintStyle: (widget.value == 'project_page' && widget.projectName != '')? TextStyle(fontSize: 12, color: Colors.black87) : TextStyle( fontSize: 12, color: Colors.grey.shade400),
+                      labelStyle: (widget.value == 'project_page' && widget.projectName != '')? TextStyle(fontSize: 12, color: Colors.black87) : TextStyle( fontSize: 12, color: Colors.grey.shade400),
                       
                       contentPadding: EdgeInsets.fromLTRB(7, 5, 5, 5),
                       
@@ -142,9 +153,8 @@ class AddProjectDescriptionState extends State<AddProjectDescription>{
                       enabledBorder: textFieldStyle,
                     ),
                     
-                    onChanged: (value) { 
-                      name = value;    
-                    }
+                    onFieldSubmitted: (String value) { name = value; }
+
                   )
                 ),
 
@@ -152,6 +162,7 @@ class AddProjectDescriptionState extends State<AddProjectDescription>{
                 Container(
                   width: this.textFieldWidth,
                   height: this.textFieldHeight,
+
                   child: TextFormField(
                     autofocus: false,
                     textInputAction: TextInputAction.next,
@@ -160,16 +171,20 @@ class AddProjectDescriptionState extends State<AddProjectDescription>{
                       FilteringTextInputFormatter.allow(RegExp(r'[0-9]')),
                     ],
 
+                    cursorRadius: const Radius.circular(10.0),
+                    cursorColor: Colors.black,
+
                     decoration: InputDecoration(
-                      hintText: 'Номер проекту',
+                      labelText: 'Номер проекту',
                       hintStyle: TextStyle( fontSize: 12, color: Colors.grey.shade400),
+                      labelStyle: TextStyle( fontSize: 12, color: Colors.grey.shade400),
                       contentPadding: EdgeInsets.fromLTRB(7, 5, 5, 5),
                       
                       focusedBorder: textFieldStyle,
                       enabledBorder: textFieldStyle,
                     ),
                     
-                    onChanged: (value) { number = value; }
+                    onFieldSubmitted: (String value) { number = value; }
                   )
                 ),        
               ]
@@ -195,16 +210,20 @@ class AddProjectDescriptionState extends State<AddProjectDescription>{
                       FilteringTextInputFormatter.allow(RegExp(r'[0-9/]')),
                     ],
 
+                    cursorRadius: const Radius.circular(10.0),
+                    cursorColor: Colors.black,
+
                     decoration: InputDecoration(
-                      hintText: 'дата завершення (ДД-ММ-РРРР)',
+                      labelText: 'дата завершення (ДД-ММ-РРРР)',
                       hintStyle: TextStyle( fontSize: 12, color: Colors.grey.shade400),
+                      labelStyle: TextStyle( fontSize: 12, color: Colors.grey.shade400),
                       contentPadding: EdgeInsets.fromLTRB(7, 5, 5, 5),
                       
                       focusedBorder: textFieldStyle,
                       enabledBorder: textFieldStyle,
                     ),
                     
-                    onChanged: (value) { date = value; }
+                    onFieldSubmitted: (String value) { date = value; }
                   )
                 ),
 
@@ -212,20 +231,26 @@ class AddProjectDescriptionState extends State<AddProjectDescription>{
                 Container(
                   width: this.textFieldWidth,
                   height: this.textFieldHeight,
+
                   child: TextFormField(
                     autofocus: false,
                     textInputAction: TextInputAction.done,
 
+                    cursorRadius: const Radius.circular(10.0),
+                    cursorColor: Colors.black,
+
                     decoration: InputDecoration(
-                      hintText: 'Помітки',
+                      labelText: 'Помітки',
                       hintStyle: TextStyle( fontSize: 12, color: Colors.grey.shade400),
+                      labelStyle: TextStyle( fontSize: 12, color: Colors.grey.shade400),
+                      
                       contentPadding: EdgeInsets.fromLTRB(7, 5, 5, 5),
                       
                       focusedBorder: textFieldStyle,
                       enabledBorder: textFieldStyle,
                     ),
                     
-                    onChanged: (value) { notes = value; }
+                    onFieldSubmitted: (String value) { notes = value; }
                   )
                 ),           
               ]
@@ -236,84 +261,9 @@ class AddProjectDescriptionState extends State<AddProjectDescription>{
   }
 
 
-  // Delete element from DB
-  textFieldForDelete() {
-    return Padding(
-      padding: EdgeInsets.symmetric(vertical: 15.0, horizontal: 15.0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-
-        children: [
-          Text('Видалити елемент'),
-          
-          /*Padding(
-            padding: EdgeInsets.fromLTRB(1.0, 7.0, 0.0, 0.0),
-              child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-              
-                Container(
-                  width: this.textFieldWidth,
-                  height: this.textFieldHeight,
-                  child: TextFormField(
-                    autofocus: false,
-                    textInputAction: TextInputAction.done,
-
-                    decoration: InputDecoration(
-                      hintText: 'Назва проекту',
-                      hintStyle: TextStyle( fontSize: 12, color: Colors.grey.shade400),
-                      contentPadding: EdgeInsets.fromLTRB(7, 5, 5, 5),
-                      
-                      focusedBorder: textFieldStyle,
-                      enabledBorder: textFieldStyle,
-                    ),
-                    
-                    onChanged: (value) { 
-                      name = value; 
-                    }
-                  )
-                ),
-
-                
-              ]
-            ),
-          ),*/
-
-          
-          
-          // Add button
-          Padding(
-            padding: EdgeInsets.fromLTRB(90.0, 7.0, 0.0, 0.0),
-            child: FlatButton(
-              minWidth: 150.0,
-              child: Text("Видалити", style: TextStyle(color: Colors.black87)),
-              onPressed: () => { 
-                deleteElementInBox(),
-                Navigator.push(context, MaterialPageRoute(builder: (context) => Projects())),
-                /*setState(() {
-                  
-                })*/
-              },
-              shape: RoundedRectangleBorder(
-                side: BorderSide(
-                  color: Colors.black87,
-                  width: 1.0,
-                  style: BorderStyle.solid,
-                ),
-                borderRadius: BorderRadius.circular(8),
-              ), 
-            ),
-          )
-
-        ]
-      )
-    );
-  }
-
-
-
   // Change element from DB
-  textFieldForChange() {
+  Widget textFieldForChange() {
+
     return Padding(
       padding: EdgeInsets.symmetric(vertical: 15.0, horizontal: 15.0),
       child: Column(
@@ -321,31 +271,8 @@ class AddProjectDescriptionState extends State<AddProjectDescription>{
 
         children: [
           Text('Редагувати елемент'),
-          
           textFieldForAdd(),
-
-          // Add button
-          Padding(
-            padding: EdgeInsets.fromLTRB(100.0, 7.0, 0.0, 0.0),
-            child: FlatButton(
-              minWidth: 150.0,
-              child: Text("Додати", style: TextStyle(color: Colors.black87)),
-              onPressed: () {
-                changeElementInBox();
-                setState(() {});
-                Navigator.push(context, MaterialPageRoute(builder: (context) => Projects()));
-                //
-              },
-              shape: RoundedRectangleBorder(
-                side: BorderSide(
-                  color: Colors.black87,
-                  width: 1.0,
-                  style: BorderStyle.solid,
-                ),
-                borderRadius: BorderRadius.circular(8),
-              ), 
-            ),
-          )
+          button(functions: [changeElementInBox], text: "Змінити", context: context, route: 'projects'),
 
         ]
       )
@@ -354,59 +281,24 @@ class AddProjectDescriptionState extends State<AddProjectDescription>{
 
 
   // Add element to DB
-  addProjectTextField() {
+  Widget addProjectTextField() {
+    
     return Padding(
-          padding: EdgeInsets.symmetric(vertical: 15.0, horizontal: 15.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+      padding: EdgeInsets.symmetric(vertical: 15.0, horizontal: 15.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
 
-            children: [
-              Text('Додати елемент'),
+        children: [
+          
+          Text('Додати елемент'),
+          textFieldForAdd(),
+          button(functions: [addToBox], text: "Додати", context: context, route: '/projects_page'),
 
-              textFieldForAdd(),
-
-              // Add button
-              Padding(
-                padding: EdgeInsets.fromLTRB(100.0, 7.0, 0.0, 0.0),
-                child: FlatButton(
-                  minWidth: 150.0,
-                  child: Text("Додати", style: TextStyle(color: Colors.black87)),
-                  onPressed: () {
-                    addToBox();
-                    setState(() {});
-                  },
-                  shape: RoundedRectangleBorder(
-                    side: BorderSide(
-                      color: Colors.black87,
-                      width: 1.0,
-                      style: BorderStyle.solid,
-                    ),
-                    borderRadius: BorderRadius.circular(8),
-                  ), 
-                ),
-              )
-
-            ],
-          ),
-        );
-  }
-
-
-  Widget waitingOrErrorWindow(var text, var context) {
-    return Container(
-      height: MediaQuery.of(context).size.height, 
-      width: MediaQuery.of(context).size.width,
-      color: Colors.white,
-      child: Padding(
-        padding: EdgeInsets.fromLTRB(130, MediaQuery.of(context).size.height/2, 0.0, 0.0),
-
-        child: Text(
-          text,
-          style: TextStyle(fontSize: 20, decoration: TextDecoration.none, color: Colors.black),
-        ),
-      )
+        ],
+      ),
     );
   }
+
 
 
   @override
@@ -415,28 +307,33 @@ class AddProjectDescriptionState extends State<AddProjectDescription>{
 
 
     return FutureBuilder(
-      future: boxData,
+      future: boxData,  // data retreived from database
       builder: (BuildContext context, AsyncSnapshot snapshot) {
 
         if (snapshot.connectionState == ConnectionState.waiting) {
+
           return waitingOrErrorWindow('Зачекайте...', context);
         } else {
           if (snapshot.hasError)
             return waitingOrErrorWindow('Помилка: ${snapshot.error}', context);
           else
             return Scaffold(
-              appBar: AppBar(backgroundColor: Colors.brown, title: Text('${getPageName()}')),
+
+              appBar: AppBar(
+                backgroundColor: Colors.brown, 
+                title: Text('${getPageName()}'),
+                automaticallyImplyLeading: false
+              ),
+
               body: Scrollbar(
                 child: SingleChildScrollView(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
 
-                      
+                      // create text fields for add/edit project, depending on page, where you're in
                       if (widget.value == 'projects') addProjectTextField(),
                       if (widget.value == 'project_page') textFieldForChange(),
-                      if (widget.value == 'project_page') textFieldForDelete(),
-
                     
                     ],
                   ),
@@ -448,169 +345,6 @@ class AddProjectDescriptionState extends State<AddProjectDescription>{
         }
       }     
     ); 
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    Scaffold(
-      appBar: AppBar(
-        backgroundColor: Colors.brown,
-        title: Text('Ввести опис проекту'),
-      ),
-
-      body: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-
-          // Text field block for project name and number
-          Padding(
-            padding: EdgeInsets.symmetric(vertical: 20, horizontal: 20),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-
-                // Text field for project name input
-                Container(
-                  width: this.textFieldWidth,
-                  height: this.textFieldHeight,
-                  child: TextFormField(
-                    focusNode: _focusNode,
-                    autofocus: false,
-                    textInputAction: TextInputAction.next,
-
-                    decoration: InputDecoration(
-                      hintText: 'Назва проекту',
-                      hintStyle: TextStyle( fontSize: 12, color: Colors.grey.shade500),
-                      contentPadding: EdgeInsets.fromLTRB(7, 5, 5, 5),
-                      
-                      focusedBorder: textFieldStyle,
-                      enabledBorder: textFieldStyle,
-                    ),
-                    
-                    onChanged: (value) { projectSave.name = value; }
-                  )
-                ),
-
-                // Text field for project number input
-                Container(
-                  width: this.textFieldWidth,
-                  height: this.textFieldHeight,
-                  child: TextFormField(
-                    autofocus: false,
-                    textInputAction: TextInputAction.next,
-                    keyboardType: TextInputType.number,
-                    inputFormatters: [
-                      FilteringTextInputFormatter.allow(RegExp(r'[0-9]')),
-                    ],
-
-                    decoration: InputDecoration(
-                      hintText: 'Номер проекту',
-                      hintStyle: TextStyle( fontSize: 12, color: Colors.grey.shade400),
-                      contentPadding: EdgeInsets.fromLTRB(7, 5, 5, 5),
-                      
-                      focusedBorder: textFieldStyle,
-                      enabledBorder: textFieldStyle,
-                    ),
-                    
-                    onChanged: (value) { projectSave.number = value; }
-                  )
-                ),        
-              ]
-            )
-          ),
-
-          // Text field block for end date and notes
-          Padding(
-            padding: EdgeInsets.symmetric(vertical: 0, horizontal: 20),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-
-                // Text field for end date input
-                Container(
-                  width: this.textFieldWidth,
-                  height: this.textFieldHeight,
-                  child: TextFormField(
-                    autofocus: false,
-                    textInputAction: TextInputAction.next,
-                    keyboardType: TextInputType.datetime,
-                    inputFormatters: [
-                      FilteringTextInputFormatter.allow(RegExp(r'[0-9/]')),
-                    ],
-
-                    decoration: InputDecoration(
-                      hintText: 'дата завершення (ДД-ММ-РРРР)',
-                      hintStyle: TextStyle( fontSize: 12, color: Colors.grey.shade400),
-                      contentPadding: EdgeInsets.fromLTRB(7, 5, 5, 5),
-                      
-                      focusedBorder: textFieldStyle,
-                      enabledBorder: textFieldStyle,
-                    ),
-                    
-                    onChanged: (value) { projectSave.date = value; }
-                  )
-                ),
-
-                // Text field for notes input
-                Container(
-                  width: this.textFieldWidth,
-                  height: this.textFieldHeight,
-                  child: TextFormField(
-                    autofocus: false,
-                    textInputAction: TextInputAction.done,
-
-                    decoration: InputDecoration(
-                      hintText: 'Помітки',
-                      hintStyle: TextStyle( fontSize: 12, color: Colors.grey.shade400),
-                      contentPadding: EdgeInsets.fromLTRB(7, 5, 5, 5),
-                      
-                      focusedBorder: textFieldStyle,
-                      enabledBorder: textFieldStyle,
-                    ),
-                    
-                    onChanged: (value) { projectSave.notes = value; }
-                  )
-                ),           
-              ]
-            )
-          ),
-
-          // Add button
-          Padding(
-            padding: EdgeInsets.fromLTRB(100.0, 7.0, 0.0, 0.0),
-            child: FlatButton(
-              minWidth: 150.0,
-              child: Text("Додати", style: TextStyle(color: Colors.black87)),
-              onPressed: () {
-
-              },
-              shape: RoundedRectangleBorder(
-                side: BorderSide(
-                  color: Colors.black87,
-                  width: 1.0,
-                  style: BorderStyle.solid,
-                ),
-                borderRadius: BorderRadius.circular(8),
-              ), 
-            ),
-          )
-          
-        ]
-      ),
-
-      bottomNavigationBar: Bottom(),
-    );
   }
+  
 }

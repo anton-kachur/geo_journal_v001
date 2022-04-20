@@ -8,26 +8,28 @@ import 'package:hive_flutter/hive_flutter.dart';
   Class for representing list with soil types
 **************************************************************** */
 class SoilTypes extends StatelessWidget {
-  var box_size;
   var box;
+  var boxSize;
+
 
   // Function for getting data from Hive database
-  Future getDataFromBox(var boxName) async {
-    var boxx = await Hive.openBox<SoilDescription>(boxName);
-    box_size = boxx.length;
-    box = boxx;
+  Future getDataFromBox() async {
+    box = await Hive.openBox<SoilDescription>('soil_types');
+    boxSize = box.length;
 
-    return Future.value(boxx.values);     
+    return Future.value(box.values);     
   }  
 
 
   @override
   Widget build(BuildContext context) {
-    var boxData = getDataFromBox('soil_types');
+    var boxData = getDataFromBox();
+
 
     return FutureBuilder(
-      future: boxData,
+      future: boxData,  // data retreived from database
       builder: (BuildContext context, AsyncSnapshot snapshot) {
+
         if (snapshot.connectionState == ConnectionState.waiting) {
           return Center(child: Text('Loading...'));
         } else {
@@ -35,22 +37,26 @@ class SoilTypes extends StatelessWidget {
             return Center(child: Text('Error: ${snapshot.error}'));
           else
             return Scaffold(
+
               appBar: AppBar(backgroundColor: Colors.brown, title: Text('Типи грунтів')),
 
               body: Column(
                 children: [
+
+                  // output soil types list
                   for (var element in snapshot.data)
                     SoilType(type: element.type, description: element.description),
                   
                 ]
               ),
               
-              bottomNavigationBar: Bottom(),
+              bottomNavigationBar: Bottom.dependOnPage('soil_types'),
             );
         }
       }
     );
   }
+
 }
 
 
@@ -72,30 +78,37 @@ class CreateSoilType extends State<SoilType> {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-        children: [
-          Container(
-            decoration: BoxDecoration(
-              border: Border(
-                bottom: BorderSide(color: Colors.black45, width: 1.0),
-              )
-            ),
 
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text('     '+widget.type),
-                IconButton(
-                  splashColor: Colors.transparent,
-                  icon: Icon(Icons.arrow_forward_ios_rounded, size: 22),
-                  onPressed: () {
-                    Navigator.push(context, MaterialPageRoute(builder: (context) => SoilDescriptionPage.desc(widget.type, widget.description)));
-                  }
-                )   
-              ]
+    return Column(
+      children: [
+
+        Container(
+          decoration: BoxDecoration(
+            border: Border(
+              bottom: BorderSide(color: Colors.black45, width: 1.0),
             )
+          ),
+
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+
+              Text('     '+widget.type),
+              
+              IconButton(
+                splashColor: Colors.transparent,
+                icon: Icon(Icons.arrow_forward_ios_rounded, size: 22),
+                onPressed: () {
+                  Navigator.push(context, MaterialPageRoute(builder: (context) => SoilDescriptionPage.desc(widget.type, widget.description)));
+                }
+              ) 
+
+            ]
           )
-        ]
-      );
+        )
+
+      ]
+    );   
   }
+
 }
