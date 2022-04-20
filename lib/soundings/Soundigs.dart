@@ -11,7 +11,7 @@ import '../AppUtilites.dart';
  Classes for page with the list of soundings
 ************************************************************************* */
 class Soundings extends StatefulWidget {
-  var projectNumber;  // number of project, to which the sounding belongs
+  final projectNumber;  // number of project, to which the sounding belongs
 
   Soundings(this.projectNumber);
   
@@ -21,8 +21,8 @@ class Soundings extends StatefulWidget {
 
 
 class SoundingsState extends State<Soundings> {
-  var box;
-  var boxSize;
+  late final box;
+  late final boxSize;
   
 
   // Function for getting data from Hive database
@@ -68,7 +68,7 @@ class SoundingsState extends State<Soundings> {
                 ]
               ),
               
-              bottomNavigationBar: Bottom.dependOnPage('soundings', widget.projectNumber),
+              bottomNavigationBar: Bottom('soundings', widget.projectNumber),
             );
         }
       }

@@ -12,12 +12,12 @@ import '../../AppUtilites.dart';
  Classes for well
 ************************************************************************* */
 class Well extends StatefulWidget {
-  var number;
-  var date;
-  var latitude;
-  var longtitude;
+  final number;
+  final date;
+  final latitude;
+  final longtitude;
 
-  var projectNumber;
+  final projectNumber;
 
   Well(this.number, this.date, this.latitude, this.longtitude, this.projectNumber);
   

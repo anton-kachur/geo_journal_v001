@@ -10,8 +10,8 @@ import 'package:hive_flutter/hive_flutter.dart';
  Classes for page where you can add soil sample with description
 ************************************************************************* */
 class AddSoilSample extends StatefulWidget {
-  var wellNumber; // number of well, to which the soil sample belongs
-  var projectNumber; // number of project, to which the soil sample belongs
+  final wellNumber; // number of well, to which the soil sample belongs
+  final projectNumber; // number of project, to which the soil sample belongs
 
   AddSoilSample(this.wellNumber, this.projectNumber);
   

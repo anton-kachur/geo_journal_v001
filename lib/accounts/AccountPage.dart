@@ -10,7 +10,7 @@ import 'package:hive_flutter/hive_flutter.dart';
   Classes for the page of registration/authorization
 **************************************************************** */
 class AddAccountPage extends StatefulWidget {
-  var mode;
+  final mode;
 
   AddAccountPage(this.mode);
   

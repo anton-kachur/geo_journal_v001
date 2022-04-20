@@ -79,7 +79,7 @@ class ThemeModel with ChangeNotifier {
   Classes for creating main page of an app 
 ************************************************************ */
 class MainPage extends StatefulWidget {
-  var model;
+  final model;
   MainPage([this.model]);
 
   @override
@@ -110,7 +110,7 @@ class MainPageState extends State<MainPage> {
 ************************************************************ */
 class DragBox extends StatefulWidget {
   final Offset initPos;
-  var model;
+  final model;
 
   DragBox(this.initPos, this.model);
 

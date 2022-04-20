@@ -14,7 +14,7 @@ import 'package:hive_flutter/hive_flutter.dart';
   Classes for database settings
 **************************************************************** */
 class DatabaseSettingsPage extends StatefulWidget {
-  var value;
+  final value;
 
   DatabaseSettingsPage(this.value);
   

@@ -11,8 +11,8 @@ import 'package:hive_flutter/hive_flutter.dart';
  Classes for page where you can add/edit project with description 
 ************************************************************************* */
 class AddProjectDescription extends StatefulWidget {
-  var value;
-  var projectName;
+  final value;
+  final projectName;
 
   AddProjectDescription([this.value = 'projects', this.projectName = '']);
   
@@ -35,8 +35,6 @@ class AddProjectDescriptionState extends State<AddProjectDescription>{
   var textFieldHeight = 32.0;
 
   late FocusNode _focusNode;
-  Project projectSave = Project.blank();
-  Project projectLoad = Project.blank();
   
 
   @override

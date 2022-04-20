@@ -23,7 +23,7 @@ class WeatherDescription {
   Class for creating page of soil sample with description
 **************************************************************** */
 class WeatherDescriptionPage extends StatelessWidget{
-  var weatherData;
+  final weatherData;
   
   WeatherDescriptionPage(this.weatherData);
 

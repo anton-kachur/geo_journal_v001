@@ -70,7 +70,7 @@ class ProjectsState extends State<Projects>{
                 )
               ), 
               
-              bottomNavigationBar: Bottom.dependOnPage('projects'),
+              bottomNavigationBar: Bottom('projects'),
             );
         }
       }

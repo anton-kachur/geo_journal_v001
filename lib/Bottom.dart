@@ -10,12 +10,11 @@ import 'package:geo_journal_v001/wells/AddWellDescription.dart';
   Classes for representing the bottom navigation bar
 ********************************************************* */
 class Bottom extends StatefulWidget {
-  String page = '';
-  var changeableVal;
-  var secondChangeableVal;
+  final page;
+  final changeableVal;
+  final secondChangeableVal;
 
-  Bottom();
-  Bottom.dependOnPage(this.page, [this.changeableVal, this.secondChangeableVal]);
+  Bottom([this.page = '', this.changeableVal, this.secondChangeableVal]);
   
   @override
   BottomState createState() => BottomState();

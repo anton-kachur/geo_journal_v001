@@ -69,7 +69,7 @@ class WellPageState extends State<WellPage>{
                 ]
               ),
 
-              bottomNavigationBar: Bottom.dependOnPage('soil_sample', widget.wellNumber, widget.projectNumber),
+              bottomNavigationBar: Bottom('soil_sample', widget.wellNumber, widget.projectNumber),
             );
         }
       }

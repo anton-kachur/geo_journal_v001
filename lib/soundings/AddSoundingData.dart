@@ -10,7 +10,7 @@ import 'package:hive_flutter/hive_flutter.dart';
  Classes for page where you can add description of the new sounding
 ************************************************************************* */
 class AddSoundingData extends StatefulWidget {
-  var projectNumber;  // number of project, to which the sounding belongs
+  final projectNumber;  // number of project, to which the sounding belongs
   
   AddSoundingData(this.projectNumber);
   

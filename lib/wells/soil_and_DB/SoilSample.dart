@@ -5,13 +5,13 @@ import 'package:flutter/material.dart';
   Classes for soil samples
 ************************************************************************* */
 class SoilSample extends StatefulWidget {
-  var name;
-  var depthStart;
-  var depthEnd;
-  var notes;
+  final name;
+  final depthStart;
+  final depthEnd;
+  final notes;
   
-  var wellNumber;
-  var projectNumber;
+  final wellNumber;
+  final projectNumber;
 
   SoilSample(this.name, this.depthStart, this.depthEnd, this.notes, this.wellNumber, this.projectNumber);
   

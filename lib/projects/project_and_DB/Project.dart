@@ -13,12 +13,11 @@ import 'package:hive_flutter/hive_flutter.dart';
  Classes for project
 ************************************************************************* */
 class Project extends StatefulWidget {
-  var name;
-  var number;
-  var date;
-  var notes;
+  final name;
+  final number;
+  final date;
+  final notes;
 
-  Project.blank();
   Project(this.name, this.number, this.date, this.notes);
   
   @override

@@ -10,11 +10,11 @@ import '../AppUtilites.dart';
   Classes for creating information page
 **************************************************************** */
 class InfoPage extends StatelessWidget {
-  var box;
+  late final box;
   
   // Function for getting data from Hive database
   Future getDataFromBox() async {
-    var box = await Hive.openBox<InfoDescription>('info');
+    box = await Hive.openBox<InfoDescription>('info');
     
     return Future.value(box.values.first);     
   }
@@ -66,7 +66,7 @@ class InfoPage extends StatelessWidget {
                 ]
               ),
 
-              bottomNavigationBar: Bottom.dependOnPage('info_page'),
+              bottomNavigationBar: Bottom('info_page'),
             );
         }
       }

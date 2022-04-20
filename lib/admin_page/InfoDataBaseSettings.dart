@@ -9,7 +9,7 @@ import 'package:hive_flutter/hive_flutter.dart';
   Classes for app info database settings
 **************************************************************** */
 class InfoDatabaseSettingsPage extends StatefulWidget {
-  var value;
+  final value;
 
   InfoDatabaseSettingsPage(this.value);
   

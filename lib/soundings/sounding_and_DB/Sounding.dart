@@ -5,12 +5,12 @@ import 'package:flutter/material.dart';
  Classes for sounding
 ************************************************************************* */
 class Sounding extends StatefulWidget {
-  var depth;
-  var qc;
-  var fs;
-  var notes;
+  final depth;
+  final qc;
+  final fs;
+  final notes;
 
-  var projectNumber;  // number of project, to which the well belongs
+  final projectNumber;  // number of project, to which the well belongs
 
   Sounding(this.depth, this.qc, this.fs, this.notes, this.projectNumber);
   

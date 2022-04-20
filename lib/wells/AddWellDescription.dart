@@ -11,7 +11,7 @@ import 'package:hive_flutter/hive_flutter.dart';
  Classes for page where you can add new well with description
 ************************************************************************* */
 class AddWellDescription extends StatefulWidget {
-  var projectNumber;  // number of project, to which the well belongs
+  final projectNumber;  // number of project, to which the well belongs
   AddWellDescription(this.projectNumber);
   
   @override

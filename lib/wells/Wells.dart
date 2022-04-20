@@ -67,7 +67,7 @@ class WellsState extends State<Wells>{
                 ]
               ),
               
-              bottomNavigationBar: Bottom.dependOnPage('wells', widget.projectNumber),
+              bottomNavigationBar: Bottom('wells', widget.projectNumber),
             );
         }
       }

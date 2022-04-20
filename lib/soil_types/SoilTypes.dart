@@ -8,8 +8,8 @@ import 'package:hive_flutter/hive_flutter.dart';
   Class for representing list with soil types
 **************************************************************** */
 class SoilTypes extends StatelessWidget {
-  var box;
-  var boxSize;
+  late final box;
+  late final boxSize;
 
 
   // Function for getting data from Hive database
@@ -50,7 +50,7 @@ class SoilTypes extends StatelessWidget {
                 ]
               ),
               
-              bottomNavigationBar: Bottom.dependOnPage('soil_types'),
+              bottomNavigationBar: Bottom('soil_types'),
             );
         }
       }

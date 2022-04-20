@@ -9,7 +9,7 @@ import 'package:geo_journal_v001/Bottom.dart';
   Classes for creating settings page
 **************************************************************** */
 class Settings extends StatefulWidget {
-  var model;
+  final model;
 
   Settings(this.model);
   

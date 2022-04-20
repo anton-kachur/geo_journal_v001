@@ -301,7 +301,7 @@ class _WeatherForecastState extends State<WeatherForecast> {
         ],
       ),
 
-      bottomNavigationBar: Bottom.dependOnPage('forecasts'),
+      bottomNavigationBar: Bottom('forecasts'),
     );
   }
 }

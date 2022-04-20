@@ -13,10 +13,10 @@ import '../AppUtilites.dart';
  Classes for page of project
 ************************************************************************* */
 class ProjectPage extends StatefulWidget {
-  var name;
-  var number;
-  var date;
-  var notes;
+  final name;
+  final number;
+  final date;
+  final notes;
 
   ProjectPage(this.name, this.number, this.date, this.notes);
   
@@ -180,7 +180,7 @@ class ProjectPageState extends State<ProjectPage> {
         ]
       ),
 
-      bottomNavigationBar: Bottom.dependOnPage("project_page", widget.name),
+      bottomNavigationBar: Bottom("project_page", widget.name),
     );
 
   }
