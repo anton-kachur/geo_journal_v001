@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:geo_journal_v001/AppUtilites.dart';
@@ -38,7 +40,7 @@ class SettingsState extends State<Settings>{
 
           // Enable / disable dark mode 
           Padding(
-            padding: EdgeInsets.symmetric(vertical: 15.0, horizontal: 15.0),
+            padding: EdgeInsets.fromLTRB(15, 10, 15, 5),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -67,7 +69,7 @@ class SettingsState extends State<Settings>{
 
           // Account settings / registration / log out
           Padding(
-            padding: EdgeInsets.symmetric(vertical: 0.0, horizontal: 15.0),
+            padding: EdgeInsets.fromLTRB(15, 0, 15, 0),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -78,7 +80,7 @@ class SettingsState extends State<Settings>{
                   itemBuilder: (context) => [
                     PopupMenuItem(child: Text('Реєстрація'), value: 'sign_up'),
                     PopupMenuItem(child: Text('Увійти'), value: 'log_in'),
-                    PopupMenuItem(child: Text('Вийти з акаунту'), value: 'log_out'),
+                    if (currentAccount!=null) PopupMenuItem(child: Text('Вийти з акаунту'), value: 'log_out'),
                   ],
 
                   onSelected: (value) {
@@ -121,10 +123,10 @@ class SettingsState extends State<Settings>{
           ),
 
 
-          if (currentAccountIsRegistered) 
+          if (currentAccountIsRegistered && currentAccountIsAdmin == false) 
             // Account settings
             Padding(
-              padding: EdgeInsets.symmetric(vertical: 0.0, horizontal: 15.0),
+              padding: EdgeInsets.fromLTRB(15, 5, 15, 5),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
@@ -146,6 +148,52 @@ class SettingsState extends State<Settings>{
                 ],
               ),
             ), 
+
+          Padding(
+            padding: EdgeInsets.fromLTRB(15, 0, 15, 0),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+
+                Text('Вийти'),
+                
+                IconButton(    
+                  splashColor: Colors.transparent,
+                  highlightColor: Colors.transparent,
+
+                  padding: EdgeInsets.fromLTRB(1.0, 0.0, 0.0, 7.0),
+
+                  icon: Icon(Icons.exit_to_app, size: 20),
+                  onPressed: () {
+                    showDialog(
+                      context: context, 
+                      builder: (BuildContext context) {
+                        return AlertDialog(
+                          title: const Text('Ви дійсно бажаєте вийти?'),
+                          content: Text('', style: TextStyle(fontSize: 18)),
+                          actions: [
+                            
+                            FlatButton(
+                              child: const Text('Так'),
+                              onPressed: () { exit(0); },
+                            ),
+
+                            FlatButton(
+                              child: const Text('Ні'),
+                              onPressed: () { Navigator.of(context).pop(); },
+                            )
+
+                          ],
+                        );
+                      }
+                    );
+                    
+                  }
+                ),
+
+              ],
+            ),
+          ),
 
         ],
       ),

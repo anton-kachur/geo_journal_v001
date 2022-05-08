@@ -2,7 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:geo_journal_v001/AppUtilites.dart';
 import 'package:geo_journal_v001/Bottom.dart';
+import 'package:geo_journal_v001/accounts/AccountsDBClasses.dart';
+import 'package:geo_journal_v001/projects/Projects.dart';
 import 'package:geo_journal_v001/projects/project_and_DB/ProjectDBClasses.dart';
+import 'package:geo_journal_v001/soundings/sounding_and_DB/Sounding.dart';
+import 'package:geo_journal_v001/soundings/sounding_and_DB/SoundingDBClasses.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 
 
@@ -12,8 +16,9 @@ import 'package:hive_flutter/hive_flutter.dart';
 class AddProjectDescription extends StatefulWidget {
   final value;
   final projectName;
+  final mode;
 
-  AddProjectDescription([this.value = 'projects', this.projectName = '']);
+  AddProjectDescription({this.value = 'projects', this.projectName = '', this.mode});
   
   @override
   AddProjectDescriptionState createState() => AddProjectDescriptionState();
@@ -21,71 +26,109 @@ class AddProjectDescription extends StatefulWidget {
 
 
 class AddProjectDescriptionState extends State<AddProjectDescription>{
-  var name;
-  var number;
-  var date;
-  var notes;
-
   var box;
   var boxSize;
-  
 
-  var textFieldWidth = 135.0;
+  Map<String, Object> fieldValues = {
+    'name': '', 
+    'number': '', 
+    'date': '', 
+    'notes': ''
+  };
+
+  var textFieldWidth = 320.0;
   var textFieldHeight = 32.0;
-
-  late FocusNode _focusNode;
-  
-
-  @override
-  void initState() {
-    super.initState();
-    _focusNode = FocusNode();
-  }
-
-  @override
-  void dispose() {
-    super.dispose();
-    _focusNode.dispose();
-  }
-
 
 
   // Function for getting data from Hive database
   Future getDataFromBox() async {
-    box = await Hive.openBox<ProjectDescription>('s_projects');
+    box = await Hive.openBox('accounts_data');
     boxSize = box.length;
 
     return Future.value(box.values);     
   }  
 
 
+    // Redirect to page with list of wells
+  void redirect() {
+    Navigator.pop(context, false);
+    Navigator.pushReplacement(context, MaterialPageRoute(builder: (BuildContext context) => Projects()));
+  }
+
+
+  Future<bool> checkAccount(var account) async {
+    return (account.login == (await currentAccount).login &&
+        account.password == (await currentAccount).password &&
+        account.email == (await currentAccount).email &&
+        account.phoneNumber == (await currentAccount).phoneNumber &&
+        account.position == (await currentAccount).position &&
+        account.isAdmin == (await currentAccount).isAdmin)? Future<bool>.value(true): Future<bool>.value(false);
+  }
+
+
   // Function for adding data to database
-  Widget addToBox() {
-    box.put('project${boxSize+2}', ProjectDescription(name, number, date, notes));
-    
-    return Text('');
+  addToBox() async {
+    for (var key in box.keys) {
+      if ((await checkAccount(box.get(key))) == true) {
+        
+        var userProjects = (await currentAccount).projects;
+        userProjects.add(ProjectDescription(fieldValues['name'], fieldValues['number'], fieldValues['date'], fieldValues['notes'], [], []));
+
+        box.put(
+          key, UserAccountDescription(
+            (await currentAccount).login,
+            (await currentAccount).password,
+            (await currentAccount).email,
+            (await currentAccount).phoneNumber,
+            (await currentAccount).position,
+            true,
+            (await currentAccount).isAdmin,
+            userProjects
+          )
+        );
+
+      }
+    }
   }
 
 
   // Function for changing data in database
-  Widget changeElementInBox() {
+  changeElementInBox() async {
+    
     for (var key in box.keys) {
-      if ((box.get(key)).name == widget.projectName) {
+      if ((await checkAccount(box.get(key))) == true) {
+        
+        var projects = (await currentAccount).projects;
+        
+        for (var element in projects) {
+          if (element.name == widget.projectName) {
 
-        box.put(
-          key, 
-          ProjectDescription(
-            name == null? box.get(key).name : name, 
-            number ==null? box.get(key).number : number,
-            date == null? box.get(key).date : date,
-            notes == null? box.get(key).notes : notes,
-          )
-        );
-      
+            projects[projects.indexOf(element)] = ProjectDescription(
+              fieldValues['name'] == ''? element.name : fieldValues['name'], 
+              fieldValues['number'] == ''? element.number : fieldValues['number'],
+              fieldValues['date'] == ''? element.date : fieldValues['date'],
+              fieldValues['notes'] == ''? element.notes : fieldValues['notes'], 
+              element.wells, 
+              element.soundings 
+            );
+
+            box.put(
+              key, UserAccountDescription(
+              (await currentAccount).login,
+              (await currentAccount).password,
+              (await currentAccount).email,
+              (await currentAccount).phoneNumber,
+              (await currentAccount).position,
+              true,
+              (await currentAccount).isAdmin,
+              projects
+              )
+            );
+
+          }
+        }
       }
     }
-
-    return Text('');
   }
 
 
@@ -118,135 +161,65 @@ class AddProjectDescriptionState extends State<AddProjectDescription>{
 
           // Text field block for project name and number
           Padding(
-            padding: EdgeInsets.symmetric(vertical: 20, horizontal: 20),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            padding: EdgeInsets.fromLTRB(9, 8, 9, 2),
+            child: Column(
               children: [
 
-                // Text field for project name input
-                Container(
-                  width: this.textFieldWidth,
-                  height: this.textFieldHeight,
-
-                  child: TextFormField(
-                    focusNode: _focusNode,
-                    autofocus: false,
-                    textInputAction: TextInputAction.next,
-
-                    cursorRadius: const Radius.circular(10.0),
-                    cursorColor: Colors.black,
-
-                    decoration: InputDecoration(
-                      labelText: (widget.value == 'project_page' && widget.projectName != '')? widget.projectName.toString() : 'Назва проекту',
-                      hintStyle: (widget.value == 'project_page' && widget.projectName != '')? TextStyle(fontSize: 12, color: Colors.black87) : TextStyle( fontSize: 12, color: Colors.grey.shade400),
-                      labelStyle: (widget.value == 'project_page' && widget.projectName != '')? TextStyle(fontSize: 12, color: Colors.black87) : TextStyle( fontSize: 12, color: Colors.grey.shade400),
-                      
-                      contentPadding: EdgeInsets.fromLTRB(7, 5, 5, 5),
-                      
-                      focusedBorder: textFieldStyle,
-                      enabledBorder: textFieldStyle,
-                    ),
-                    
-                    onFieldSubmitted: (String value) { name = value; }
-
-                  )
+                textField(
+                  TextInputAction.next, 
+                  (widget.value == 'project_page' && widget.projectName != '')? widget.projectName.toString() : 'Назва проекту...',
+                  (widget.value == 'project_page' && widget.projectName != '')? TextStyle(fontSize: 12, color: lightingMode == ThemeMode.dark? Colors.white : Colors.black87) : TextStyle( fontSize: 12, color: Colors.grey.shade400),
+                  (widget.value == 'project_page' && widget.projectName != '')? TextStyle(fontSize: 12, color: Colors.black87) : TextStyle( fontSize: 12, color: Colors.grey.shade400),
+                  TextInputType.text, 
+                  null,
+                  String,
+                  width: textFieldWidth,
+                  height: textFieldHeight,
+                  inputValueIndex: 'name'
                 ),
 
-                // Text field for project number input
-                Container(
-                  width: this.textFieldWidth,
-                  height: this.textFieldHeight,
+                SizedBox(height: 8),
 
-                  child: TextFormField(
-                    autofocus: false,
-                    textInputAction: TextInputAction.next,
-                    keyboardType: TextInputType.number,
-                    inputFormatters: [
-                      FilteringTextInputFormatter.allow(RegExp(r'[0-9]')),
-                    ],
-
-                    cursorRadius: const Radius.circular(10.0),
-                    cursorColor: Colors.black,
-
-                    decoration: InputDecoration(
-                      labelText: 'Номер проекту',
-                      hintStyle: TextStyle( fontSize: 12, color: Colors.grey.shade400),
-                      labelStyle: TextStyle( fontSize: 12, color: Colors.grey.shade400),
-                      contentPadding: EdgeInsets.fromLTRB(7, 5, 5, 5),
-                      
-                      focusedBorder: textFieldStyle,
-                      enabledBorder: textFieldStyle,
-                    ),
-                    
-                    onFieldSubmitted: (String value) { number = value; }
-                  )
-                ),        
-              ]
-            )
-          ),
-
-          // Text field block for end date and notes
-          Padding(
-            padding: EdgeInsets.symmetric(vertical: 0, horizontal: 20),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-
-                // Text field for end date input
-                Container(
-                  width: this.textFieldWidth,
-                  height: this.textFieldHeight,
-                  child: TextFormField(
-                    autofocus: false,
-                    textInputAction: TextInputAction.next,
-                    keyboardType: TextInputType.datetime,
-                    inputFormatters: [
-                      FilteringTextInputFormatter.allow(RegExp(r'[0-9/]')),
-                    ],
-
-                    cursorRadius: const Radius.circular(10.0),
-                    cursorColor: Colors.black,
-
-                    decoration: InputDecoration(
-                      labelText: 'дата завершення (ДД-ММ-РРРР)',
-                      hintStyle: TextStyle( fontSize: 12, color: Colors.grey.shade400),
-                      labelStyle: TextStyle( fontSize: 12, color: Colors.grey.shade400),
-                      contentPadding: EdgeInsets.fromLTRB(7, 5, 5, 5),
-                      
-                      focusedBorder: textFieldStyle,
-                      enabledBorder: textFieldStyle,
-                    ),
-                    
-                    onFieldSubmitted: (String value) { date = value; }
-                  )
+                textField(
+                  TextInputAction.next, 
+                  'Номер проекту...', 
+                  null, null,
+                  TextInputType.number, 
+                  FilteringTextInputFormatter.allow(RegExp(r'[0-9]')),
+                  int,
+                  width: textFieldWidth,
+                  height: textFieldHeight,
+                  inputValueIndex: 'number'
                 ),
 
-                // Text field for notes input
-                Container(
-                  width: this.textFieldWidth,
-                  height: this.textFieldHeight,
+                SizedBox(height: 8),
+                
+                textField(
+                  TextInputAction.next, 
+                  'Дата буріння\n(ДД/ММ/РРРР)', 
+                  null, null,
+                  TextInputType.datetime, 
+                  FilteringTextInputFormatter.allow(RegExp(r'[0-9/]')),
+                  String,
+                  width: textFieldWidth,
+                  height: textFieldHeight,
+                  inputValueIndex: 'date'
+                ),
 
-                  child: TextFormField(
-                    autofocus: false,
-                    textInputAction: TextInputAction.done,
+                SizedBox(height: 8),
 
-                    cursorRadius: const Radius.circular(10.0),
-                    cursorColor: Colors.black,
-
-                    decoration: InputDecoration(
-                      labelText: 'Помітки',
-                      hintStyle: TextStyle( fontSize: 12, color: Colors.grey.shade400),
-                      labelStyle: TextStyle( fontSize: 12, color: Colors.grey.shade400),
-                      
-                      contentPadding: EdgeInsets.fromLTRB(7, 5, 5, 5),
-                      
-                      focusedBorder: textFieldStyle,
-                      enabledBorder: textFieldStyle,
-                    ),
-                    
-                    onFieldSubmitted: (String value) { notes = value; }
-                  )
-                ),           
+                textField(
+                  TextInputAction.newline, 
+                  'Нотатки...', 
+                  null, null,
+                  TextInputType.multiline, 
+                  null,
+                  String,
+                  width: textFieldWidth,
+                  height: textFieldHeight,
+                  inputValueIndex: 'notes'
+                ),
+                           
               ]
             )
           ),    
@@ -259,14 +232,14 @@ class AddProjectDescriptionState extends State<AddProjectDescription>{
   Widget textFieldForChange() {
 
     return Padding(
-      padding: EdgeInsets.symmetric(vertical: 15.0, horizontal: 15.0),
+      padding: EdgeInsets.fromLTRB(15, 15, 15, 8),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
 
         children: [
-          Text('Редагувати елемент'),
+
           textFieldForAdd(),
-          button(functions: [changeElementInBox], text: "Змінити", context: context, route: 'projects'),
+          button(functions: [changeElementInBox, redirect], text: "Змінити", rightPadding: 92),
 
         ]
       )
@@ -278,15 +251,14 @@ class AddProjectDescriptionState extends State<AddProjectDescription>{
   Widget addProjectTextField() {
     
     return Padding(
-      padding: EdgeInsets.symmetric(vertical: 15.0, horizontal: 15.0),
+      padding: EdgeInsets.fromLTRB(15, 15, 15, 8),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
 
         children: [
-          
-          Text('Додати елемент'),
+
           textFieldForAdd(),
-          button(functions: [addToBox], text: "Додати", context: context, route: '/projects_page'),
+          button(functions: [addToBox, redirect], text: "Додати", rightPadding: 93),
 
         ],
       ),
@@ -339,6 +311,69 @@ class AddProjectDescriptionState extends State<AddProjectDescription>{
         }
       }     
     ); 
+  }
+
+
+  // Create text field with parameters
+  Widget textField(
+    TextInputAction? textInputAction, String? labelText, 
+    TextStyle? hintStyle, TextStyle? labelStyle, TextInputType? keyboardType, 
+    TextInputFormatter? inputFormatters, Type? parseType,
+    {double? width, double? height, String? inputValueIndex}
+  ) {
+    return Container(
+      width: width,
+
+      child: TextFormField(
+        autofocus: false,
+        textInputAction: textInputAction,
+
+        keyboardType: keyboardType,
+        inputFormatters: [
+          if (inputFormatters != null) inputFormatters
+        ],
+
+        maxLines: (inputValueIndex == 'notes')? null : 1,
+
+        obscureText: (inputValueIndex == 'password' || inputValueIndex == 'confirmPassword')? true : false,
+        autocorrect: true,
+        enableSuggestions: true,
+
+        cursorRadius: const Radius.circular(10.0),
+        cursorColor: lightingMode == ThemeMode.dark? Colors.white : Colors.black,
+
+        decoration: InputDecoration(
+          labelText: labelText,
+          hintStyle: hintStyle != null? hintStyle : TextStyle( fontSize: 12, color: Colors.grey.shade400),
+          labelStyle: labelStyle != null? hintStyle : TextStyle( fontSize: 12, color: Colors.grey.shade400),
+
+          contentPadding: EdgeInsets.fromLTRB(10, 0, 0, 0),
+          
+          focusedBorder: textFieldStyle,
+          enabledBorder: textFieldStyle,
+        ),
+        
+        onChanged: (String value) { 
+          if (inputValueIndex != null) {    
+            if (value == '' && widget.mode == 'add') {
+              alert('Дане поле потрібно заповнити', context);
+            } else { 
+              if (inputValueIndex == 'name' && widget.mode == 'edit') {
+                fieldValues['name'] = widget.projectName;
+              } 
+
+              if (parseType == double) 
+                fieldValues[inputValueIndex] = double.tryParse(value) == null? 0.0 : double.parse(value);
+              else if (parseType == int)
+                fieldValues[inputValueIndex] = int.tryParse(value) == null? 0: int.parse(value);
+              else 
+                fieldValues[inputValueIndex] = value;
+            }
+          }
+        }
+
+      )
+    );
   }
   
 }

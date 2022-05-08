@@ -1,5 +1,6 @@
 import 'package:hive_flutter/hive_flutter.dart';
 
+part 'SoilSampleDBClasses.g.dart';
 
 /* ***************************************************************
   Hive class for saving soil samples
@@ -18,41 +19,13 @@ class SoilForWellDescription {
   var wellNumber;
   @HiveField(5)
   var projectNumber;
+  @HiveField(6)
+  var image;
 
-  SoilForWellDescription(this.name, this.depthStart, this.depthEnd, this.notes, this.wellNumber, this.projectNumber);
+  SoilForWellDescription(this.name, this.depthStart, this.depthEnd, this.notes, this.wellNumber, this.projectNumber, {this.image});
 
   @override
   String toString() {
     return '${this.name}\n${this.depthStart}\n${this.depthEnd}\n${this.notes}';
-  }
-}
-
-
-class SoilForWellDescriptionAdapter extends TypeAdapter<SoilForWellDescription>{
-  @override
-  final typeId = 16;
-
-
-  @override
-  SoilForWellDescription read(BinaryReader reader) {
-    final name = reader.readString();
-    final depthStart = reader.readString();
-    final depthEnd = reader.readString();
-    final notes = reader.readString();
-    final wellNumber = reader.readString();
-    final projectNumber = reader.readString();
-
-    return SoilForWellDescription(name, depthStart, depthEnd, notes, wellNumber, projectNumber);
-  }
-
-
-  @override
-  void write(BinaryWriter writer, SoilForWellDescription obj) {
-    writer.writeString(obj.name);
-    writer.writeString(obj.depthStart);
-    writer.writeString(obj.depthEnd);
-    writer.writeString(obj.notes);
-    writer.writeString(obj.wellNumber);
-    writer.writeString(obj.projectNumber);
   }
 }

@@ -1,11 +1,16 @@
+import 'package:geo_journal_v001/soundings/sounding_and_DB/SoundingDBClasses.dart';
+import 'package:geo_journal_v001/wells/well_and_DB/WellDBClasses.dart';
 import 'package:hive_flutter/hive_flutter.dart';
+
+part 'ProjectDBClasses.g.dart';
 
 
 /* ***************************************************************
   Hive class for saving projects
 **************************************************************** */
+abstract class ObjectDatabase{}
 @HiveType(typeId: 3)
-class ProjectDescription {
+class ProjectDescription extends HiveObject {
   @HiveField(0)
   var name;
   @HiveField(1)
@@ -14,37 +19,16 @@ class ProjectDescription {
   var date;
   @HiveField(3)
   var notes;
+  @HiveField(4)
+  List<WellDescription> wells;
+  @HiveField(5)
+  List<SoundingDescription> soundings;
   
-  ProjectDescription([this.name, this.number, this.date, this.notes]);
+  
+  ProjectDescription(this.name, this.number, this.date, this.notes, this.wells, this.soundings);
 
   @override
   String toString() {
-    return '${this.name} №${this.number}\n\n${this.date}\n${this.notes}';
-  }
-}
-
-
-class ProjectDescriptionAdapter extends TypeAdapter<ProjectDescription>{
-  @override
-  final typeId = 3;
-
-
-  @override
-  ProjectDescription read(BinaryReader reader) {
-    final name = reader.readString();
-    final number = reader.readString();
-    final date = reader.readString();
-    final notes = reader.readString();
-    
-    return ProjectDescription(name, number, date, notes);
-  }
-
-
-  @override
-  void write(BinaryWriter writer, ProjectDescription obj) {
-    writer.writeString(obj.name);
-    writer.writeString(obj.number);
-    writer.writeString(obj.date);
-    writer.writeString(obj.notes);
+    return '${this.name} №${this.number}\n${this.date}\n${this.notes}\nwells: ${this.wells}\nsoundings: ${this.soundings}\n';
   }
 }

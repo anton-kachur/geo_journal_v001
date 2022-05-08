@@ -27,10 +27,10 @@ class BottomState extends State<Bottom> {
 
   @override 
   Widget build(BuildContext context) {
-    iconSize = (widget.page == '')? 27.0 : 23.0;  // set size of some icons
+    iconSize = ((widget.page != 'wells' && widget.page != 'soundings' && widget.page != 'soil_sample' && widget.page != 'projects' && widget.page !='project_page') || !currentAccountIsRegistered)? 27.0 : 23.0;  // set size of some icons
 
     return BottomNavigationBar(
-      backgroundColor: Colors.white,
+      backgroundColor:  lightingMode == ThemeMode.dark? Colors.white : Colors.white,
       type: BottomNavigationBarType.fixed,
       selectedItemColor: Colors.black,
       
@@ -102,15 +102,15 @@ class BottomState extends State<Bottom> {
                   onTap: () {
                     setState(() {
                       if (widget.page == 'projects') {
-                        Navigator.push(context, MaterialPageRoute(builder: (context) => AddProjectDescription(widget.page)));
+                        Navigator.push(context, MaterialPageRoute(builder: (context) => AddProjectDescription(value: widget.page, mode: 'add')));
                       } else if (widget.page == 'wells') {
-                        Navigator.push(context, MaterialPageRoute(builder: (context) => AddWellDescription(widget.changeableVal)));
+                        Navigator.push(context, MaterialPageRoute(builder: (context) => AddWellDescription(widget.changeableVal, 'add')));
                       } else if (widget.page == 'soundings') {
-                        Navigator.push(context, MaterialPageRoute(builder: (context) => AddSoundingData(widget.changeableVal)));
+                        Navigator.push(context, MaterialPageRoute(builder: (context) => AddSoundingData(widget.changeableVal, 'add')));
                       } else if (widget.page == 'soil_sample') {
-                        Navigator.push(context, MaterialPageRoute(builder: (context) => AddSoilSample(widget.changeableVal, widget.secondChangeableVal)));
+                        Navigator.push(context, MaterialPageRoute(builder: (context) => AddSoilSample(widget.changeableVal, widget.secondChangeableVal, 'add')));
                       } else if (widget.page == 'project_page') {
-                        Navigator.push(context, MaterialPageRoute(builder: (context) => AddProjectDescription(widget.page, widget.changeableVal)));
+                        Navigator.push(context, MaterialPageRoute(builder: (context) => AddProjectDescription(value: widget.page, projectName: widget.changeableVal, mode: 'edit')));
                       } 
                     });
                   },

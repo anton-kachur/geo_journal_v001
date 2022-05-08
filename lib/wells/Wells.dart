@@ -26,10 +26,18 @@ class WellsState extends State<Wells>{
 
   // Function for getting data from Hive database
   Future getDataFromBox() async {
-    box = await Hive.openBox<WellDescription>('s_wells');
-    boxSize = box.length;
+    box = await Hive.openBox('accounts_data');
     
-    return Future.value(box.values);     
+    try {
+      for (var key in box.keys) {
+        if (box.get(key).login == (await currentAccount).login) {
+          boxSize = box.length;
+      
+          return Future.value(box.get(key));  
+        
+        }
+      } 
+    } catch (e) {} 
   }  
 
 
@@ -56,15 +64,21 @@ class WellsState extends State<Wells>{
                 automaticallyImplyLeading: false
               ),
 
-              body: Column(
-                children: [
+              body: Scrollbar(
+                child: SingleChildScrollView(
+                  child: Column(
+                    children: [
 
-                  // output list of wells
-                  for (var element in snapshot.data)
-                    if (element.projectNumber == widget.projectNumber)
-                      Well(element.number, element.date, element.latitude, element.longtitude, element.projectNumber),
-                  
-                ]
+                      // output list of wells
+                      if (currentAccount != null) 
+                        for (var element in snapshot.data.projects)
+                          if (element.number == widget.projectNumber)
+                            for (var well in element.wells)
+                              Well(well.number, well.date, well.latitude, well.longtitude, well.projectNumber, well.image),
+                      
+                    ]
+                  ),
+                )
               ),
               
               bottomNavigationBar: Bottom('wells', widget.projectNumber),

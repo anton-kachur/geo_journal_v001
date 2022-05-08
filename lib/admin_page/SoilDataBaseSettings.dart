@@ -1,45 +1,32 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:geo_journal_v001/AppUtilites.dart';
 import 'package:geo_journal_v001/Bottom.dart';
-import 'package:geo_journal_v001/accounts/AccountsDBClasses.dart';
-import 'package:geo_journal_v001/projects/project_and_DB/ProjectDBClasses.dart';
 import 'package:geo_journal_v001/soil_types/SoilTypesDBClasses.dart';
-import 'package:geo_journal_v001/soundings/sounding_and_DB/SoundingDBClasses.dart';
-import 'package:geo_journal_v001/wells/soil_and_DB/SoilSampleDBClasses.dart';
-import 'package:geo_journal_v001/wells/well_and_DB/WellDBClasses.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 
 
 /* ***************************************************************
   Classes for database settings
 **************************************************************** */
-class DatabaseSettingsPage extends StatefulWidget {
+class SoilDatabaseSettingsPage extends StatefulWidget {
   final value;
 
-  DatabaseSettingsPage(this.value);
+  SoilDatabaseSettingsPage(this.value);
   
   @override
-  DatabaseSettingsPageState createState() => DatabaseSettingsPageState();
+  SoilDatabaseSettingsPageState createState() => SoilDatabaseSettingsPageState();
 }
 
 
-class DatabaseSettingsPageState extends State<DatabaseSettingsPage> {
-  var elementToFind;
-  var hintText;
+class SoilDatabaseSettingsPageState extends State<SoilDatabaseSettingsPage> {
+  Map<String, String> fieldValues = {
+    'type': '',
+    'description': '',
+    'link': ''
+  };
 
   var boxSize;
   var box;
-
-  Map<String, Object> fieldValues = {
-    'login': '',
-    'password': '',
-    'email': '',
-    'phoneNumber': '',
-    'position': '',
-    'isRegistered': false,
-    'isAdmin': false
-  };
 
   var textFieldWidth = 320.0;
   var textFieldHeight = 32.0;
@@ -48,21 +35,17 @@ class DatabaseSettingsPageState extends State<DatabaseSettingsPage> {
   // Refresh page
   void refresh() { 
     setState(() {
-      fieldValues['login'] = '';
-      fieldValues['password'] = '';
-      fieldValues['email'] = '';
-      fieldValues['phoneNumber'] = '';
-      fieldValues['position'] = '';
-      fieldValues['isRegistered'] = false;
-      fieldValues['isAdmin'] = false;
+      fieldValues['type'] = ''; 
+      fieldValues['description'] = '';
+      fieldValues['link'] = '';
     }); 
   }
 
 
   // Function for getting data from Hive database
   Future getDataFromBox(var boxName) async {
-    box = await Hive.openBox(boxName); 
-    boxSize = box.length;  
+    box = await Hive.openBox(boxName);
+    boxSize = box.length;    
     
     return Future.value(box.values);     
   }  
@@ -70,66 +53,34 @@ class DatabaseSettingsPageState extends State<DatabaseSettingsPage> {
 
   // Function for adding data to database
   void addToBox() {
-    
-    box.put(
-      'account$boxSize', 
-      UserAccountDescription(
-        fieldValues['login'],
-        fieldValues['password'],
-        fieldValues['email'],
-        fieldValues['phoneNumber'],
-        fieldValues['position'], 
-        false,
-        fieldValues['isAdmin'],
-         
-        
-        [ProjectDescription(
-          'тест', '1', '12/12/2033', 'примітки', 
-          
-          [WellDescription(
-          '1', '01/01/2023', 50.4536, 30.5164, '1', 
-          
-          [SoilForWellDescription('Пісок', 0.2, 0.5, 'примітки', '1', '1')]
-          )],
-
-          [SoundingDescription(0.0, 2.234, 2.546, 'помітки', '1')]
-        )]
-      
-      )
-    );
-    
+    box.put('soil$boxSize', SoilDescription(fieldValues['type'], fieldValues['description'], image: fieldValues['link']));
   }
 
 
   // Function for changing data in database
   void changeElementInBox() {
     for (var key in box.keys) {
-      if ((box.get(key)).login == fieldValues['login']) {
+      if ((box.get(key)).type == fieldValues['type']) {
 
         box.put(
           key, 
-          UserAccountDescription(
-            fieldValues['login'] == ''? box.get(key).login : fieldValues['login'],
-            fieldValues['password'] == ''? box.get(key).password : fieldValues['password'],
-            fieldValues['email'] == ''? box.get(key).email : fieldValues['email'],
-            fieldValues['phoneNumber'] == ''? box.get(key).phoneNumber : fieldValues['phoneNumber'],
-            fieldValues['position'] == ''? box.get(key).position : fieldValues['position'], 
-            box.get(key).isRegistered,
-            fieldValues['isAdmin']  == false? box.get(key).isAdmin : fieldValues['isAdmin'],
-            box.get(key).projects
+          SoilDescription(
+            fieldValues['type'] == ''? box.get(key).type : fieldValues['type'], 
+            fieldValues['description'] == ''? box.get(key).description : fieldValues['description'], 
+            image: fieldValues['link'] == ''? box.get(key).image : fieldValues['link']
           )
         );
-
+      
       }
     }
-    
+        
   }
 
 
   // Function for deleting data in database
   void deleteElementInBox() {
     for (var key in box.keys) {
-      if ((box.get(key)).login == fieldValues['login']) {
+      if ((box.get(key)).type == fieldValues['type']) {
         
         box.delete(key);
       
@@ -139,14 +90,8 @@ class DatabaseSettingsPageState extends State<DatabaseSettingsPage> {
   }
 
 
-  // Set hint text for text fields depending on database name
-  getHintTextByTypeOfDatabase() {
-    return ['Логін...', 'Пароль...', 'Електронна пошта...', 'Моб. телефон...', 'Посада...', 'Зробити адміном'];
-  }
-
-
   // Create text field with parameters
-  Widget textField(var textInputAction, var labelText, var keyboardType, var inputFormatters, {var width, var height, var inputValueIndex, var otherValue}) {
+  Widget textField(var textInputAction, var labelText, var keyboardType, var inputFormatters, {var width, var height, var inputValueIndex}) {
     
     return Container(
       width: width,
@@ -154,7 +99,7 @@ class DatabaseSettingsPageState extends State<DatabaseSettingsPage> {
       child: TextFormField(
         autofocus: false,
         textInputAction: textInputAction,
-        maxLines: (inputValueIndex == 'password' || inputValueIndex == 'confirmPassword')? 1 : null,
+        maxLines: null,
 
         keyboardType: keyboardType,
         inputFormatters: [
@@ -181,7 +126,7 @@ class DatabaseSettingsPageState extends State<DatabaseSettingsPage> {
         
         onChanged: (String value) { 
           if (inputValueIndex != null) { 
-            fieldValues[inputValueIndex] = value; 
+            fieldValues[inputValueIndex] = value;
           }
         }
 
@@ -192,60 +137,47 @@ class DatabaseSettingsPageState extends State<DatabaseSettingsPage> {
 
 
   // Create block of text fields for add fields
-  Widget textFieldBlock(var textFieldBlockNumber, var labelText, var keyboardTypes, var inputValueIndexes) {
+  Widget textFieldBlock() {
     
     return Padding(
         padding: EdgeInsets.fromLTRB(1.0, 7.0, 0.0, 0.0),
         
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
 
             textField(
-              textFieldBlockNumber == 3? TextInputAction.done : TextInputAction.next, 
-              labelText[0],
-              keyboardTypes[0],
-              null,
-              inputValueIndex: inputValueIndexes[0],
+              TextInputAction.newline, 
+              'Тип грунту...',
+              TextInputType.multiline,
+              null,  
+              inputValueIndex: 'type',
               width: textFieldWidth,
               height: textFieldHeight
             ),
 
             SizedBox(height: 8),
 
-            if (textFieldBlockNumber == 3)
-              PopupMenuButton(
-                child: Text.rich(
-                  TextSpan(
-                    children: [
-                      TextSpan(text: labelText[1] + " "),
-                      WidgetSpan(child: Icon(Icons.auto_awesome, size: 20))
-                    ]
-                  ),
-                ),
-                itemBuilder: (context) => [
-                  PopupMenuItem(child: Text('Так'), value: true),
-                  PopupMenuItem(child: Text('Так, я не проти'), value: true),
-                  PopupMenuItem(child: Text('Ні, я не проти'), value: true),
-                  PopupMenuItem(child: Text('Ні'), value: false),
-                ],
+            textField(
+              TextInputAction.newline, 
+              'Опис...', 
+              TextInputType.multiline,
+              null,  
+              inputValueIndex: 'description',
+              width: textFieldWidth,
+              height: textFieldHeight
+            ),
 
-                onSelected: (bool value) {
-                  fieldValues['isAdmin'] = value;
-                }
-              )
-            
-            else 
-              textField(
-                TextInputAction.next, 
-                labelText[1], 
-                keyboardTypes[1],
-                null, 
-                inputValueIndex: inputValueIndexes[1],
-                width: textFieldWidth,
-                height: textFieldHeight
-              ),
-                         
+            SizedBox(height: 8),
+
+            textField(
+              TextInputAction.done, 
+              'Посилання на фото...', 
+              TextInputType.url,
+              null,  
+              inputValueIndex: 'link',
+              width: textFieldWidth,
+              height: textFieldHeight
+            ),       
           ]
         ),
       );
@@ -259,7 +191,6 @@ class DatabaseSettingsPageState extends State<DatabaseSettingsPage> {
     // set hint text for text fields and
     // set input settings for them  
     var boxData = getDataFromBox(widget.value);
-    hintText = getHintTextByTypeOfDatabase();
 
 
     return FutureBuilder(
@@ -288,20 +219,17 @@ class DatabaseSettingsPageState extends State<DatabaseSettingsPage> {
                       
                       // Add element to DB
                       Padding(
-                        padding: EdgeInsets.fromLTRB(20, 20, 20, 0),
+                        padding: EdgeInsets.fromLTRB(20.0, 20.0, 20.0, 0.0),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
 
                           children: [
 
-                            Text('Акаунти користувачів\n\nДодати елемент\n'),
-
-                            // Create text fields for adding new data to database, stored in blocks
-                            textFieldBlock(1, [hintText[0], hintText[1]], [TextInputType.text, TextInputType.text], ['login', 'password']), 
-                            textFieldBlock(2, [hintText[2], hintText[3]], [TextInputType.emailAddress, TextInputType.phone], ['email', 'phoneNumber']),
-                            textFieldBlock(3, [hintText[4], hintText[5]], [TextInputType.text, TextInputType.text], ['position', 'isAdmin']),
+                            Text('Типи грунтів\n\nДодати елемент\n'),
                             
-                            button(functions: [addToBox, refresh], text: "Додати", rightPadding: 86),
+                            textFieldBlock(),
+                            
+                            button(functions: [addToBox, refresh], text: "Додати", rightPadding: 93),
                             
                           ],
                         ),
@@ -311,19 +239,16 @@ class DatabaseSettingsPageState extends State<DatabaseSettingsPage> {
 
                       // Change element from DB
                       Padding(
-                        padding: EdgeInsets.fromLTRB(20, 20, 20, 0),
+                        padding: EdgeInsets.fromLTRB(20.0, 20.0, 20.0, 0.0),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
 
                           children: [
                             Text('Редагувати елемент\n'),
                             
-                            // Create text fields for editing data from database, stored in blocks
-                            textFieldBlock(1, [hintText[0], hintText[1]], [TextInputType.text, TextInputType.text], ['login', 'password']), 
-                            textFieldBlock(2, [hintText[2], hintText[3]], [TextInputType.emailAddress, TextInputType.phone], ['email', 'phoneNumber']),
-                            textFieldBlock(3, [hintText[4], hintText[5]], [TextInputType.text, TextInputType.text], ['position', 'isAdmin']),
+                            textFieldBlock(),
                             
-                            button(functions: [changeElementInBox, refresh], text: "Змінити", rightPadding: 86),
+                            button(functions: [changeElementInBox, refresh], text: "Змінити", rightPadding: 92),
 
                           ]
                         )
@@ -333,7 +258,7 @@ class DatabaseSettingsPageState extends State<DatabaseSettingsPage> {
 
                       // Delete element from DB
                       Padding(
-                        padding: EdgeInsets.fromLTRB(20, 20, 19, 20),
+                        padding: EdgeInsets.fromLTRB(20.0, 20.0, 19.0, 0.0),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
 
@@ -349,10 +274,10 @@ class DatabaseSettingsPageState extends State<DatabaseSettingsPage> {
                                   // Create text field for deleting data in database
                                   textField(
                                     TextInputAction.done, 
-                                    hintText[0], 
+                                    'Тип грунту...', 
                                     TextInputType.text,
                                     null, 
-                                    inputValueIndex: 'login',
+                                    inputValueIndex: 'type',
                                     width: textFieldWidth,
                                     height: textFieldHeight
                                   ),
@@ -361,7 +286,7 @@ class DatabaseSettingsPageState extends State<DatabaseSettingsPage> {
                               ),
                             ),
 
-                            button(functions: [deleteElementInBox, refresh], text: "Видалити", rightPadding: 92),
+                            button(functions: [deleteElementInBox, refresh], text: "Видалити", rightPadding: 98),
 
                           ]
                         )
@@ -370,7 +295,7 @@ class DatabaseSettingsPageState extends State<DatabaseSettingsPage> {
 
                       // Get list of elements in DB
                       Padding(
-                        padding: EdgeInsets.fromLTRB(20, 20, 20, 20),
+                        padding: EdgeInsets.fromLTRB(20.0, 20.0, 20.0, 20.0),
 
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,

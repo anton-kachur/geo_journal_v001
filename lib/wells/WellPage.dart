@@ -24,15 +24,23 @@ class WellPage extends StatefulWidget {
 class WellPageState extends State<WellPage>{
   var box;
   var boxSize;
-  
+
 
   // Function for getting data from Hive database
   Future getDataFromBox() async {
-    box = await Hive.openBox<SoilForWellDescription>('well_soil_samples');
-    boxSize = box.length;
-
-    return Future.value(box.values);     
-  }
+    box = await Hive.openBox('accounts_data');
+      
+    try {
+      for (var key in box.keys) {
+        if (box.get(key).login == (await currentAccount).login) {
+          boxSize = box.length;
+      
+          return Future.value(box.get(key));  
+        
+        }
+      }  
+    } catch (e) {}
+  }  
 
 
   @override
@@ -58,15 +66,24 @@ class WellPageState extends State<WellPage>{
                 automaticallyImplyLeading: false
               ),
 
-              body: Column(
-                children: [
+              body:  Scrollbar(
+                child: SingleChildScrollView(
+                  child: Column(
+                    children: [
 
-                  // output the list of soil samples from current well
-                  for (var element in snapshot.data)
-                    if (element.wellNumber == widget.wellNumber && element.projectNumber == widget.projectNumber)
-                      SoilSample(element.name, element.depthStart, element.depthEnd, element.notes, element.wellNumber, element.projectNumber),
-                      
-                ]
+                      // output the list of soil samples from current well
+                      // output list of wells
+                      if (currentAccount != null) 
+                        for (var element in snapshot.data.projects)
+                          if (element.number == widget.projectNumber)
+                            for (var well in element.wells)
+                              if (well.number == widget.wellNumber && well.projectNumber == widget.projectNumber)
+                                for (var sample in well.samples)
+                                  SoilSample(sample.name, sample.depthStart, sample.depthEnd, sample.notes, sample.wellNumber, sample.projectNumber, sample.image),
+                          
+                    ]
+                  ),
+                )
               ),
 
               bottomNavigationBar: Bottom('soil_sample', widget.wellNumber, widget.projectNumber),

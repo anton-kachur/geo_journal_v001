@@ -1,9 +1,17 @@
+import 'dart:io';
+import 'dart:ffi';
+import 'dart:async';
+
 import 'package:flutter/material.dart';
+import 'package:geo_journal_v001/accounts/AccountPage.dart';
+import 'package:geo_journal_v001/accounts/AccountsDBClasses.dart';
 import 'package:geo_journal_v001/projects/project_and_DB/ProjectDBClasses.dart';
+import 'package:geo_journal_v001/wells/AddWellDescription.dart';
 import 'package:geo_journal_v001/wells/WellPage.dart';
 import 'package:geo_journal_v001/wells/soil_and_DB/SoilSampleDBClasses.dart';
 import 'package:geo_journal_v001/wells/well_and_DB/WellDBClasses.dart';
 import 'package:hive_flutter/hive_flutter.dart';
+import 'package:image_picker/image_picker.dart';
 
 import '../../AppUtilites.dart';
 
@@ -16,10 +24,11 @@ class Well extends StatefulWidget {
   final date;
   final latitude;
   final longtitude;
+  final image;
 
   final projectNumber;
 
-  Well(this.number, this.date, this.latitude, this.longtitude, this.projectNumber);
+  Well(this.number, this.date, this.latitude, this.longtitude, this.projectNumber, this.image);
   
   @override
   WellState createState() => WellState();
@@ -27,42 +36,154 @@ class Well extends StatefulWidget {
 
 
 class WellState extends State<Well>{
-  var thisProjectBox;
-  var thisWellsBox;
-  var soilSamplesBox;
+  var box;
+  var image;
   
    
   // Function for getting data from Hive database
   Future getDataFromBox() async {
-    thisProjectBox = await Hive.openBox<ProjectDescription>('s_projects');
-    thisWellsBox = await Hive.openBox<WellDescription>('s_wells');
-    soilSamplesBox = await Hive.openBox<SoilForWellDescription>('well_soil_samples');
-
-    return Future.value(thisWellsBox.values);     
+    box = await Hive.openBox('accounts_data');
+    
+    return Future.value(box.values);     
   }
 
 
-    // Function for deleting data in database
-  Widget deleteElementInBox() {
-    
-    // Find all SOIL SAMPLES, connected with the current well and delete them
-    for (var soilKey in soilSamplesBox.keys) {
-      if ((soilSamplesBox.get(soilKey)).wellNumber == widget.number && widget.projectNumber == (soilSamplesBox.get(soilKey)).projectNumber) {
-        soilSamplesBox.delete(soilKey);
-      }
-    }
+  getFromGallery() async {
+    PickedFile pickedFile = await ImagePicker().getImage(
+      source: ImageSource.gallery,
+      maxWidth: 4000,
+      maxHeight: 4000,
+    );
 
-    // Find current WELL in database and delete it
-    for (var wellKey in thisWellsBox.keys) {
-      if ((thisWellsBox.get(wellKey)).number == widget.number && (thisWellsBox.get(wellKey)).projectNumber == widget.projectNumber) {
-          
-          thisWellsBox.delete(wellKey); // Delete well
-      
-      }   
-    }
+    image = pickedFile.path;
+  }
+
+  getFromCamera() async {
+    PickedFile pickedFile = await ImagePicker().getImage(
+      source: ImageSource.camera,
+      maxWidth: 4000,
+      maxHeight: 4000,
+    );
+
+    image = pickedFile.path;
+  }
+
+
+  Future<bool> checkAccount(var account) async {
+    return (account.login == (await currentAccount).login &&
+      account.password == (await currentAccount).password &&
+      account.email == (await currentAccount).email &&
+      account.phoneNumber == (await currentAccount).phoneNumber &&
+      account.position == (await currentAccount).position &&
+      account.isAdmin == (await currentAccount).isAdmin)? Future<bool>.value(true): Future<bool>.value(false);
+  }
 
   
-    return Text('');
+  saveOrDeleteImage(bool change) async {
+    var projects = (await currentAccount).projects;
+    var wells;
+    
+    for (var key in box.keys) {
+      if ((await checkAccount(box.get(key))) == true) {
+        
+        for (var project in projects) {
+          if (project.number == widget.projectNumber) {
+
+            wells = project.wells;
+            
+            for (var well in wells) {
+              if (well.number == widget.number) {
+
+                wells[wells.indexOf(well)] = WellDescription(
+                  well.number, 
+                  well.date,
+                  well.latitude,
+                  well.longtitude,
+                  widget.projectNumber,
+                  well.samples,
+                  image: change==true? image.toString() : null
+                );
+
+                projects[projects.indexOf(project)] = ProjectDescription(
+                  project.name, 
+                  project.number,
+                  project.date,
+                  project.notes, 
+                  wells, 
+                  project.soundings 
+                );
+
+                box.put(
+                  key, UserAccountDescription(
+                  (await currentAccount).login,
+                  (await currentAccount).password,
+                  (await currentAccount).email,
+                  (await currentAccount).phoneNumber,
+                  (await currentAccount).position,
+                  true,
+                  (await currentAccount).isAdmin,
+                  projects
+                  )
+                );
+
+              }
+            }
+
+          }
+        }
+      }
+    }
+  }
+
+
+  // Function for deleting data in database
+  deleteElementInBox() async {
+    var projects = (await currentAccount).projects;
+    var wells;
+
+    for (var key in box.keys) {
+      if ((await checkAccount(box.get(key))) == true) {
+        
+        for (var project in projects) {
+          if (project.number == widget.projectNumber) {
+
+            wells = project.wells;
+
+            for (var well in wells) {
+              if (well.number == widget.number) {
+
+                wells.removeWhere((item) => item.number == widget.number);
+    
+                projects[projects.indexOf(project)] = ProjectDescription(
+                  project.name, 
+                  project.number,
+                  project.date,
+                  project.notes, 
+                  project.wells, 
+                  wells
+                );
+
+                box.put(
+                  key, UserAccountDescription(
+                  (await currentAccount).login,
+                  (await currentAccount).password,
+                  (await currentAccount).email,
+                  (await currentAccount).phoneNumber,
+                  (await currentAccount).position,
+                  true,
+                  (await currentAccount).isAdmin,
+                  projects
+                  )
+                );
+                
+              }
+            }
+
+          }
+        }
+
+      }
+    }
   }
 
 
@@ -102,12 +223,12 @@ class WellState extends State<Well>{
 
                       Padding(
                         padding: EdgeInsets.fromLTRB(15.0, 5.0, 0.0, 0.0),
-                        child: Text('Дата буріння: ${widget.date}'),
+                        child: Text('Дата: ${widget.date}'),
                       ),
 
                       Padding(
                         padding: EdgeInsets.fromLTRB(15.0, 5.0, 0.0, 15.0),
-                        child: Text('Координати: ${widget.latitude}, ${widget.longtitude}'),
+                        child: Text('${widget.latitude}, ${widget.longtitude}'),
                       )
                     ]
                   ),
@@ -119,10 +240,71 @@ class WellState extends State<Well>{
                         splashColor: Colors.transparent,
                         highlightColor: Colors.transparent,
 
-                        padding: EdgeInsets.fromLTRB(5.0, 0.0, 0.0, 0.0),
+                        padding: EdgeInsets.fromLTRB(15.0, 0.0, 0.0, 0.0),
+                        icon: Icon(Icons.photo, size: 20),
+                        onPressed: () {
+                          if (widget.image != null || image != null) {
+                            
+                            showDialog(
+                              context: context, 
+                              builder: (BuildContext context) {
+
+                                return AlertDialog(
+                                  insetPadding: EdgeInsets.all(10),
+                                  contentPadding: EdgeInsets.zero,
+                                  
+                                  title: const Text(''),
+                                  content: Stack(
+                                    overflow: Overflow.visible,
+                                    alignment: Alignment.center,
+                                    children: [
+                                      Image.file(File(widget.image == null? image : widget.image), fit: BoxFit.cover)
+                                    ],
+                                  ),
+
+                                  actions: [
+                                    
+                                    FlatButton(
+                                      child: const Text('Видалити'),
+                                      onPressed: () { 
+                                        saveOrDeleteImage(false);
+                                        image = null;
+                                        Navigator.of(context).pop(); 
+                                      },
+                                    ),
+
+                                    FlatButton(
+                                      child: const Text('ОК'),
+                                      onPressed: () { 
+                                        saveOrDeleteImage(true);
+                                        Navigator.of(context).pop(); 
+                                      },
+                                    ),
+
+                                  ],
+                                );
+                              }
+                            );
+                          } else {
+                            getFromGallery();
+                          }
+                         }
+                      ),
+
+                      IconButton(        
+                        splashColor: Colors.transparent,
+                        highlightColor: Colors.transparent,
+
+                        padding: EdgeInsets.fromLTRB(0.0, 0.0, 0.0, 0.0),
                         icon: Icon(Icons.edit, size: 20),
                         onPressed: () {
-                          // Edit page
+
+                          if (currentAccountIsRegistered) {
+                            Navigator.push(context, MaterialPageRoute(builder: (context) => AddWellDescription.editing(widget.projectNumber, widget.number, 'edit')));
+                          } else {
+                            attentionAlert(context, 'Незареєстровані користувачі не мають доступу до даного елементу.\nМожливо, ви хочете зареєструватися?', materialRoute: AddAccountPage('sign_up'));
+                          }
+
                         }
                       ),
 
@@ -133,8 +315,14 @@ class WellState extends State<Well>{
                         padding: EdgeInsets.fromLTRB(0.0, 0.0, 23.0, 0.0),
                         icon: Icon(Icons.delete, size: 20),
                         onPressed: () {
-                          deleteElementInBox();
-                          setState(() { });
+                          
+                          if (currentAccountIsRegistered) {
+                            onDeleteAlert(context, 'дану свердловину', deleteElementInBox);
+                            setState(() { });
+                          } else {
+                            attentionAlert(context, 'Незареєстровані користувачі не мають доступу до даного елементу.\nМожливо, ви хочете зареєструватися?', materialRoute: AddAccountPage('sign_up'));
+                          }
+                         
                         }
                       ),
                       
@@ -142,7 +330,7 @@ class WellState extends State<Well>{
                         splashColor: Colors.transparent,
                         highlightColor: Colors.transparent,
 
-                        padding: EdgeInsets.fromLTRB(0.0, 0.0, 10.0, 0.0),
+                        padding: EdgeInsets.fromLTRB(0.0, 0.0, 12.0, 0.0),
 
                         icon: Icon(Icons.arrow_forward_ios, size: 20),
                         onPressed: () {

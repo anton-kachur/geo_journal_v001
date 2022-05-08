@@ -27,10 +27,18 @@ class SoundingsState extends State<Soundings> {
 
   // Function for getting data from Hive database
   Future getDataFromBox() async {
-    box = await Hive.openBox<SoundingDescription>('s_soundings');
-    boxSize = box.length;
+    box = await Hive.openBox('accounts_data');
 
-    return Future.value(box.values);     
+    try {
+      for (var key in box.keys) {
+        if (box.get(key).login == (await currentAccount).login) {
+          boxSize = box.length;
+      
+          return Future.value(box.get(key));  
+        
+        }
+      }  
+    } catch (e) {}   
   }  
 
 
@@ -57,15 +65,21 @@ class SoundingsState extends State<Soundings> {
                 automaticallyImplyLeading: false
               ),
 
-              body: Column(
-                children: [
+              body:  Scrollbar(
+                child: SingleChildScrollView(
+                  child: Column(
+                    children: [
 
-                  // Output the list of soundings
-                  for (var element in snapshot.data)
-                    if (element.projectNumber.toString() == widget.projectNumber.toString())
-                      Sounding(element.depth, element.qc, element.fs, element.notes, element.projectNumber),
-                  
-                ]
+                      // Output the list of soundings
+                      if (currentAccount != null) 
+                        for (var element in snapshot.data.projects)
+                          if (element.number == widget.projectNumber)
+                            for (var sounding in element.soundings)
+                              Sounding(sounding.depth, sounding.qc, sounding.fs, sounding.notes, widget.projectNumber, sounding.image)
+                      
+                    ]
+                  ),
+                )
               ),
               
               bottomNavigationBar: Bottom('soundings', widget.projectNumber),

@@ -1,11 +1,15 @@
+import 'package:geo_journal_v001/projects/project_and_DB/Project.dart';
+import 'package:geo_journal_v001/projects/project_and_DB/ProjectDBClasses.dart';
 import 'package:hive_flutter/hive_flutter.dart';
+import 'package:hive/hive.dart';
 
+part 'AccountsDBClasses.g.dart';
 
 /* ***************************************************************
   Hive class for saving accounts
 **************************************************************** */
-@HiveType(typeId: 12)
-class UserAccountDescription {
+@HiveType(typeId: 111)
+class UserAccountDescription extends HiveObject {
   @HiveField(0)
   var login;
   @HiveField(1)
@@ -20,47 +24,20 @@ class UserAccountDescription {
   var isRegistered;
   @HiveField(6)
   var isAdmin;
+  @HiveField(7)
+  List<ProjectDescription> projects;
   
   UserAccountDescription(
     this.login, this.password, 
     this.email, this.phoneNumber,
     this.position, this.isRegistered, 
-    this.isAdmin  
+    this.isAdmin, this.projects
   );
-
-  get getLogin => this.login;
 
   @override
   String toString() {
-    return '${this.login}  ${this.password}\n${this.email}\n${this.phoneNumber}\n${this.position}\nRegistered: ${this.isRegistered}\nIs admin: ${this.isAdmin}';
+    return '${this.login}  ${this.password}\n${this.email}\n${this.phoneNumber}\n${this.position}\nRegistered: ${this.isRegistered}\nIs admin: ${this.isAdmin}\nProjects:\n${this.projects}\n\n';
   }
 }
 
 
-class UserAccountDescriptionAdapter extends TypeAdapter<UserAccountDescription>{
-  @override
-  final typeId = 12;
-
-  @override
-  UserAccountDescription read(BinaryReader reader) {
-    final login = reader.readString();
-    final password = reader.readString();
-    final email = reader.readString();
-    final phoneNumber = reader.readString();
-    final position = reader.readString();
-    final isRegistered = reader.readBool();
-    final isAdmin = reader.readBool();
-    return UserAccountDescription(login, password, email, phoneNumber, position, isRegistered, isAdmin);
-  }
-
-  @override
-  void write(BinaryWriter writer, UserAccountDescription obj) {
-    writer.writeString(obj.login);
-    writer.writeString(obj.password);
-    writer.writeString(obj.email);
-    writer.writeString(obj.phoneNumber);
-    writer.writeString(obj.position);
-    writer.writeBool(obj.isRegistered);
-    writer.writeBool(obj.isAdmin);
-  }
-}

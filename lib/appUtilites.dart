@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:geo_journal_v001/accounts/AccountsDBClasses.dart';
 import 'package:geo_journal_v001/projects/Projects.dart';
 import 'package:geo_journal_v001/soundings/Soundigs.dart';
-import 'package:geo_journal_v001/wells/WellPage.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 
 
@@ -14,12 +13,13 @@ var currentAccountBox;
 var currentAccountBoxSize;
 var currentAccount = getCurrentAccountFromBox();
 bool currentAccountIsRegistered = false;
+bool currentAccountIsAdmin = false;
 bool statusLogOut = false;
 
 
 // Function for getting current account from Hive database
 getCurrentAccountFromBox() async {
-  currentAccountBox = await Hive.openBox<UserAccountDescription>('accounts');
+  currentAccountBox = await Hive.openBox('accounts_data');
   currentAccountBoxSize = currentAccountBox.length;
   
   for (var key in currentAccountBox.keys) {
@@ -51,16 +51,24 @@ Future<bool> logOutFromAccount() async {
             (currentAccountBox.get(key)).position,
             false,
             (currentAccountBox.get(key)).isAdmin,
+            (currentAccountBox.get(key)).projects,            
           )
         );
 
       currentAccount = null;
       statusLogOut = true;
+      currentAccountIsRegistered = false;
+      currentAccountIsAdmin = false;
       return true;
     }
   }
 
   return false;
+
+}
+
+
+getCurrentAccount() {
 
 }
 
@@ -72,15 +80,18 @@ Future checkIfUserIsRegistered() async {
   
   if (currentAccount != null) {
     try {
-      isRegistered = (await currentAccount).isRegistered;
+      isRegistered = (await currentAccount).isRegistered == true;
     } catch(e) {}
 
     try {
       isAdmin = (await currentAccount).login == 'admin';
     } catch(e) {}
+  } else {
+    return [false, false];
   }
 
   currentAccountIsRegistered = isRegistered;
+  currentAccountIsAdmin = isAdmin;
 
   return [isRegistered, (isAdmin == true && isRegistered == true)? true : false];
 }
@@ -103,14 +114,8 @@ Widget waitingOrErrorWindow(var text, var context) {
 }
 
 
-// Text field border decoration #1
-/*OutlineInputBorder textFieldStyle = OutlineInputBorder(
-    borderRadius: BorderRadius.all(Radius.circular(10.0)),
-    borderSide: BorderSide(color: Colors.grey.shade700, width: 1.0),
-);*/
 
-
-// Text field border decoration #2
+// Text field border decoration
 OutlineInputBorder textFieldStyle = OutlineInputBorder(
   borderRadius: const BorderRadius.all(Radius.circular(10.0)),
   borderSide: BorderSide(color: Colors.grey.shade700, width: 2.0),
@@ -119,9 +124,10 @@ OutlineInputBorder textFieldStyle = OutlineInputBorder(
 
 
 // Function which creates standart app button
-Widget button({List<Function>? functions, String? text, BuildContext? context, String? route, List? routingArgs, double? minWidth, EdgeInsetsGeometry? edgeInsetsGeometry}) {
+Widget button({List<Function>? functions, String? text, BuildContext? context, String? route, List? routingArgs, double? minWidth, EdgeInsetsGeometry? edgeInsetsGeometry, double? rightPadding}) {
+  
   return Padding(
-    padding: edgeInsetsGeometry?? EdgeInsets.fromLTRB(100.0, 7.0, 0.0, 0.0),
+    padding: edgeInsetsGeometry?? EdgeInsets.fromLTRB((rightPadding == null? 0.0 : rightPadding), 7.0, 0.0, 0.0),
 
     child: FlatButton(
       minWidth: minWidth?? 150.0,
@@ -134,7 +140,7 @@ Widget button({List<Function>? functions, String? text, BuildContext? context, S
 
         if (route!=null && context!=null) { 
           switch(route) {
-            case '/projects_page': Navigator.pushNamedAndRemoveUntil(context, route, ModalRoute.withName(route)); break;
+            case '/projects_page': Navigator.pop(context, false); break;
             case '/home': Navigator.pushNamedAndRemoveUntil(context, route, ModalRoute.withName(route)); break;
             case 'soundings': Navigator.push(context, MaterialPageRoute(builder: (context) => Soundings(routingArgs![0]))); break;
             case 'projects': Navigator.push(context, MaterialPageRoute(builder: (context) => Projects())); break;
@@ -145,7 +151,7 @@ Widget button({List<Function>? functions, String? text, BuildContext? context, S
       shape: RoundedRectangleBorder(
         side: BorderSide(
           color: lightingMode==ThemeMode.dark? Colors.white : Colors.black87,
-          width: 1.0,
+          width: 1.5,
           style: BorderStyle.solid,
         ),
         borderRadius: BorderRadius.circular(8),
@@ -158,7 +164,7 @@ Widget button({List<Function>? functions, String? text, BuildContext? context, S
 
 
 // Alert dialog, shown if you are to delete something 
-onDeleteAlert(BuildContext context, String? text, Function function, String route) {
+onDeleteAlert(BuildContext context, String? text, Function function, {String? route, var materialPageRoute}) {
   return showDialog(
     context: context, 
     builder: (BuildContext context) {
@@ -171,8 +177,9 @@ onDeleteAlert(BuildContext context, String? text, Function function, String rout
             child: const Text('Так'),
             onPressed: () { 
               function();
-              Navigator.of(context).pop(); 
-              Navigator.pushReplacementNamed(context, route);
+              Navigator.pop(context, false); 
+              if (route!=null) Navigator.pushReplacementNamed(context, route);
+              if (materialPageRoute!=null) Navigator.pushReplacement(context, MaterialPageRoute(builder: (BuildContext context) => materialPageRoute));
             },
           ),
 
@@ -190,40 +197,60 @@ onDeleteAlert(BuildContext context, String? text, Function function, String rout
 }
 
 
-/*Widget textField(var textInputAction, var labelText, var keyboardType, var inputFormatters, {var width, var height, var inputValueIndex, var otherValue}) {
-    return Container(
-      width: width,
-      height: height,
-      child: TextFormField(
-        autofocus: false,
-        textInputAction: textInputAction,
 
-        keyboardType: keyboardType,
-        inputFormatters: [
-          inputFormatters
-        ],
-
-        cursorRadius: const Radius.circular(10.0),
-        cursorColor: Colors.black,
-
-        decoration: InputDecoration(
-          labelText: labelText,
-          hintStyle: TextStyle( fontSize: 12, color: Colors.grey.shade400),
-          labelStyle: TextStyle( fontSize: 12, color: Colors.grey.shade400),
-
-          contentPadding: EdgeInsets.fromLTRB(7, 5, 5, 5),
+// Alert dialog, shown if you are to delete something 
+attentionAlert(BuildContext context, String? text, {String? route, var materialRoute}) {
+  return showDialog(
+    context: context, 
+    builder: (BuildContext context) {
+      return AlertDialog(
+        title: Text(''),
+        content: Text('$text', style: TextStyle(fontSize: 18)),
+        actions: [
           
-          focusedBorder: textFieldStyle,
-          enabledBorder: textFieldStyle,
-        ),
-        
-        onFieldSubmitted: (String value) { 
-          if (inputValueIndex != null) { fieldValues[inputValueIndex] = value; }
-          else { 
-            if (otherValue == 'find') { elementToFind = value; } 
-            else { fieldValues[otherValue] = value; }
-          }
-        }
-      )
-    );
-  }*/
+          FlatButton(
+            child: const Text('Так'),
+            onPressed: () {
+              Navigator.of(context).pop(); 
+              if (route != null) 
+                Navigator.pushReplacementNamed(context, route);
+              else 
+                Navigator.pushReplacement(context, MaterialPageRoute(builder: (BuildContext context) => materialRoute));
+            },
+          ),
+
+          FlatButton(
+            child: const Text('Ні'),
+            onPressed: () { 
+              Navigator.of(context).pop(); 
+            },
+          )
+
+        ],
+      );
+    }
+  );
+}
+
+
+// Alert dialog, which is shown if 'password' and 'confirm password' fields mismatch 
+alert(var alertText, var context) {
+
+  return showDialog(
+    context: context, 
+    builder: (BuildContext context) {
+      return AlertDialog(
+        title: const Text(''),
+        content: Text(alertText, style: TextStyle(fontSize: 18)),
+        actions: [
+          // Press 'OK' to proceed
+          FlatButton(
+            child: const Text('ОК'),
+            onPressed: () { Navigator.of(context).pop(); },
+          )
+        ],
+      );
+    }
+  );
+}
+

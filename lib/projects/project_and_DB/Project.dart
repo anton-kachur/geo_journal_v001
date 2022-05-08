@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:geo_journal_v001/AppUtilites.dart';
+import 'package:geo_journal_v001/accounts/AccountPage.dart';
+import 'package:geo_journal_v001/accounts/AccountsDBClasses.dart';
 import 'package:geo_journal_v001/projects/AddProjectDescription.dart';
 import 'package:geo_journal_v001/projects/ProjectPage.dart';
 import 'package:geo_journal_v001/projects/project_and_DB/ProjectDBClasses.dart';
@@ -34,19 +36,52 @@ class ProjectState extends State<Project>{
 
   // Function for getting data from Hive database
   Future getDataFromBox(var boxName) async {
-    thisProjectBox = await Hive.openBox<ProjectDescription>(boxName);
-    projectSoundingsBox = await Hive.openBox<SoundingDescription>('s_soundings');
-    projectWellsBox = await Hive.openBox<WellDescription>('s_wells');
-    projectSoilSamplesBox = await Hive.openBox<SoilForWellDescription>('well_soil_samples');
+    thisProjectBox = await Hive.openBox(boxName);
+    //projectSoundingsBox = await Hive.openBox<SoundingDescription>('s_soundings');
+    //projectWellsBox = await Hive.openBox<WellDescription>('s_wells');
+    //projectSoilSamplesBox = await Hive.openBox<SoilForWellDescription>('well_soil_samples');
 
     return Future.value(thisProjectBox.values);     
   }
 
 
-    // Function for deleting data in database
-  Widget deleteElementInBox() {
+  Future<bool> checkAccount(var account) async {
+    return (account.login == (await currentAccount).login &&
+        account.password == (await currentAccount).password &&
+        account.email == (await currentAccount).email &&
+        account.phoneNumber == (await currentAccount).phoneNumber &&
+        account.position == (await currentAccount).position &&
+        account.isAdmin == (await currentAccount).isAdmin)? Future<bool>.value(true): Future<bool>.value(false);
+  }
 
-    // Find SOUNDINGS, connected with project in database and delete them
+
+  // Function for deleting data in database
+  deleteElementInBox() async {
+    for (var key in thisProjectBox.keys) {
+      if ((await checkAccount(thisProjectBox.get(key))) == true) {
+        
+        var projects = (await currentAccount).projects;
+        print("$projects");
+
+        projects.removeWhere((item) => item.name == widget.name);
+    
+            thisProjectBox.put(
+              key, UserAccountDescription(
+              (await currentAccount).login,
+              (await currentAccount).password,
+              (await currentAccount).email,
+              (await currentAccount).phoneNumber,
+              (await currentAccount).position,
+              true,
+              (await currentAccount).isAdmin,
+              projects
+              )
+            );
+
+      }
+    }
+
+    /*// Find SOUNDINGS, connected with project in database and delete them
     for (var key in projectSoundingsBox.keys) {
       if ((projectSoundingsBox.get(key)).projectNumber == widget.number) { projectSoundingsBox.delete(key); }
     }
@@ -70,16 +105,15 @@ class ProjectState extends State<Project>{
     // Find PROJECT in database and delete it
     for (var key in thisProjectBox.keys) {
       if ((thisProjectBox.get(key)).number == widget.number) { thisProjectBox.delete(key); }
-    }
+    }*/
         
-    return Text('');
   }
 
 
 
   @override
   Widget build(BuildContext context) {
-    var boxData = getDataFromBox('s_projects');
+    var boxData = getDataFromBox('accounts_data');
 
 
     return FutureBuilder(
@@ -138,7 +172,11 @@ class ProjectState extends State<Project>{
 
                               icon: Icon(Icons.edit, size: 23),
                               onPressed: () {
-                                if (currentAccountIsRegistered) Navigator.push(context, MaterialPageRoute(builder: (context) => AddProjectDescription("project_page", widget.name)));
+                                if (currentAccountIsRegistered) {
+                                  Navigator.push(context, MaterialPageRoute(builder: (context) => AddProjectDescription(value: "project_page", projectName: widget.name, mode: 'edit')));
+                                } else {
+                                  attentionAlert(context, 'Незареєстровані користувачі не мають доступу до даного елементу.\nМожливо, ви хочете зареєструватися?', materialRoute: AddAccountPage('sign_up'));
+                                }
                               }
                             ),
 
@@ -150,8 +188,11 @@ class ProjectState extends State<Project>{
                               splashRadius: 15.0,
                               icon: Icon(Icons.delete, size: 23),
                               onPressed: () {
-                                if (currentAccountIsRegistered) onDeleteAlert(context, 'даний проект', deleteElementInBox, '/projects_page');
-                                
+                                if (currentAccountIsRegistered) {
+                                  onDeleteAlert(context, 'даний проект', deleteElementInBox, route: '/projects_page');
+                                } else {
+                                  attentionAlert(context, 'Незареєстровані користувачі не мають доступу до даного елементу.\nМожливо, ви хочете зареєструватися?', materialRoute: AddAccountPage('sign_up'));
+                                }
                               },
                             ),
 

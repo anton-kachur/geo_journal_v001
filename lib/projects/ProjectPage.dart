@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:geo_journal_v001/Bottom.dart';
+import 'package:geo_journal_v001/accounts/AccountPage.dart';
 import 'package:geo_journal_v001/soundings/AddSoundingData.dart';
 import 'package:geo_journal_v001/soundings/Soundigs.dart';
 import 'package:geo_journal_v001/wells/AddWellDescription.dart';
@@ -126,7 +127,7 @@ class ProjectPageState extends State<ProjectPage> {
                         Row(
                           children: [
                             buttonConstructor(Icons.view_list_rounded, route: Wells(widget.number)),
-                            buttonConstructor(Icons.add_circle_outline, route: AddWellDescription(widget.number)),
+                            buttonConstructor(Icons.add_circle_outline, route: AddWellDescription(widget.number, 'add')),
                           ],
                         ),
                       ]
@@ -139,7 +140,7 @@ class ProjectPageState extends State<ProjectPage> {
                         Row(
                           children: [
                             buttonConstructor(Icons.view_list_rounded, route: Soundings(widget.number)),
-                            buttonConstructor(Icons.add_circle_outline, route: AddSoundingData(widget.number)),
+                            buttonConstructor(Icons.add_circle_outline, route: AddSoundingData(widget.number, 'add')),
                           ],
                         ),
                       ]
@@ -167,14 +168,19 @@ class ProjectPageState extends State<ProjectPage> {
       padding: EdgeInsets.fromLTRB(0.0, 0.0, 0.0, 0.0),
       child: ClipRRect (
         borderRadius: BorderRadius.circular(4.0),
-        child: IconButton(       
-          color: Colors.black,
+        child: IconButton(     
           padding: EdgeInsets.all(0.0),
           icon: Icon(icon, size: 25.0),
           onPressed: () {
-            if (currentAccountIsRegistered)
-              Navigator.push(context, MaterialPageRoute(builder: (context) => route));
             
+            if (icon == Icons.view_list_rounded) {
+              Navigator.push(context, MaterialPageRoute(builder: (context) => route));
+            } else if (currentAccountIsRegistered && icon == Icons.add_circle_outline) {
+              Navigator.push(context, MaterialPageRoute(builder: (context) => route));  
+            } else {
+              attentionAlert(context, 'Незареєстровані користувачі не мають доступу до даного елементу.\nМожливо, ви хочете зареєструватися?', materialRoute: AddAccountPage('sign_up'));
+            }
+
           },
         )
       )

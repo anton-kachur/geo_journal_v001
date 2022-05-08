@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:geo_journal_v001/AppUtilites.dart';
 import 'package:geo_journal_v001/Bottom.dart';
+import 'package:geo_journal_v001/accounts/AccountsDBClasses.dart';
+import 'package:geo_journal_v001/projects/project_and_DB/ProjectDBClasses.dart';
 import 'package:geo_journal_v001/wells/Wells.dart';
 import 'package:geo_journal_v001/wells/well_and_DB/WellDBClasses.dart';
 import 'package:hive_flutter/hive_flutter.dart';
@@ -12,91 +14,307 @@ import 'package:hive_flutter/hive_flutter.dart';
 ************************************************************************* */
 class AddWellDescription extends StatefulWidget {
   final projectNumber;  // number of project, to which the well belongs
-  AddWellDescription(this.projectNumber);
+  var wellNumber;
+  final mode;
+
+  AddWellDescription.editing(this.projectNumber, this.wellNumber, this.mode);
+  AddWellDescription(this.projectNumber, this.mode);
   
   @override
   AddWellDescriptionState createState() => AddWellDescriptionState();
 }
 
 
-class AddWellDescriptionState extends State<AddWellDescription>{
-  var number;
-  var date;
-  var latitude;
-  var longtitude;
-
+class AddWellDescriptionState extends State<AddWellDescription> {
   var box;
+  var projectBox;
   var boxSize;
 
+  Map<String, Object> fieldValues = {
+    'number': '', 
+    'date': '', 
+    'latitude': 0.0, 
+    'longtitude': 0.0
+  };
 
-  var textFieldWidth = 155.0;
+
+  var textFieldWidth = 320.0;
   var textFieldHeight = 32.0;
-
-
-  late FocusNode _focusNode;
-  
-  @override
-  void initState() {
-    super.initState();
-    _focusNode = FocusNode();
-  }
-
-  @override
-  void dispose() {
-    super.dispose();
-    _focusNode.dispose();
-  }
 
 
   // Function for getting data from Hive database
   Future getDataFromBox() async {
-    box = await Hive.openBox<WellDescription>('s_wells');
+    box = await Hive.openBox('accounts_data');
     boxSize = box.length;
 
     return Future.value(box.values);     
   }
 
 
+  Future<bool> checkAccount(var account) async {
+    return (account.login == (await currentAccount).login &&
+      account.password == (await currentAccount).password &&
+      account.email == (await currentAccount).email &&
+      account.phoneNumber == (await currentAccount).phoneNumber &&
+      account.position == (await currentAccount).position &&
+      account.isAdmin == (await currentAccount).isAdmin)? Future<bool>.value(true): Future<bool>.value(false);
+  }
+
+
   // Function for adding data to database
-  Widget addToBox() {
-    box.put('well${boxSize+2}', WellDescription(number, date, latitude, longtitude, widget.projectNumber));
-    
-    return Text('');
+  addToBox() async {
+    var projects = (await currentAccount).projects;
+
+    for (var key in box.keys) {
+      if ((await checkAccount(box.get(key))) == true) {
+        
+        for (var element in projects) {
+          if (element.number == widget.projectNumber) {
+            
+            projects[projects.indexOf(element)] = ProjectDescription(
+              element.name, 
+              element.number,
+              element.date,
+              element.notes,
+              element.wells + [ 
+                WellDescription(
+                  fieldValues['number'], 
+                  fieldValues['date'],
+                  fieldValues['latitude'],
+                  fieldValues['longtitude'],
+                  widget.projectNumber,
+                  []
+                )
+              ],
+              element.soundings,
+            );
+
+            box.put(
+              key, UserAccountDescription(
+              (await currentAccount).login,
+              (await currentAccount).password,
+              (await currentAccount).email,
+              (await currentAccount).phoneNumber,
+              (await currentAccount).position,
+              true,
+              (await currentAccount).isAdmin,
+              projects
+              )
+            );
+          
+          }
+        }
+
+      }
+    }
   }
 
 
   // Function for changing data in database
-  /*Widget changeElementInBox() {
-    for (var key in box.keys) {
-      if ((box.get(key)).name == widget.) {
-        box.put(key, SoundingDescription(name, number, date, notes));
-      }
-    }
+  changeElementInBox() async {
+    var projects = (await currentAccount).projects;
+    var wells;
     
-    box.close();
-    return Text('');
-  }*/
-
-
-  // Function for deleting data in database
-  Widget deleteElementInBox() {
     for (var key in box.keys) {
-      if ((box.get(key)).number == number) {
-        box.delete(key);
+      if ((await checkAccount(box.get(key))) == true) {
+
+        for (var project in projects) {
+          if (project.number == widget.projectNumber) {
+
+            wells = project.wells;
+
+            for (var well in wells) {
+              if (well.number == widget.wellNumber) {
+                
+
+                wells[wells.indexOf(well)] = WellDescription(
+                  fieldValues['number'] == ''? well.number : fieldValues['number'], 
+                  fieldValues['date'] == ''? well.date : fieldValues['date'],
+                  fieldValues['latitude'] == 0.0? well.latitude : fieldValues['latitude'],
+                  fieldValues['longtitude'] == 0.0? well.longtitude : fieldValues['longtitude'],
+                  widget.projectNumber,
+                  well.samples,
+                  image: well.image
+                );
+
+                projects[projects.indexOf(project)] = ProjectDescription(
+                  project.name, 
+                  project.number,
+                  project.date,
+                  project.notes, 
+                  wells, 
+                  project.soundings 
+                );
+
+                box.put(
+                  key, UserAccountDescription(
+                  (await currentAccount).login,
+                  (await currentAccount).password,
+                  (await currentAccount).email,
+                  (await currentAccount).phoneNumber,
+                  (await currentAccount).position,
+                  true,
+                  (await currentAccount).isAdmin,
+                  projects
+                  )
+                );
+
+              }
+            }
+
+          }
+        }
       }
     }
-      
-    box.close();
-    return Text('');
   }
 
 
   // Redirect to page with list of wells
   void redirect() {
-    Navigator.pop(context);
-    Navigator.push(context, MaterialPageRoute(builder: (context) => Wells(widget.projectNumber)));
+    Navigator.pop(context, false);
+    Navigator.pushReplacement(context, MaterialPageRoute(builder: (BuildContext context) => Wells(widget.projectNumber)));
   }
 
+
+  Widget textFieldsForAdd() {
+    return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+
+          Padding(
+            padding: EdgeInsets.fromLTRB(9, 8, 9, 2),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                
+                textField(
+                  TextInputAction.next, 
+                  (widget.mode == 'edit' && widget.projectNumber != '' && widget.wellNumber != '')? widget.wellNumber.toString() : 'Номер свердловини...',
+                  (widget.mode == 'edit' && widget.projectNumber != '' && widget.wellNumber != '')? TextStyle(fontSize: 12, color: lightingMode == ThemeMode.dark? Colors.white : Colors.black87) : TextStyle( fontSize: 12, color: Colors.grey.shade400),
+                  (widget.mode == 'edit' && widget.projectNumber != '' && widget.wellNumber != '')? TextStyle(fontSize: 12, color: Colors.black87) : TextStyle( fontSize: 12, color: Colors.grey.shade400),
+                  TextInputType.number, 
+                  FilteringTextInputFormatter.allow(RegExp(r'[0-9]')),
+                  String,
+                  width: textFieldWidth,
+                  height: textFieldHeight,
+                  inputValueIndex: 'number'
+                ),
+
+                SizedBox(height: 8),
+
+                textField(
+                  TextInputAction.next, 
+                  'Дата буріння\n(ДД/ММ/РРРР)', 
+                  null, null,
+                  TextInputType.datetime, 
+                  FilteringTextInputFormatter.allow(RegExp(r'[0-9/]')),
+                  String,
+                  width: textFieldWidth,
+                  height: textFieldHeight,
+                  inputValueIndex: 'date'
+                ),
+                       
+                SizedBox(height: 8),
+
+                textField(
+                  TextInputAction.next, 
+                  'Широта...', 
+                  null, null,
+                  TextInputType.number, 
+                  FilteringTextInputFormatter.allow(RegExp(r'[0-9.,]')),
+                  double,
+                  width: textFieldWidth,
+                  height: textFieldHeight,
+                  inputValueIndex: 'latitude'
+                ),
+
+                SizedBox(height: 8),
+
+                textField(
+                  TextInputAction.done, 
+                  'Довгота...', 
+                  null, null,
+                  TextInputType.number, 
+                  FilteringTextInputFormatter.allow(RegExp(r'[0-9.,]')),
+                  double,
+                  width: textFieldWidth,
+                  height: textFieldHeight,
+                  inputValueIndex: 'longtitude'
+                ),
+       
+              ]
+            )
+          ),
+
+        ]
+      );
+  }
+
+
+  // Change element from DB
+  Widget textFieldForChange() {
+
+    return Padding(
+      padding: EdgeInsets.fromLTRB(15, 15, 15, 8),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+
+        children: [
+
+          textFieldsForAdd(),
+          button(functions: [changeElementInBox, redirect], text: "Змінити", rightPadding: 92),
+
+        ]
+      )
+    );
+  }
+
+
+  // Add element to DB
+  Widget addWellTextField() {
+    
+    return Padding(
+      padding: EdgeInsets.fromLTRB(15, 15, 15, 8),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+
+        children: [
+          
+          textFieldsForAdd(),
+          button(functions: [addToBox, redirect], text: "Додати", rightPadding: 93),
+
+        ],
+      ),
+    );
+  }
+
+
+  DateTime dateParse(String date) {
+    return DateTime(
+      int.tryParse(date.substring(6, 10)) ?? 0, 
+      int.tryParse(date.substring(3, 5)) ?? 0, 
+      int.tryParse(date.substring(0, 2)) ?? 0,
+    );
+  }
+
+
+  bool checkIfDateCorrect() {
+
+    for (var projectKey in projectBox.keys) {
+      if ((projectBox.get(projectKey)).number == widget.projectNumber) {
+        
+        if (dateParse((projectBox.get(projectKey)).date).difference(dateParse(fieldValues['date'] as String)).inSeconds < 0) {
+          return false;
+        } else {
+          return true;
+        }
+            
+      
+      }
+    }
+
+    return false;
+  }
 
 
   @override
@@ -122,156 +340,19 @@ class AddWellDescriptionState extends State<AddWellDescription>{
                 automaticallyImplyLeading: false
               ),
 
-              body: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
+              body: Scrollbar(
+                child: SingleChildScrollView(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
 
-                  Padding(
-                    padding: EdgeInsets.symmetric(vertical: 20, horizontal: 20),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        
-                        // Text field for well number input
-                        Container(
-                          width: this.textFieldWidth,
-                          height: this.textFieldHeight,
-                          child: TextFormField(
-                            focusNode: _focusNode,
-                            autofocus: false,
-                            textInputAction: TextInputAction.next,
-
-                            cursorRadius: const Radius.circular(10.0),
-                            cursorColor: Colors.black,
-
-                            keyboardType: TextInputType.number,
-                            inputFormatters: [
-                              FilteringTextInputFormatter.allow(RegExp(r'[0-9]')),
-                            ],
-
-                            decoration: InputDecoration(
-                              labelText: 'Номер свердловини',
-                              hintStyle: TextStyle( fontSize: 12, color: Colors.grey.shade400),
-                              labelStyle: TextStyle( fontSize: 12, color: Colors.grey.shade400),
-
-                              contentPadding: EdgeInsets.fromLTRB(7, 5, 5, 5),
-                              
-                              focusedBorder: textFieldStyle,
-                              enabledBorder: textFieldStyle,
-                            ),
-                            
-                            onFieldSubmitted: (String value) { number = value; }
-                          )
-                        ),
-
-                        // Text field for drilling date input
-                        Container(
-                          width: this.textFieldWidth,
-                          height: this.textFieldHeight,
-                          child: TextFormField(
-                            autofocus: false,
-                            textInputAction: TextInputAction.next,
-                            
-                            cursorRadius: const Radius.circular(10.0),
-                            cursorColor: Colors.black,
-
-                            keyboardType: TextInputType.datetime,
-                            inputFormatters: [
-                              FilteringTextInputFormatter.allow(RegExp(r'[0-9/]')),
-                            ],
-
-                            decoration: InputDecoration(
-                              labelText: 'Дата буріння (ДД-ММ-РРРР)',
-                              hintStyle: TextStyle( fontSize: 12, color: Colors.grey.shade400),
-                              labelStyle: TextStyle( fontSize: 12, color: Colors.grey.shade400),
-
-                              contentPadding: EdgeInsets.fromLTRB(7, 5, 5, 5),
-                              
-                              focusedBorder: textFieldStyle,
-                              enabledBorder: textFieldStyle,
-                            ),
-                            
-                            onFieldSubmitted: (String value) { date = value; }
-                          )
-                        ),        
-                      ]
-                    )
+                      // create text fields for add/edit project, depending on page, where you're in
+                      if (widget.mode == 'add') addWellTextField(),
+                      if (widget.mode == 'edit') textFieldForChange(),
+                    
+                    ],
                   ),
-
-                  // Block with text fields for latitude and longtitude
-                  Padding(
-                    padding: EdgeInsets.symmetric(vertical: 0, horizontal: 20),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        // Text field for latitude input
-                        Container(
-                          width: this.textFieldWidth,
-                          height: this.textFieldHeight,
-                          child: TextFormField(
-                            autofocus: false,
-                            textInputAction: TextInputAction.next,
-
-                            cursorRadius: const Radius.circular(10.0),
-                            cursorColor: Colors.black,
-
-                            keyboardType: TextInputType.number,
-                            inputFormatters: [
-                              FilteringTextInputFormatter.allow(RegExp(r'[0-9.,]')),
-                            ],
-
-                            decoration: InputDecoration(
-                              hintText: 'Широта',
-                              hintStyle: TextStyle( fontSize: 12, color: Colors.grey.shade400),
-                              labelStyle: TextStyle( fontSize: 12, color: Colors.grey.shade400),
-
-                              contentPadding: EdgeInsets.fromLTRB(7, 5, 5, 5),
-                              
-                              focusedBorder: textFieldStyle,
-                              enabledBorder: textFieldStyle,
-                            ),
-                            
-                            onFieldSubmitted: (String value) { latitude = double.parse(value); }
-                          )
-                        ),
-
-                        // Text field for longtitude input
-                        Container(
-                          width: this.textFieldWidth,
-                          height: this.textFieldHeight,
-                          child: TextFormField(
-                            autofocus: false,
-                            textInputAction: TextInputAction.done,
-                            
-                            cursorRadius: const Radius.circular(10.0),
-                            cursorColor: Colors.black,
-
-                            keyboardType: TextInputType.number,
-                            inputFormatters: [
-                              FilteringTextInputFormatter.allow(RegExp(r'[0-9.,]')),
-                            ],
-
-                            decoration: InputDecoration(
-                              labelText: 'Довгота',
-                              hintStyle: TextStyle( fontSize: 12, color: Colors.grey.shade400),
-                              labelStyle: TextStyle( fontSize: 12, color: Colors.grey.shade400),
-
-                              contentPadding: EdgeInsets.fromLTRB(7, 5, 5, 5),
-                              
-                              focusedBorder: textFieldStyle,
-                              enabledBorder: textFieldStyle,
-                            ),
-                            
-                            onFieldSubmitted: (String value) { longtitude = double.parse(value); }
-                          )
-                        ),           
-                      ]
-                    )
-                  ),
-                  
-                  button(functions: [addToBox, redirect], text: "Додати"),
-                  
-                ]
+                ),
               ),
 
               bottomNavigationBar: Bottom(),
@@ -280,5 +361,66 @@ class AddWellDescriptionState extends State<AddWellDescription>{
         }
     );
   }
+
+
+  // Create text field with parameters
+  Widget textField(
+    TextInputAction? textInputAction, String? labelText, 
+    TextStyle? hintStyle, TextStyle? labelStyle, TextInputType? keyboardType, 
+    TextInputFormatter? inputFormatters, Type? parseType,
+    {double? width, double? height, String? inputValueIndex}
+  ) {
+    return Container(
+      width: width,
+      
+      child: TextFormField(
+        autofocus: false,
+        textInputAction: textInputAction,
+
+        keyboardType: keyboardType,
+        inputFormatters: [
+          if (inputFormatters != null) inputFormatters
+        ],
+
+        autocorrect: true,
+        enableSuggestions: true,
+
+        cursorRadius: const Radius.circular(10.0),
+        cursorColor: lightingMode == ThemeMode.dark? Colors.white : Colors.black,
+
+        decoration: InputDecoration(
+          labelText: labelText,
+          hintStyle: hintStyle != null? hintStyle : TextStyle( fontSize: 12, color: Colors.grey.shade400),
+          labelStyle: labelStyle != null? hintStyle : TextStyle( fontSize: 12, color: Colors.grey.shade400),
+
+          contentPadding: EdgeInsets.fromLTRB(10, 0, 0, 0),
+          
+          focusedBorder: textFieldStyle,
+          enabledBorder: textFieldStyle,
+        ),
+        
+        onChanged: (String value) { 
+          if (inputValueIndex != null) {    
+            if (value == '' && widget.mode == 'add') {
+              alert('Дане поле потрібно заповнити', context);
+            } else { 
+              if (inputValueIndex == 'number' && widget.mode == 'edit') {
+                fieldValues['number'] = widget.wellNumber;
+              } 
+
+              if (parseType == double) 
+                fieldValues[inputValueIndex] = double.tryParse(value) == null? 0.0 : double.parse(value);
+              else if (parseType == int)
+                fieldValues[inputValueIndex] = int.tryParse(value) == null? 0: int.parse(value);
+              else 
+                fieldValues[inputValueIndex] = value;
+            }
+          }
+        }
+
+      )
+    );
+  }
+  
 
 }

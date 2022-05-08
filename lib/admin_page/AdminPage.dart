@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:geo_journal_v001/Bottom.dart';
 import 'package:geo_journal_v001/admin_page/DatabaseSettingsPage.dart';
+import 'package:geo_journal_v001/admin_page/SoilDataBaseSettings.dart';
 import 'package:geo_journal_v001/admin_page/InfoDataBaseSettings.dart';
-import 'package:geo_journal_v001/admin_page/WeatherDatabaseSettingsPage.dart';
 
 
 /* ***************************************************************
@@ -40,20 +40,18 @@ class AdminPage extends StatelessWidget {
                 PopupMenuButton(
 
                   itemBuilder: (context) => [
-                    PopupMenuItem(child: Text('Користувачі'), value: 'accounts'),
-                    PopupMenuItem(child: Text('Проекти'), value: 's_projects'),
+                    PopupMenuItem(child: Text('Користувачі'), value: 'accounts_data'),
                     PopupMenuItem(child: Text('Типи грунтів'), value: 'soil_types'),
-                    PopupMenuItem(child: Text('Погода'), value: 's_weather'),
                     PopupMenuItem(child: Text('Інформація'), value: 'info')
                   ],
 
                   onSelected: (value) {
-                    if (value != 's_weather' && value != 'info')
+                    if (value == 'accounts_data')
                       Navigator.push(context, MaterialPageRoute(builder: (context) => DatabaseSettingsPage(value)));
                     else if (value == 'info')
                       Navigator.push(context, MaterialPageRoute(builder: (context) => InfoDatabaseSettingsPage(value)));
-                    else 
-                      Navigator.push(context, MaterialPageRoute(builder: (context) => WeatherDatabaseSettingsPage()));
+                    else if (value == 'soil_types')
+                      Navigator.push(context, MaterialPageRoute(builder: (context) => SoilDatabaseSettingsPage(value)));
                   },
                 ),
               ],

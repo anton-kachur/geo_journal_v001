@@ -25,8 +25,7 @@ class InfoDatabaseSettingsPageState extends State<InfoDatabaseSettingsPage> {
 
   var box;
 
-  var textFieldWidth = 155.0;
-  var textFieldHeight = 32.0;
+  var textFieldWidth = 320.0;
 
 
   // Refresh page
@@ -42,30 +41,29 @@ class InfoDatabaseSettingsPageState extends State<InfoDatabaseSettingsPage> {
 
 
   // Function for adding data to database
-  Widget addToBox() {
+  void addToBox() {
     box.put('info0', InfoDescription(
       'Застосунок для геологів', 
-      fieldValues[0]=='Розробник: '? box.get('info0').developer: fieldValues[0], 
-      fieldValues[1]=='Версія: '? box.get('info0').version: fieldValues[1]));
+      fieldValues[0] == 'Розробник: '? box.get('info0').developer : fieldValues[0], 
+      fieldValues[1] == 'Версія: '? box.get('info0').version : fieldValues[1]));
     
     box.close();
-    return Text('');
   }
 
 
   // Create text field
-  textField(var textInputAction, var labelText, var inputValueIndex) {
+  Widget textField(var textInputAction, var labelText, var inputValueIndex) {
 
     return Container(
       width: textFieldWidth,
-      height: textFieldHeight,
 
       child: TextFormField(
         autofocus: false,
         textInputAction: textInputAction,
 
         cursorRadius: const Radius.circular(10.0),
-        cursorColor: Colors.black,
+        cursorColor: lightingMode == ThemeMode.dark? Colors.white : Colors.black,
+        enableSuggestions: true,
 
         decoration: InputDecoration(
           labelText: labelText,
@@ -78,7 +76,7 @@ class InfoDatabaseSettingsPageState extends State<InfoDatabaseSettingsPage> {
           enabledBorder: textFieldStyle,
         ),
         
-        onFieldSubmitted: (String value) { fieldValues[inputValueIndex] = labelText + ': ' + value; }
+        onChanged: (String value) { fieldValues[inputValueIndex] = labelText + ': ' + value; }
       )
     );
   }
@@ -87,8 +85,8 @@ class InfoDatabaseSettingsPageState extends State<InfoDatabaseSettingsPage> {
 
   @override
   Widget build(BuildContext context) {
-    var boxData = getDataFromBox(widget.value); // data retreived from database
 
+    var boxData = getDataFromBox(widget.value); // data retreived from database
 
     return FutureBuilder(
       future: boxData,
@@ -116,26 +114,31 @@ class InfoDatabaseSettingsPageState extends State<InfoDatabaseSettingsPage> {
                       
                       // Add element to DB
                       Padding(
-                        padding: EdgeInsets.symmetric(vertical: 15.0, horizontal: 15.0),
+                        padding: EdgeInsets.fromLTRB(20.0, 20.0, 20.0, 0.0),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
 
                           children: [
                             Text('Про застосунок\n'),
-                            Text('Редагувати'),
+                            Text('Редагувати\n'),
 
                             Padding(
                               padding: EdgeInsets.fromLTRB(1.0, 7.0, 0.0, 0.0),
-                              child: Row(
+                              child: Column(
                                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                 children: [
+                                  
                                   textField(TextInputAction.next, 'Розробник', 0),
+
+                                  SizedBox(height: 8),
+
                                   textField(TextInputAction.done, 'Версія', 1),                  
+                                
                                 ]
                               ),
                             ),
 
-                            button(functions: [addToBox, refresh], text: "Додати"),
+                            button(functions: [addToBox, refresh], text: "Змінити", rightPadding: 92),
                             
                           ],
                         ),
@@ -144,7 +147,7 @@ class InfoDatabaseSettingsPageState extends State<InfoDatabaseSettingsPage> {
 
                       // Get list of elements in DB
                       Padding(
-                        padding: EdgeInsets.symmetric(vertical: 15.0, horizontal: 15.0),
+                        padding: EdgeInsets.fromLTRB(20, 20, 20, 20),
 
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -153,10 +156,10 @@ class InfoDatabaseSettingsPageState extends State<InfoDatabaseSettingsPage> {
                             Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Text('Список елементів'),
+                                Text('Eлемент\n'),
                                 
                                   Container(
-                                    width: 330,
+                                    width: 320,
                                     decoration: BoxDecoration(
                                       borderRadius: BorderRadius.all(Radius.circular(5.0)),
                                       boxShadow: [
@@ -166,7 +169,9 @@ class InfoDatabaseSettingsPageState extends State<InfoDatabaseSettingsPage> {
                                       border: Border.all(color: Colors.grey.shade800),
                                     ),
 
-                                    child: Text("${snapshot.data.title}\n${snapshot.data.developer}\n${snapshot.data.version}"),
+                                    padding: EdgeInsets.fromLTRB(10, 10, 10, 10),
+
+                                    child: Text("${snapshot.data.title}\n${snapshot.data.developer}\n${snapshot.data.version}", style: TextStyle(color: lightingMode == ThemeMode.dark? Colors.black : Colors.white),),
                                   )
 
                               ]

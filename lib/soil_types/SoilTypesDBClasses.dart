@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 
+part 'SoilTypesDBClasses.g.dart';
 
 /* ***************************************************************
   Hive class for saving soil description
@@ -11,9 +12,10 @@ class SoilDescription{
   var type;
   @HiveField(1)
   var description;
+  @HiveField(2)
+  var image;
   
-  SoilDescription(this.type);
-  SoilDescription.desc(this.type, this.description);
+  SoilDescription(this.type, this.description, {this.image});
 
   @override
   String toString() {
@@ -50,24 +52,5 @@ class SoilDescriptionPage extends StatelessWidget{
         child: Text('$description'),
       )
     );
-  }
-}
-
-
-class SoilDescriptionAdapter extends TypeAdapter<SoilDescription>{
-  @override
-  final typeId = 0;
-
-  @override
-  SoilDescription read(BinaryReader reader) {
-    final type = reader.readString();
-    final description = reader.readString();
-    return SoilDescription.desc(type, description);
-  }
-
-  @override
-  void write(BinaryWriter writer, SoilDescription obj) {
-    writer.writeString(obj.type);
-    writer.writeString(obj.description);
   }
 }

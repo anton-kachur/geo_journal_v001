@@ -2,8 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:geo_journal_v001/AppUtilites.dart';
 import 'package:geo_journal_v001/Bottom.dart';
+import 'package:geo_journal_v001/accounts/AccountsDBClasses.dart';
+import 'package:geo_journal_v001/projects/project_and_DB/ProjectDBClasses.dart';
 import 'package:geo_journal_v001/wells/WellPage.dart';
 import 'package:geo_journal_v001/wells/soil_and_DB/SoilSampleDBClasses.dart';
+import 'package:geo_journal_v001/wells/well_and_DB/WellDBClasses.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 
 
@@ -13,76 +16,319 @@ import 'package:hive_flutter/hive_flutter.dart';
 class AddSoilSample extends StatefulWidget {
   final wellNumber; // number of well, to which the soil sample belongs
   final projectNumber; // number of project, to which the soil sample belongs
+  final mode;
+  var name;
 
-  AddSoilSample(this.wellNumber, this.projectNumber);
+  AddSoilSample.editing(this.name, this.wellNumber, this.projectNumber, this.mode);
+  AddSoilSample(this.wellNumber, this.projectNumber, this.mode);
   
   @override
   AddSoilSampleState createState() => AddSoilSampleState();
 }
 
 
-class AddSoilSampleState extends State<AddSoilSample>{
-  var name;
-  var depthStart;
-  var depthEnd;
-  var notes;  
+class AddSoilSampleState extends State<AddSoilSample> {
+
+  Map<String, Object> fieldValues = {
+    'name': '', 
+    'depthStart': '', 
+    'depthEnd': '', 
+    'notes': ''
+  };
 
   var boxSize;
   var box;
+  var projectBox;
+  var wellBox;
 
-  var textFieldWidth = 155.0;
+  var textFieldWidth = 320.0;
   var textFieldHeight = 32.0;
-
-  late FocusNode _focusNode;
-  
-  @override
-  void initState() {
-    super.initState();
-    _focusNode = FocusNode();
-  }
-
-  @override
-  void dispose() {
-    super.dispose();
-    _focusNode.dispose();
-  }
 
 
   // Redirect to page with list of wells
   void redirect() {
-    Navigator.pop(context);
-    Navigator.push(context, MaterialPageRoute(builder: (context) => WellPage(widget.wellNumber, widget.projectNumber)));
+    Navigator.pop(context, false);
+    Navigator.pushReplacement(context, MaterialPageRoute(builder: (BuildContext context) => WellPage(widget.wellNumber, widget.projectNumber)));
   }
 
   // Function for getting data from Hive database
   Future getDataFromBox() async {
-    box = await Hive.openBox<SoilForWellDescription>('well_soil_samples');
+    box = await Hive.openBox('accounts_data');
     boxSize = box.length;
 
     return Future.value(box.values);     
   }
 
 
-  // Function for adding data to database
-  Widget addToBox() {
-    box.put('soil_sample${boxSize+2}', SoilForWellDescription(name, depthStart, depthEnd, notes, widget.wellNumber, widget.projectNumber));
-    
-    return Text('');
+  Future<bool> checkAccount(var account) async {
+    return (account.login == (await currentAccount).login &&
+      account.password == (await currentAccount).password &&
+      account.email == (await currentAccount).email &&
+      account.phoneNumber == (await currentAccount).phoneNumber &&
+      account.position == (await currentAccount).position &&
+      account.isAdmin == (await currentAccount).isAdmin)? Future<bool>.value(true): Future<bool>.value(false);
   }
 
 
-  // Function for deleting data in database
-  Widget deleteElementInBox() {
+  // Function for adding data to database
+  addToBox() async {
+    var projects = (await currentAccount).projects;
+    var wells;
+
     for (var key in box.keys) {
-      if ((box.get(key)).name == name) {
-        box.delete(key);
+      if ((await checkAccount(box.get(key))) == true) {
+        
+        for (var project in projects) {
+          if (project.number == widget.projectNumber) {
+
+            wells = project.wells;
+
+            for (var well in wells) {
+              if (well.projectNumber == widget.projectNumber && well.number == widget.wellNumber) {
+
+                wells[wells.indexOf(well)] = WellDescription(
+                  well.number, 
+                  well.date,
+                  well.latitude,
+                  well.longtitude,
+                  well.projectNumber,
+                  well.samples + [ 
+                    SoilForWellDescription(
+                      fieldValues['name'], 
+                      fieldValues['depthStart'],
+                      fieldValues['depthEnd'],
+                      fieldValues['notes'],
+                      widget.wellNumber,
+                      widget.projectNumber,
+                      image: null
+                    )
+                  ],
+                  image: well.image,
+                );
+            
+                projects[projects.indexOf(project)] = ProjectDescription(
+                  project.name, 
+                  project.number,
+                  project.date,
+                  project.notes,
+                  wells,
+                  project.soundings,
+                );
+
+                box.put(
+                  key, UserAccountDescription(
+                  (await currentAccount).login,
+                  (await currentAccount).password,
+                  (await currentAccount).email,
+                  (await currentAccount).phoneNumber,
+                  (await currentAccount).position,
+                  true,
+                  (await currentAccount).isAdmin,
+                  projects
+                  )
+                );
+
+              }
+            }
+          
+          }
+        }
+
       }
     }
-      
-    box.close();
-    return Text('');
   }
 
+
+  // Function for changing data in database
+  changeElementInBox() async {
+    var projects = (await currentAccount).projects;
+    var wells;
+    var samples;
+    
+    for (var key in box.keys) {
+      if ((await checkAccount(box.get(key))) == true) {
+
+        for (var project in projects) {
+          if (project.number == widget.projectNumber) {
+
+            wells = project.wells;
+
+            for (var well in wells) {
+              if (well.projectNumber == widget.projectNumber && well.number == widget.wellNumber) {
+
+                samples = well.samples;
+
+                for (var sample in samples) {
+                  if (sample.name == widget.name) {
+
+                    samples[samples.indexOf(sample)] = SoilForWellDescription(
+                      fieldValues['name'] == ''? sample.name : fieldValues['name'], 
+                      fieldValues['depthStart'] == ''? sample.depthStart : fieldValues['depthStart'],
+                      fieldValues['depthEnd'] == ''? sample.depthEnd : fieldValues['depthEnd'],
+                      fieldValues['notes'] == ''? sample.notes : fieldValues['notes'],
+                      widget.wellNumber,
+                      widget.projectNumber,
+                      image: sample.image
+                    );
+
+                    wells[wells.indexOf(well)] = WellDescription(
+                      well.number, 
+                      well.date,
+                      well.latitude,
+                      well.longtitude,
+                      well.projectNumber,
+                      samples,
+                      image: well.image 
+                    );
+
+                    projects[projects.indexOf(project)] = ProjectDescription(
+                      project.name, 
+                      project.number,
+                      project.date,
+                      project.notes, 
+                      wells, 
+                      project.soundings 
+                    );
+
+                    box.put(
+                      key, UserAccountDescription(
+                      (await currentAccount).login,
+                      (await currentAccount).password,
+                      (await currentAccount).email,
+                      (await currentAccount).phoneNumber,
+                      (await currentAccount).position,
+                      true,
+                      (await currentAccount).isAdmin,
+                      projects
+                      )
+                    );
+
+                  }
+                }
+
+              }
+            }
+
+          }
+        }
+      }
+    }
+  }
+
+
+  Widget textFieldsForAdd() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+
+        // Text field block for soil type and start depth
+        Padding(
+          padding: EdgeInsets.fromLTRB(9, 8, 9, 2),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              
+              textField(
+                TextInputAction.next, 
+                (widget.mode == 'edit' && widget.projectNumber != '' && widget.wellNumber != '' && widget.name != '')? widget.name.toString() : 'Тип грунту...',
+                (widget.mode == 'edit' && widget.projectNumber != '' && widget.wellNumber != '' && widget.name != '')? TextStyle(fontSize: 12, color: lightingMode == ThemeMode.dark? Colors.white : Colors.black87) : TextStyle( fontSize: 12, color: Colors.grey.shade400),
+                (widget.mode == 'edit' && widget.projectNumber != '' && widget.wellNumber != '' && widget.name != '')? TextStyle(fontSize: 12, color: Colors.black87) : TextStyle( fontSize: 12, color: Colors.grey.shade400),
+                  
+                TextInputType.text, 
+                null,
+                String,
+                width: textFieldWidth,
+                height: textFieldHeight,
+                inputValueIndex: 'name'
+              ),
+
+              SizedBox(height: 8),
+
+              textField(
+                TextInputAction.next, 
+                'Початкова глибина (м)', 
+                null, null,
+                TextInputType.number, 
+                FilteringTextInputFormatter.allow(RegExp(r'[0-9.,]')),
+                String,
+                width: textFieldWidth,
+                height: textFieldHeight,
+                inputValueIndex: 'depthStart'
+              ),
+              
+              SizedBox(height: 8),
+
+              textField(
+                TextInputAction.next, 
+                'Кінцева глибина (м)', 
+                null, null,
+                TextInputType.number, 
+                FilteringTextInputFormatter.allow(RegExp(r'[0-9.,]')),
+                String,
+                width: textFieldWidth,
+                height: textFieldHeight,
+                inputValueIndex: 'depthEnd'
+              ),
+
+              SizedBox(height: 8),
+
+              textField(
+                TextInputAction.newline, 
+                'Нотатки', 
+                null, null,
+                TextInputType.multiline, 
+                null,
+                String,
+                width: textFieldWidth,
+                height: textFieldHeight,
+                inputValueIndex: 'notes'
+              ),
+     
+            ]
+          )
+        ),
+
+      ]
+    );
+  }
+
+
+  // Change element from DB
+  Widget textFieldForChange() {
+
+    return Padding(
+      padding: EdgeInsets.fromLTRB(15, 15, 15, 8),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+
+        children: [
+
+          textFieldsForAdd(),
+          button(functions: [changeElementInBox, redirect], text: "Змінити", rightPadding: 92),
+
+        ]
+      )
+    );
+  }
+
+
+  // Add element to DB
+  Widget addSoilTextField() {
+    
+    return Padding(
+      padding: EdgeInsets.fromLTRB(15, 15, 15, 8),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+
+        children: [
+
+          textFieldsForAdd(),
+          button(functions: [addToBox, redirect], text: "Додати", rightPadding: 93),
+
+        ],
+      ),
+    );
+  }
 
 
   @override
@@ -108,154 +354,87 @@ class AddSoilSampleState extends State<AddSoilSample>{
                 automaticallyImplyLeading: false
               ),
 
-              body: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
+              body: Scrollbar(
+                child: SingleChildScrollView(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
 
-                  // Text field block for soil type and start depth
-                  Padding(
-                    padding: EdgeInsets.symmetric(vertical: 20, horizontal: 20),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-
-                        // Text field for soil type input
-                        Container(
-                          width: this.textFieldWidth,
-                          height: this.textFieldHeight,
-                          child: TextFormField(
-                            focusNode: _focusNode,
-                            autofocus: false,
-                            textInputAction: TextInputAction.next,
-
-                            cursorRadius: const Radius.circular(10.0),
-                            cursorColor: Colors.black,
-
-                            decoration: InputDecoration(
-                              labelText: 'Тип грунту',
-                              hintStyle: TextStyle( fontSize: 12, color: Colors.grey.shade400),
-                              labelStyle: TextStyle( fontSize: 12, color: Colors.grey.shade400),
-                              
-                              contentPadding: EdgeInsets.fromLTRB(7, 5, 5, 5),
-                              
-                              focusedBorder: textFieldStyle,
-                              enabledBorder: textFieldStyle,
-                            ),
-                            
-                            onFieldSubmitted: (String value) { name = value; }
-                          )
-                        ),
-
-                        // Text field for start depth input
-                        Container(
-                          width: this.textFieldWidth,
-                          height: this.textFieldHeight,
-                          child: TextFormField(
-                            autofocus: false,
-                            textInputAction: TextInputAction.next,
-
-                            cursorRadius: const Radius.circular(10.0),
-                            cursorColor: Colors.black,
-
-                            keyboardType: TextInputType.number,
-                            inputFormatters: [
-                              FilteringTextInputFormatter.allow(RegExp(r'[0-9.,]')),
-                            ],
-
-                            decoration: InputDecoration(
-                              labelText: 'Початкова глибина',
-                              hintStyle: TextStyle( fontSize: 12, color: Colors.grey.shade400),
-                              labelStyle: TextStyle( fontSize: 12, color: Colors.grey.shade400),
-
-                              contentPadding: EdgeInsets.fromLTRB(7, 5, 5, 5),
-                              
-                              focusedBorder: textFieldStyle,
-                              enabledBorder: textFieldStyle,
-                            ),
-                            
-                            onFieldSubmitted: (String value) { depthStart = value.toString(); }
-                          )
-                        ),        
-                      ]
-                    )
+                      // create text fields for add/edit project, depending on page, where you're in
+                      if (widget.mode == 'add') addSoilTextField(),
+                      if (widget.mode == 'edit') textFieldForChange(),
+                    
+                    ],
                   ),
-                  
-                  // Text field block for final depth and notes
-                  Padding(
-                    padding: EdgeInsets.symmetric(vertical: 0, horizontal: 20),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-
-                        // Text field for final depth input
-                        Container(
-                          width: this.textFieldWidth,
-                          height: this.textFieldHeight,
-                          child: TextFormField(
-                            autofocus: false,
-                            textInputAction: TextInputAction.next,
-
-                            cursorRadius: const Radius.circular(10.0),
-                            cursorColor: Colors.black,
-
-                            keyboardType: TextInputType.number,
-                            inputFormatters: [
-                              FilteringTextInputFormatter.allow(RegExp(r'[0-9.,]')),
-                            ],
-
-                            decoration: InputDecoration(
-                              labelText: 'Кінцева глибина',
-                              hintStyle: TextStyle( fontSize: 12, color: Colors.grey.shade400),
-                              labelStyle: TextStyle( fontSize: 12, color: Colors.grey.shade400),
-
-                              contentPadding: EdgeInsets.fromLTRB(7, 5, 5, 5),
-                              
-                              focusedBorder: textFieldStyle,
-                              enabledBorder: textFieldStyle,
-                            ),
-                            
-                            onFieldSubmitted: (String value) { depthEnd = value.toString(); }
-                          )
-                        ),
-
-                        // Text field for notes input
-                        Container(
-                          width: this.textFieldWidth,
-                          height: this.textFieldHeight,
-                          child: TextFormField(
-                            autofocus: false,
-                            textInputAction: TextInputAction.done,
-
-                            cursorRadius: const Radius.circular(10.0),
-                            cursorColor: Colors.black,
-
-                            decoration: InputDecoration(
-                              labelText: 'Примітки',
-                              hintStyle: TextStyle( fontSize: 12, color: Colors.grey.shade400),
-                              labelStyle: TextStyle( fontSize: 12, color: Colors.grey.shade400),
-                              
-                              contentPadding: EdgeInsets.fromLTRB(7, 5, 5, 5),
-                              
-                              focusedBorder: textFieldStyle,
-                              enabledBorder: textFieldStyle,
-                            ),
-                            
-                            onFieldSubmitted: (String value) { notes = value; }
-                          )
-                        ),           
-                      ]
-                    )
-                  ),
-                  
-                  button(functions: [addToBox, redirect], text: "Додати"),
-
-                ]
+                ),
               ),
 
               bottomNavigationBar: Bottom(),
             );
         }
       }
+    );
+  }
+
+
+  // Create text field with parameters
+  Widget textField(
+    TextInputAction? textInputAction, String? labelText, 
+    TextStyle? hintStyle, TextStyle? labelStyle, TextInputType? keyboardType, 
+    TextInputFormatter? inputFormatters, Type? parseType,
+    {double? width, double? height, String? inputValueIndex}
+  ) {
+    return Container(
+      width: width,
+
+      child: TextFormField(
+        autofocus: false,
+        textInputAction: textInputAction,
+
+        keyboardType: keyboardType,
+        inputFormatters: [
+          if (inputFormatters != null) inputFormatters
+        ],
+
+        maxLines: (inputValueIndex == 'notes')? null : 1,
+
+        autocorrect: true,
+        enableSuggestions: true,
+
+        cursorRadius: const Radius.circular(10.0),
+        cursorColor: lightingMode == ThemeMode.dark? Colors.white : Colors.black,
+
+        decoration: InputDecoration(
+          labelText: labelText,
+          hintStyle: hintStyle != null? hintStyle : TextStyle( fontSize: 12, color: Colors.grey.shade400),
+          labelStyle: labelStyle != null? hintStyle : TextStyle( fontSize: 12, color: Colors.grey.shade400),
+
+          contentPadding: EdgeInsets.fromLTRB(10, 0, 0, 0),
+          
+          focusedBorder: textFieldStyle,
+          enabledBorder: textFieldStyle,
+        ),
+        
+        onChanged: (String value) { 
+          if (inputValueIndex != null) {
+            if (value == '' && widget.mode == 'add') {
+              alert('Дане поле потрібно заповнити', context);
+            } else { 
+              if (inputValueIndex == 'name' && widget.mode == 'edit') {
+                fieldValues['name'] = widget.name;
+              }
+
+              if (parseType == double) 
+                fieldValues[inputValueIndex] = double.tryParse(value) == null? 0.0 : double.parse(value);
+              else if (parseType == int)
+                fieldValues[inputValueIndex] = int.tryParse(value) == null? 0: int.parse(value);
+              else 
+                fieldValues[inputValueIndex] = value;
+            }
+          }
+        }
+
+      )
     );
   }
 

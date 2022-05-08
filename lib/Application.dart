@@ -191,7 +191,6 @@ class DragBoxState extends State<DragBox> with SingleTickerProviderStateMixin {
 
                             child: Column(
                               children: [
-
                                 if (snapshot.data[0] == true && snapshot.data[1] == true)
                                   buttonConstructor('Сторінка адміністратора', widget.model.mode, route: '/admin_page'),
                                 

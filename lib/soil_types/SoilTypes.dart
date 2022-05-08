@@ -1,7 +1,12 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:geo_journal_v001/Bottom.dart';
 import 'package:geo_journal_v001/soil_types/SoilTypesDBClasses.dart';
 import 'package:hive_flutter/hive_flutter.dart';
+import 'package:image_picker/image_picker.dart';
+
+import '../appUtilites.dart';
 
 
 /* ***************************************************************
@@ -14,7 +19,7 @@ class SoilTypes extends StatelessWidget {
 
   // Function for getting data from Hive database
   Future getDataFromBox() async {
-    box = await Hive.openBox<SoilDescription>('soil_types');
+    box = await Hive.openBox('soil_types');
     boxSize = box.length;
 
     return Future.value(box.values);     
@@ -38,16 +43,24 @@ class SoilTypes extends StatelessWidget {
           else
             return Scaffold(
 
-              appBar: AppBar(backgroundColor: Colors.brown, title: Text('Типи грунтів')),
+              appBar: AppBar(
+                backgroundColor: Colors.brown, 
+                title: Text('Типи грунтів'),
+                automaticallyImplyLeading: false
+              ),
 
-              body: Column(
-                children: [
+              body: Scrollbar(
+                child: SingleChildScrollView(
+                  child: Column(
+                    children: [
 
-                  // output soil types list
-                  for (var element in snapshot.data)
-                    SoilType(type: element.type, description: element.description),
-                  
-                ]
+                      // output soil types list
+                      for (var element in snapshot.data)
+                        SoilType(element.type, element.description, element.image),
+                      
+                    ]
+                  ),
+                ),
               ),
               
               bottomNavigationBar: Bottom('soil_types'),
@@ -66,49 +79,119 @@ class SoilTypes extends StatelessWidget {
 class SoilType extends StatefulWidget {
   final String type;
   final String description;
+  final String image;
 
-  const SoilType({Key? key, required this.type, required this.description}): super(key: key);
+  SoilType(this.type, this.description, this.image);
   
   @override
-  CreateSoilType createState() => CreateSoilType();
+  SoilTypeState createState() => SoilTypeState();
 }
 
 
-class CreateSoilType extends State<SoilType> {
+class SoilTypeState extends State<SoilType> {
+  var box;
+  var image;
+
+
+  // Function for getting data from Hive database
+  Future getDataFromBox() async {
+    box = await Hive.openBox('soil_types');
+
+    return Future.value(box.values);    
+  }
+
 
   @override
   Widget build(BuildContext context) {
 
-    return Column(
-      children: [
+    var boxData = getDataFromBox();
 
-        Container(
-          decoration: BoxDecoration(
-            border: Border(
-              bottom: BorderSide(color: Colors.black45, width: 1.0),
-            )
-          ),
+    return FutureBuilder(
+      future: boxData,  // data, retreived from database
+      builder: (BuildContext context, AsyncSnapshot snapshot) {
 
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return waitingOrErrorWindow('Зачекайте...', context);
+        } else {
+          if (snapshot.hasError)
+            return waitingOrErrorWindow('Помилка: ${snapshot.error}', context);
+          else
+            return Container(
 
-              Text('     '+widget.type),
-              
-              IconButton(
-                splashColor: Colors.transparent,
-                icon: Icon(Icons.arrow_forward_ios_rounded, size: 22),
-                onPressed: () {
-                  Navigator.push(context, MaterialPageRoute(builder: (context) => SoilDescriptionPage.desc(widget.type, widget.description)));
-                }
-              ) 
+              decoration: BoxDecoration(
+                border: Border(
+                  bottom: BorderSide(color: Colors.black45, width: 1.0),
+                )
+              ),
 
-            ]
-          )
-        )
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
 
-      ]
-    );   
+                  Padding(
+                    padding: EdgeInsets.fromLTRB(15.0, 0, 0, 0), 
+                    child: Text(widget.type)
+                  ),
+
+                  IconButton(        
+                    splashColor: Colors.transparent,
+                    highlightColor: Colors.transparent,
+
+                    padding: EdgeInsets.fromLTRB(220.0, 0.0, 0.0, 0.0),
+                    icon: Icon(Icons.photo, size: 20),
+                    onPressed: () {
+                      if (widget.image != null || image != null) {
+                        
+                        showDialog(
+                          context: context, 
+                          builder: (BuildContext context) {
+
+                            return AlertDialog(
+                              insetPadding: EdgeInsets.all(10),
+                              contentPadding: EdgeInsets.zero,
+                              
+                              title: const Text(''),
+                              content: Stack(
+                                overflow: Overflow.visible,
+                                alignment: Alignment.center,
+                                children: [
+                                  Image.network(widget.image == null? image : widget.image, fit: BoxFit.cover)
+                                ],
+                              ),
+
+                              actions: [
+                                
+                                FlatButton(
+                                  child: const Text('ОК'),
+                                  onPressed: () { 
+                                    Navigator.of(context).pop(); 
+                                  },
+                                ),
+
+                              ],
+                            );
+                          }
+                        );
+                      } else {
+                      }
+                    }
+                  ),
+                  
+                  IconButton(
+                    splashColor: Colors.transparent,
+                    icon: Icon(Icons.arrow_forward_ios_rounded, size: 22),
+                    onPressed: () {
+                      Navigator.push(context, MaterialPageRoute(builder: (context) => SoilDescriptionPage.desc(widget.type, widget.description)));
+                    }
+                  ) 
+
+                ]
+              )
+
+            );   
+        }
+      }
+    );
   }
 
 }

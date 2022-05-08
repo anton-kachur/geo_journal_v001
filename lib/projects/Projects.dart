@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:geo_journal_v001/Bottom.dart';
+import 'package:geo_journal_v001/accounts/AccountsDBClasses.dart';
 import 'package:geo_journal_v001/projects/project_and_DB/Project.dart';
 import 'package:geo_journal_v001/projects/project_and_DB/ProjectDBClasses.dart';
 import 'package:hive_flutter/hive_flutter.dart';
@@ -25,10 +26,21 @@ class ProjectsState extends State<Projects>{
   
   // Function for getting data from Hive database
   Future getDataFromBox() async {
-    box = await Hive.openBox<ProjectDescription>('s_projects');
-    boxSize = box.length;
+    box = await Hive.openBox('accounts_data');
     
-    return Future.value(box.values);     
+    try {
+      for (var key in box.keys) {
+        if (box.get(key).login == (await currentAccount).login) {
+          boxSize = box.length;
+      
+          return Future.value(box.get(key));  
+        
+        }
+      }
+    } catch (e) {
+      
+    }
+       
   }
 
 
@@ -62,9 +74,11 @@ class ProjectsState extends State<Projects>{
                     children: [
                       
                       // output projects list
-                      for (var element in snapshot.data)
-                        Project(element.name, element.number, element.date, element.notes),
-                      
+                      if (currentAccount != null)
+                        for (var element in snapshot.data.projects)
+                          Project(element.name, element.number, element.date, element.notes)
+                      else 
+                        Project('тест', '1', '31/12/2023', 'помітки'),
                     ]
                   ),
                 )
