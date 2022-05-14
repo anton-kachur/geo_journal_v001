@@ -185,7 +185,7 @@ class AddProjectDescriptionState extends State<AddProjectDescription>{
                   null, null,
                   TextInputType.number, 
                   FilteringTextInputFormatter.allow(RegExp(r'[0-9]')),
-                  int,
+                  String,
                   width: textFieldWidth,
                   inputValueIndex: 'number'
                 ),
