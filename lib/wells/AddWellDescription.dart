@@ -14,7 +14,7 @@ import 'package:hive_flutter/hive_flutter.dart';
 ************************************************************************* */
 class AddWellDescription extends StatefulWidget {
   final projectNumber;  // number of project, to which the well belongs
-  var wellNumber;
+  var wellNumber; // is needed when the mode == 'edit'
   final mode;
 
   AddWellDescription.editing(this.projectNumber, this.wellNumber, this.mode);
@@ -33,13 +33,12 @@ class AddWellDescriptionState extends State<AddWellDescription> {
   Map<String, Object> fieldValues = {
     'number': '', 
     'date': '', 
-    'latitude': 0.0, 
-    'longtitude': 0.0
+    'latitude': '', 
+    'longtitude': ''
   };
 
 
   var textFieldWidth = 320.0;
-  var textFieldHeight = 32.0;
 
 
   // Function for getting data from Hive database
@@ -51,6 +50,7 @@ class AddWellDescriptionState extends State<AddWellDescription> {
   }
 
 
+  // Function fro checking the current account
   Future<bool> checkAccount(var account) async {
     return (account.login == (await currentAccount).login &&
       account.password == (await currentAccount).password &&
@@ -70,37 +70,43 @@ class AddWellDescriptionState extends State<AddWellDescription> {
         
         for (var element in projects) {
           if (element.number == widget.projectNumber) {
-            
-            projects[projects.indexOf(element)] = ProjectDescription(
-              element.name, 
-              element.number,
-              element.date,
-              element.notes,
-              element.wells + [ 
-                WellDescription(
-                  fieldValues['number'], 
-                  fieldValues['date'],
-                  fieldValues['latitude'],
-                  fieldValues['longtitude'],
-                  widget.projectNumber,
-                  []
-                )
-              ],
-              element.soundings,
-            );
 
-            box.put(
-              key, UserAccountDescription(
-              (await currentAccount).login,
-              (await currentAccount).password,
-              (await currentAccount).email,
-              (await currentAccount).phoneNumber,
-              (await currentAccount).position,
-              true,
-              (await currentAccount).isAdmin,
-              projects
-              )
-            );
+            if (compareTwoDates(fieldValues['date'].toString(), element.date.toString())) {
+            
+              projects[projects.indexOf(element)] = ProjectDescription(
+                element.name, 
+                element.number,
+                element.date,
+                element.address,
+                element.notes,
+                element.wells + [ 
+                  WellDescription(
+                    fieldValues['number'], 
+                    fieldValues['date'],
+                    fieldValues['latitude'],
+                    fieldValues['longtitude'],
+                    widget.projectNumber,
+                    []
+                  )
+                ],
+                element.soundings,
+              );
+
+              box.put(
+                key, UserAccountDescription(
+                (await currentAccount).login,
+                (await currentAccount).password,
+                (await currentAccount).email,
+                (await currentAccount).phoneNumber,
+                (await currentAccount).position,
+                true,
+                (await currentAccount).isAdmin,
+                projects
+                )
+              );
+            } else {
+              alert('Дата буріння не може бути більше, менше або дорівнювати кінцевій даті проекту', context);
+            }
           
           }
         }
@@ -126,38 +132,42 @@ class AddWellDescriptionState extends State<AddWellDescription> {
             for (var well in wells) {
               if (well.number == widget.wellNumber) {
                 
+                if (compareTwoDates(fieldValues['date'].toString(), project.date.toString())) {
+                  wells[wells.indexOf(well)] = WellDescription(
+                    fieldValues['number'] == ''? well.number : fieldValues['number'], 
+                    fieldValues['date'] == ''? well.date : fieldValues['date'],
+                    fieldValues['latitude'] == 0.0? well.latitude : fieldValues['latitude'],
+                    fieldValues['longtitude'] == 0.0? well.longtitude : fieldValues['longtitude'],
+                    widget.projectNumber,
+                    well.samples,
+                    image: well.image
+                  );
 
-                wells[wells.indexOf(well)] = WellDescription(
-                  fieldValues['number'] == ''? well.number : fieldValues['number'], 
-                  fieldValues['date'] == ''? well.date : fieldValues['date'],
-                  fieldValues['latitude'] == 0.0? well.latitude : fieldValues['latitude'],
-                  fieldValues['longtitude'] == 0.0? well.longtitude : fieldValues['longtitude'],
-                  widget.projectNumber,
-                  well.samples,
-                  image: well.image
-                );
+                  projects[projects.indexOf(project)] = ProjectDescription(
+                    project.name, 
+                    project.number,
+                    project.date,
+                    project.address,
+                    project.notes, 
+                    wells, 
+                    project.soundings 
+                  );
 
-                projects[projects.indexOf(project)] = ProjectDescription(
-                  project.name, 
-                  project.number,
-                  project.date,
-                  project.notes, 
-                  wells, 
-                  project.soundings 
-                );
-
-                box.put(
-                  key, UserAccountDescription(
-                  (await currentAccount).login,
-                  (await currentAccount).password,
-                  (await currentAccount).email,
-                  (await currentAccount).phoneNumber,
-                  (await currentAccount).position,
-                  true,
-                  (await currentAccount).isAdmin,
-                  projects
-                  )
-                );
+                  box.put(
+                    key, UserAccountDescription(
+                    (await currentAccount).login,
+                    (await currentAccount).password,
+                    (await currentAccount).email,
+                    (await currentAccount).phoneNumber,
+                    (await currentAccount).position,
+                    true,
+                    (await currentAccount).isAdmin,
+                    projects
+                    )
+                  );
+                } else {
+                  alert('Дата буріння не може бути більше, менше або дорівнювати кінцевій даті проекту', context);
+                }
 
               }
             }
@@ -176,83 +186,82 @@ class AddWellDescriptionState extends State<AddWellDescription> {
   }
 
 
+  // Creates text field block for input
   Widget textFieldsForAdd() {
+
     return Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
 
-          Padding(
-            padding: EdgeInsets.fromLTRB(9, 8, 9, 2),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                
-                textField(
-                  TextInputAction.next, 
-                  (widget.mode == 'edit' && widget.projectNumber != '' && widget.wellNumber != '')? widget.wellNumber.toString() : 'Номер свердловини...',
-                  (widget.mode == 'edit' && widget.projectNumber != '' && widget.wellNumber != '')? TextStyle(fontSize: 12, color: lightingMode == ThemeMode.dark? Colors.white : Colors.black87) : TextStyle( fontSize: 12, color: Colors.grey.shade400),
-                  (widget.mode == 'edit' && widget.projectNumber != '' && widget.wellNumber != '')? TextStyle(fontSize: 12, color: Colors.black87) : TextStyle( fontSize: 12, color: Colors.grey.shade400),
-                  TextInputType.number, 
-                  FilteringTextInputFormatter.allow(RegExp(r'[0-9]')),
-                  String,
-                  width: textFieldWidth,
-                  height: textFieldHeight,
-                  inputValueIndex: 'number'
-                ),
+        Padding(
+          padding: EdgeInsets.fromLTRB(9, 8, 9, 2),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              
+              textField(
+                TextInputAction.next, 
+                (widget.mode == 'edit' && widget.projectNumber != '' && widget.wellNumber != '')? widget.wellNumber.toString() : 'Номер свердловини...',
+                (widget.mode == 'edit' && widget.projectNumber != '' && widget.wellNumber != '')? TextStyle(fontSize: 12, color: lightingMode == ThemeMode.dark? Colors.white : Colors.black87) : TextStyle( fontSize: 12, color: Colors.grey.shade400),
+                (widget.mode == 'edit' && widget.projectNumber != '' && widget.wellNumber != '')? TextStyle(fontSize: 12, color: Colors.black87) : TextStyle( fontSize: 12, color: Colors.grey.shade400),
+                TextInputType.number, 
+                FilteringTextInputFormatter.allow(RegExp(r'[0-9]')),
+                String,
+                width: textFieldWidth,
+                inputValueIndex: 'number'
+              ),
 
-                SizedBox(height: 8),
+              SizedBox(height: 8),
 
-                textField(
-                  TextInputAction.next, 
-                  'Дата буріння\n(ДД/ММ/РРРР)', 
-                  null, null,
-                  TextInputType.datetime, 
-                  FilteringTextInputFormatter.allow(RegExp(r'[0-9/]')),
-                  String,
-                  width: textFieldWidth,
-                  height: textFieldHeight,
-                  inputValueIndex: 'date'
-                ),
-                       
-                SizedBox(height: 8),
+              textField(
+                TextInputAction.next, 
+                'Дата буріння\n(ДД/ММ/РРРР)', 
+                null, null,
+                TextInputType.datetime, 
+                FilteringTextInputFormatter.allow(RegExp(r'[0-9/]')),
+                String,
+                width: textFieldWidth,
+                inputValueIndex: 'date'
+              ),
+                      
+              SizedBox(height: 8),
 
-                textField(
-                  TextInputAction.next, 
-                  'Широта...', 
-                  null, null,
-                  TextInputType.number, 
-                  FilteringTextInputFormatter.allow(RegExp(r'[0-9.,]')),
-                  double,
-                  width: textFieldWidth,
-                  height: textFieldHeight,
-                  inputValueIndex: 'latitude'
-                ),
+              textField(
+                TextInputAction.next, 
+                'Широта...', 
+                null, null,
+                TextInputType.number, 
+                FilteringTextInputFormatter.allow(RegExp(r'[0-9.,]')),
+                double,
+                width: textFieldWidth,
+                inputValueIndex: 'latitude'
+              ),
 
-                SizedBox(height: 8),
+              SizedBox(height: 8),
 
-                textField(
-                  TextInputAction.done, 
-                  'Довгота...', 
-                  null, null,
-                  TextInputType.number, 
-                  FilteringTextInputFormatter.allow(RegExp(r'[0-9.,]')),
-                  double,
-                  width: textFieldWidth,
-                  height: textFieldHeight,
-                  inputValueIndex: 'longtitude'
-                ),
-       
-              ]
-            )
-          ),
+              textField(
+                TextInputAction.done, 
+                'Довгота...', 
+                null, null,
+                TextInputType.number, 
+                FilteringTextInputFormatter.allow(RegExp(r'[0-9.,]')),
+                double,
+                width: textFieldWidth,
+                inputValueIndex: 'longtitude'
+              ),
+      
+            ]
+          )
+        ),
 
-        ]
-      );
+      ]
+    );
+
   }
 
 
   // Change element from DB
-  Widget textFieldForChange() {
+  Widget changeWellTextField() {
 
     return Padding(
       padding: EdgeInsets.fromLTRB(15, 15, 15, 8),
@@ -289,6 +298,7 @@ class AddWellDescriptionState extends State<AddWellDescription> {
   }
 
 
+  // Convert String date to DateTime
   DateTime dateParse(String date) {
     return DateTime(
       int.tryParse(date.substring(6, 10)) ?? 0, 
@@ -298,6 +308,7 @@ class AddWellDescriptionState extends State<AddWellDescription> {
   }
 
 
+  // Check if date of project end differs from date of well drilling
   bool checkIfDateCorrect() {
 
     for (var projectKey in projectBox.keys) {
@@ -317,8 +328,10 @@ class AddWellDescriptionState extends State<AddWellDescription> {
   }
 
 
+
   @override
   Widget build(BuildContext context) {
+
     var boxData = getDataFromBox();
 
 
@@ -346,9 +359,9 @@ class AddWellDescriptionState extends State<AddWellDescription> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
 
-                      // create text fields for add/edit project, depending on page, where you're in
+                      // create text fields for add/edit well, depending on mode
                       if (widget.mode == 'add') addWellTextField(),
-                      if (widget.mode == 'edit') textFieldForChange(),
+                      if (widget.mode == 'edit') changeWellTextField(),
                     
                     ],
                   ),

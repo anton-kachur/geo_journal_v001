@@ -5,8 +5,6 @@ import 'package:geo_journal_v001/Bottom.dart';
 import 'package:geo_journal_v001/accounts/AccountsDBClasses.dart';
 import 'package:geo_journal_v001/projects/Projects.dart';
 import 'package:geo_journal_v001/projects/project_and_DB/ProjectDBClasses.dart';
-import 'package:geo_journal_v001/soundings/sounding_and_DB/Sounding.dart';
-import 'package:geo_journal_v001/soundings/sounding_and_DB/SoundingDBClasses.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 
 
@@ -33,11 +31,11 @@ class AddProjectDescriptionState extends State<AddProjectDescription>{
     'name': '', 
     'number': '', 
     'date': '', 
+    'address': '',
     'notes': ''
   };
 
   var textFieldWidth = 320.0;
-  var textFieldHeight = 32.0;
 
 
   // Function for getting data from Hive database
@@ -49,13 +47,14 @@ class AddProjectDescriptionState extends State<AddProjectDescription>{
   }  
 
 
-    // Redirect to page with list of wells
+  // Redirect to page with list of wells
   void redirect() {
     Navigator.pop(context, false);
     Navigator.pushReplacement(context, MaterialPageRoute(builder: (BuildContext context) => Projects()));
   }
 
 
+  // Check current account
   Future<bool> checkAccount(var account) async {
     return (account.login == (await currentAccount).login &&
         account.password == (await currentAccount).password &&
@@ -72,7 +71,7 @@ class AddProjectDescriptionState extends State<AddProjectDescription>{
       if ((await checkAccount(box.get(key))) == true) {
         
         var userProjects = (await currentAccount).projects;
-        userProjects.add(ProjectDescription(fieldValues['name'], fieldValues['number'], fieldValues['date'], fieldValues['notes'], [], []));
+        userProjects.add(ProjectDescription(fieldValues['name'], fieldValues['number'], fieldValues['date'], fieldValues['address'], fieldValues['notes'], [], []));
 
         box.put(
           key, UserAccountDescription(
@@ -107,6 +106,7 @@ class AddProjectDescriptionState extends State<AddProjectDescription>{
               fieldValues['name'] == ''? element.name : fieldValues['name'], 
               fieldValues['number'] == ''? element.number : fieldValues['number'],
               fieldValues['date'] == ''? element.date : fieldValues['date'],
+              fieldValues['address'] == ''? element.address : fieldValues['address'],
               fieldValues['notes'] == ''? element.notes : fieldValues['notes'], 
               element.wells, 
               element.soundings 
@@ -145,14 +145,14 @@ class AddProjectDescriptionState extends State<AddProjectDescription>{
   }
 
 
-  // Function to set title of the add/edit page
+  // Function for setting title of the add/edit page
   getPageName() {
     if (widget.value == 'projects') return 'Ввести опис проекту';
     else if (widget.value == 'project_page') return 'Редагувати проект';
   }
 
 
-  // Create textfield for add page
+  // Create textField block for input
   Widget textFieldForAdd() {
 
     return Column(
@@ -174,7 +174,6 @@ class AddProjectDescriptionState extends State<AddProjectDescription>{
                   null,
                   String,
                   width: textFieldWidth,
-                  height: textFieldHeight,
                   inputValueIndex: 'name'
                 ),
 
@@ -188,7 +187,6 @@ class AddProjectDescriptionState extends State<AddProjectDescription>{
                   FilteringTextInputFormatter.allow(RegExp(r'[0-9]')),
                   int,
                   width: textFieldWidth,
-                  height: textFieldHeight,
                   inputValueIndex: 'number'
                 ),
 
@@ -202,8 +200,20 @@ class AddProjectDescriptionState extends State<AddProjectDescription>{
                   FilteringTextInputFormatter.allow(RegExp(r'[0-9/]')),
                   String,
                   width: textFieldWidth,
-                  height: textFieldHeight,
                   inputValueIndex: 'date'
+                ),
+
+                SizedBox(height: 8),
+
+                textField(
+                  TextInputAction.next, 
+                  'Адреса', 
+                  null, null,
+                  TextInputType.text, 
+                  null,
+                  String,
+                  width: textFieldWidth,
+                  inputValueIndex: 'address'
                 ),
 
                 SizedBox(height: 8),
@@ -216,7 +226,6 @@ class AddProjectDescriptionState extends State<AddProjectDescription>{
                   null,
                   String,
                   width: textFieldWidth,
-                  height: textFieldHeight,
                   inputValueIndex: 'notes'
                 ),
                            
@@ -228,26 +237,7 @@ class AddProjectDescriptionState extends State<AddProjectDescription>{
   }
 
 
-  // Change element from DB
-  Widget textFieldForChange() {
-
-    return Padding(
-      padding: EdgeInsets.fromLTRB(15, 15, 15, 8),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-
-        children: [
-
-          textFieldForAdd(),
-          button(functions: [changeElementInBox, redirect], text: "Змінити", rightPadding: 92),
-
-        ]
-      )
-    );
-  }
-
-
-  // Add element to DB
+  // Text fields with button for adding new project
   Widget addProjectTextField() {
     
     return Padding(
@@ -266,9 +256,29 @@ class AddProjectDescriptionState extends State<AddProjectDescription>{
   }
 
 
+  // Text fields with button for editing project
+  Widget changeProjectTextField() {
+
+    return Padding(
+      padding: EdgeInsets.fromLTRB(15, 15, 15, 8),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+
+        children: [
+
+          textFieldForAdd(),
+          button(functions: [changeElementInBox, redirect], text: "Змінити", rightPadding: 92),
+
+        ]
+      )
+    );
+  }
+
+
 
   @override
   Widget build(BuildContext context) {
+
     var boxData = getDataFromBox();
 
 
@@ -299,7 +309,7 @@ class AddProjectDescriptionState extends State<AddProjectDescription>{
 
                       // create text fields for add/edit project, depending on page, where you're in
                       if (widget.value == 'projects') addProjectTextField(),
-                      if (widget.value == 'project_page') textFieldForChange(),
+                      if (widget.value == 'project_page') changeProjectTextField(),
                     
                     ],
                   ),

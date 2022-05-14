@@ -21,8 +21,8 @@ class Soundings extends StatefulWidget {
 
 
 class SoundingsState extends State<Soundings> {
-  late final box;
-  late final boxSize;
+  var box;
+  var boxSize;
   
 
   // Function for getting data from Hive database
@@ -42,9 +42,18 @@ class SoundingsState extends State<Soundings> {
   }  
 
 
+  // Sort soundings' list
+  List<SoundingDescription> sortArray(List<SoundingDescription> array) {
+    array.sort((a, b) => a.depth.compareTo(b.depth));
+
+    return array;
+  }
+
+
 
   @override
   Widget build(BuildContext context) {
+    
     var boxData = getDataFromBox();
 
     return FutureBuilder(
@@ -74,7 +83,7 @@ class SoundingsState extends State<Soundings> {
                       if (currentAccount != null) 
                         for (var element in snapshot.data.projects)
                           if (element.number == widget.projectNumber)
-                            for (var sounding in element.soundings)
+                            for (var sounding in sortArray(element.soundings))
                               Sounding(sounding.depth, sounding.qc, sounding.fs, sounding.notes, widget.projectNumber, sounding.image)
                       
                     ]

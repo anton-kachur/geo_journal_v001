@@ -18,17 +18,19 @@ class ProjectDescription extends HiveObject {
   @HiveField(2)
   var date;
   @HiveField(3)
-  var notes;
+  var address;
   @HiveField(4)
-  List<WellDescription> wells;
+  var notes;
   @HiveField(5)
+  List<WellDescription> wells;
+  @HiveField(6)
   List<SoundingDescription> soundings;
   
   
-  ProjectDescription(this.name, this.number, this.date, this.notes, this.wells, this.soundings);
+  ProjectDescription(this.name, this.number, this.date, this.address, this.notes, this.wells, this.soundings);
 
   @override
   String toString() {
-    return '${this.name} №${this.number}\n${this.date}\n${this.notes}\nwells: ${this.wells}\nsoundings: ${this.soundings}\n';
+    return '${this.name} №${this.number}\n${this.date}\n${this.address}\n${this.notes}\nwells: ${this.wells}\nsoundings: ${this.soundings}\n';
   }
 }

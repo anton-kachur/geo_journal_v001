@@ -30,9 +30,12 @@ class BottomState extends State<Bottom> {
     iconSize = ((widget.page != 'wells' && widget.page != 'soundings' && widget.page != 'soil_sample' && widget.page != 'projects' && widget.page !='project_page') || !currentAccountIsRegistered)? 27.0 : 23.0;  // set size of some icons
 
     return BottomNavigationBar(
-      backgroundColor:  lightingMode == ThemeMode.dark? Colors.white : Colors.white,
+      backgroundColor: lightingMode == ThemeMode.dark? Colors.grey[850] : Colors.white,
       type: BottomNavigationBarType.fixed,
       selectedItemColor: Colors.black,
+      
+      elevation: 30,
+
       
       items: [
         
@@ -42,7 +45,7 @@ class BottomState extends State<Bottom> {
 
           icon: IconButton(
             splashColor: Colors.transparent,
-            icon: Icon(Icons.list_alt, color: Colors.black, size: iconSize),
+            icon: Icon(Icons.list_alt_rounded, color: lightingMode == ThemeMode.dark? Colors.white : Colors.black, size: iconSize),
 
             onPressed: () {
               if (widget.page == 'projects' ) { } 
@@ -63,7 +66,7 @@ class BottomState extends State<Bottom> {
 
           icon: IconButton(
             splashColor: Colors.transparent,
-            icon: Icon(Icons.landscape_rounded, color: Colors.black, size: iconSize+7.0),
+            icon: Icon(Icons.landscape_rounded, color: lightingMode == ThemeMode.dark? Colors.white : Colors.black, size: iconSize+7.0),
             onPressed: () { 
               if (widget.page == 'soil_types' ) { } 
               else {
@@ -95,7 +98,9 @@ class BottomState extends State<Bottom> {
                     width: 48,
                     height: 48,
                     // If you're in the page of some of your projects, you can edit it with 'edit' button
-                    child: (widget.page != 'project_page')? Icon(Icons.add_circle_outlined, color: Colors.black, size: 40) : Icon(Icons.edit, color: Colors.black, size: 40),
+                    child: (widget.page != 'project_page')? 
+                      Icon(Icons.add_circle_outlined, color: lightingMode == ThemeMode.dark? Colors.white : Colors.black, size: 40) : 
+                      Icon(Icons.edit, color: lightingMode == ThemeMode.dark? Colors.white : Colors.black, size: 40),
                   ),
                   
                   // Routing to add/edit page of some element (project, well, etc.) depending on what page you're in
@@ -128,7 +133,7 @@ class BottomState extends State<Bottom> {
 
           icon: IconButton(
             splashColor: Colors.transparent,
-            icon: Icon(Icons.ac_unit_rounded, color: Colors.black, size: iconSize),
+            icon: Icon(Icons.ac_unit_rounded, color: lightingMode == ThemeMode.dark? Colors.white : Colors.black, size: iconSize),
             onPressed: () { 
               if (widget.page == 'forecasts' ) { } 
               else {
@@ -142,7 +147,7 @@ class BottomState extends State<Bottom> {
         ),
 
 
-        // Button which opens page with application info
+        // Button which opens page with geological calculations
         BottomNavigationBarItem(
           title: Text(''),
 
@@ -150,14 +155,15 @@ class BottomState extends State<Bottom> {
             splashColor: Colors.transparent,
             icon: ClipRRect(
               borderRadius: BorderRadius.circular(50),
-              child: Icon(Icons.info_outline_rounded, color: Colors.black, size: iconSize),
+              child: Icon(Icons.calculate_rounded, 
+              color: lightingMode == ThemeMode.dark? Colors.white : Colors.black, size: iconSize),
             ),
 
             onPressed: () { 
-              if (widget.page == 'info_page' ) { } 
+              if (widget.page == 'calculators' ) { } 
               else {
                 setState(() { 
-                  Navigator.pushNamed(context, '/info_page'); 
+                  Navigator.pushNamed(context, '/calculators'); 
                 }); 
               }
             }

@@ -1,10 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:geo_journal_v001/AppUtilites.dart';
 import 'package:geo_journal_v001/Bottom.dart';
 import 'package:geo_journal_v001/accounts/AccountsDBClasses.dart';
 import 'package:geo_journal_v001/projects/project_and_DB/ProjectDBClasses.dart';
-import 'package:geo_journal_v001/soil_types/SoilTypesDBClasses.dart';
 import 'package:geo_journal_v001/soundings/sounding_and_DB/SoundingDBClasses.dart';
 import 'package:geo_journal_v001/wells/soil_and_DB/SoilSampleDBClasses.dart';
 import 'package:geo_journal_v001/wells/well_and_DB/WellDBClasses.dart';
@@ -84,7 +82,7 @@ class DatabaseSettingsPageState extends State<DatabaseSettingsPage> {
          
         
         [ProjectDescription(
-          'тест', '1', '12/12/2033', 'примітки', 
+          'тест', '1', '12/12/2033', 'вул. Велика Вісильківська, Київ', 'примітки', 
           
           [WellDescription(
           '1', '01/01/2023', 50.4536, 30.5164, '1', 
@@ -223,6 +221,7 @@ class DatabaseSettingsPageState extends State<DatabaseSettingsPage> {
                     ]
                   ),
                 ),
+                
                 itemBuilder: (context) => [
                   PopupMenuItem(child: Text('Так'), value: true),
                   PopupMenuItem(child: Text('Так, я не проти'), value: true),
@@ -382,20 +381,25 @@ class DatabaseSettingsPageState extends State<DatabaseSettingsPage> {
                                 Text('Список елементів\n'),
                                 
                                 for (var element in snapshot.data)
-                                  Container(
-                                    width: 320,
-                                    decoration: BoxDecoration(
-                                      borderRadius: BorderRadius.all(Radius.circular(5.0)),
-                                      boxShadow: [
-                                        BoxShadow(color: Colors.amber.shade50),
-                                        BoxShadow(color: Colors.white, spreadRadius: -12.0, blurRadius: 12.0),
-                                      ],
-                                      border: Border.all(color: Colors.grey.shade800),
-                                    ),
+                                  
+                                  Padding(
+                                    padding: EdgeInsets.fromLTRB(0, 0, 0, 10),
+                                    child: Container(
+                                    
+                                      width: 320,
+                                      decoration: BoxDecoration(
+                                        borderRadius: BorderRadius.all(Radius.circular(5.0)),
+                                        boxShadow: [
+                                          BoxShadow(color: lightingMode == ThemeMode.dark? Colors.grey.shade800 : Colors.amber.shade50),
+                                          
+                                        ],
+                                        border: Border.all(color: Colors.grey.shade700),
+                                      ),
 
-                                    padding: EdgeInsets.fromLTRB(10, 10, 10, 10),
+                                      padding: EdgeInsets.fromLTRB(10, 10, 10, 10),
 
-                                    child: Text("${element.toString()}", style: TextStyle(color: lightingMode == ThemeMode.dark? Colors.black : Colors.white),),
+                                      child: Text("${element.toString()}", style: TextStyle(color: lightingMode == ThemeMode.dark? Colors.grey.shade300 : Colors.black),),
+                                    )
                                   )
                                   
                               ]

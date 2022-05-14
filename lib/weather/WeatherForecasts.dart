@@ -160,14 +160,7 @@ class _WeatherForecastState extends State<WeatherForecast> {
       margin: EdgeInsets.all(25),
       child: Column(
         children: [
-          Text(
-            'Дані завантажуються...',
-            style: TextStyle(fontSize: 20),
-          ),
-
-          Container(
-            margin: EdgeInsets.only(top: 50),
-            child: Center(child: CircularProgressIndicator(strokeWidth: 10)))
+          Text('Зачекайте...', style: TextStyle(fontSize: 20)),
         ]
       ),
     );
@@ -179,7 +172,7 @@ class _WeatherForecastState extends State<WeatherForecast> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Text('...'),
+          Text(''),
         ],
       ),
     );

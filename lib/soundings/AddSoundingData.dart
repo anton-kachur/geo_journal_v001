@@ -15,7 +15,7 @@ import 'package:hive_flutter/hive_flutter.dart';
 class AddSoundingData extends StatefulWidget {
   final projectNumber;  // number of project, to which the sounding belongs
   final mode;
-  var depth;
+  var depth;   // is needed when the mode == 'edit'
   
   AddSoundingData(this.projectNumber, this.mode);
   AddSoundingData.edit(this.projectNumber, this.depth, this.mode);
@@ -38,7 +38,6 @@ class AddSoundingDataState extends State<AddSoundingData>{
 
 
   var textFieldWidth = 320.0;
-  var textFieldHeight = 32.0;
 
 
   // Function for getting data from Hive database
@@ -49,7 +48,7 @@ class AddSoundingDataState extends State<AddSoundingData>{
     return Future.value(box.values);     
   }  
 
-
+  // Check current account
   Future<bool> checkAccount(var account) async {
     return (account.login == (await currentAccount).login &&
         account.password == (await currentAccount).password &&
@@ -74,6 +73,7 @@ class AddSoundingDataState extends State<AddSoundingData>{
               element.name, 
               element.number,
               element.date,
+              element.address,
               element.notes, 
               element.wells, 
               element.soundings + [SoundingDescription(
@@ -107,6 +107,7 @@ class AddSoundingDataState extends State<AddSoundingData>{
   }
 
 
+  // Function for changing data in database
   changeElementInBox() async {
     var projects = (await currentAccount).projects;
     var soundings;
@@ -125,7 +126,7 @@ class AddSoundingDataState extends State<AddSoundingData>{
                 soundings[soundings.indexOf(sounding)] = SoundingDescription(
                   fieldValues['depth'] == 0.0? sounding.depth : fieldValues['depth'], 
                   fieldValues['qc'] == 0.0? sounding.qc : fieldValues['qc'],
-                  fieldValues['fs'] == 0.0? sounding.date : fieldValues['fs'],
+                  fieldValues['fs'] == 0.0? sounding.fs : fieldValues['fs'],
                   fieldValues['notes'] == ''? sounding.notes : fieldValues['notes'],
                   widget.projectNumber,
                   image: sounding.image
@@ -135,6 +136,7 @@ class AddSoundingDataState extends State<AddSoundingData>{
                   project.name, 
                   project.number,
                   project.date,
+                  project.address,
                   project.notes, 
                   project.wells, 
                   soundings 
@@ -170,9 +172,11 @@ class AddSoundingDataState extends State<AddSoundingData>{
   }
 
   
-
+  // Text field block for input
   Widget textFieldsForAdd() {
+
     return Column(
+
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Padding(
@@ -188,7 +192,6 @@ class AddSoundingDataState extends State<AddSoundingData>{
                 FilteringTextInputFormatter.allow(RegExp(r'[0-9.]')),
                 double,
                 width: textFieldWidth,
-                height: textFieldHeight,
                 inputValueIndex: 'depth'
               ),
 
@@ -196,12 +199,11 @@ class AddSoundingDataState extends State<AddSoundingData>{
 
               textField(
                 TextInputAction.next, 
-                'Введіть qc...', 
+                'Введіть qc (МПа)', 
                 TextInputType.number, 
                 FilteringTextInputFormatter.allow(RegExp(r'[0-9.]')),
                 double,
                 width: textFieldWidth,
-                height: textFieldHeight,
                 inputValueIndex: 'qc'
               ),
 
@@ -209,12 +211,11 @@ class AddSoundingDataState extends State<AddSoundingData>{
 
               textField(
                 TextInputAction.next, 
-                'Введіть fs...', 
+                'Введіть fs (кПа)', 
                 TextInputType.number, 
                 FilteringTextInputFormatter.allow(RegExp(r'[0-9.]')),
                 double,
                 width: textFieldWidth,
-                height: textFieldHeight,
                 inputValueIndex: 'fs'
               ),
 
@@ -227,7 +228,6 @@ class AddSoundingDataState extends State<AddSoundingData>{
                 null,
                 String,
                 width: textFieldWidth,
-                height: textFieldHeight,
                 inputValueIndex: 'notes'
               ),
               
@@ -238,7 +238,8 @@ class AddSoundingDataState extends State<AddSoundingData>{
     );
   }
 
-
+  
+  // Text fields with button for adding new sounding (mode == 'add')
   Widget addSoundingTextField() {
     return Padding(
       padding: EdgeInsets.fromLTRB(15, 15, 15, 8),
@@ -256,7 +257,8 @@ class AddSoundingDataState extends State<AddSoundingData>{
   }
 
 
-  textFieldForChange() {
+  // Text fields with button for editing sounding (mode == 'edit')
+  Widget editSoundingTextField() {
     return Padding(
       padding: EdgeInsets.fromLTRB(15, 15, 15, 8),
       child: Column(
@@ -272,8 +274,10 @@ class AddSoundingDataState extends State<AddSoundingData>{
   }
 
 
+
   @override
   Widget build(BuildContext context) {
+    
     var boxData = getDataFromBox();
 
 
@@ -301,9 +305,9 @@ class AddSoundingDataState extends State<AddSoundingData>{
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       
-                      // create text fields for add/edit project, depending on page, where you're in
+                      // create text fields for add/edit sounding, depending on mode
                       if (widget.mode == 'add') addSoundingTextField(),
-                      if (widget.mode == 'edit') textFieldForChange(),
+                      if (widget.mode == 'edit') editSoundingTextField(),
 
                       
                     ],

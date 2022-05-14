@@ -43,8 +43,18 @@ class WellPageState extends State<WellPage>{
   }  
 
 
+  // Sort list of soil samples
+  List<SoilForWellDescription> sortArray(List<SoilForWellDescription> array) {
+    array.sort((a, b) => a.depthStart.toString().compareTo(b.depthStart.toString()));
+
+    return array;
+  }
+  
+
+
   @override
   Widget build(BuildContext context) {
+
     var boxData = getDataFromBox();
 
 
@@ -72,13 +82,12 @@ class WellPageState extends State<WellPage>{
                     children: [
 
                       // output the list of soil samples from current well
-                      // output list of wells
                       if (currentAccount != null) 
                         for (var element in snapshot.data.projects)
                           if (element.number == widget.projectNumber)
                             for (var well in element.wells)
                               if (well.number == widget.wellNumber && well.projectNumber == widget.projectNumber)
-                                for (var sample in well.samples)
+                                for (var sample in sortArray(well.samples))
                                   SoilSample(sample.name, sample.depthStart, sample.depthEnd, sample.notes, sample.wellNumber, sample.projectNumber, sample.image),
                           
                     ]

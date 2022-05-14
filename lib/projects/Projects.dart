@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:geo_journal_v001/Bottom.dart';
-import 'package:geo_journal_v001/accounts/AccountsDBClasses.dart';
 import 'package:geo_journal_v001/projects/project_and_DB/Project.dart';
 import 'package:geo_journal_v001/projects/project_and_DB/ProjectDBClasses.dart';
 import 'package:hive_flutter/hive_flutter.dart';
@@ -40,13 +39,21 @@ class ProjectsState extends State<Projects>{
     } catch (e) {
       
     }
-       
+  }
+
+
+  // Sort list of projects
+  List<ProjectDescription> sortArray(List<ProjectDescription> array) {
+    array.sort((a, b) => a.number.compareTo(b.number));
+
+    return array;
   }
 
 
 
   @override
   Widget build(BuildContext context) {
+
     var boxData = getDataFromBox();
     
 
@@ -73,12 +80,12 @@ class ProjectsState extends State<Projects>{
                   child: Column(
                     children: [
                       
-                      // output projects list
-                      if (currentAccount != null)
-                        for (var element in snapshot.data.projects)
-                          Project(element.name, element.number, element.date, element.notes)
+                      // output projects' list
+                      if (currentAccount != null && snapshot.data != null)
+                        for (var element in sortArray(snapshot.data.projects))
+                          Project(element.name, element.number, element.date, element.address, element.notes)
                       else 
-                        Project('тест', '1', '31/12/2023', 'помітки'),
+                        Project('тест', '1', '31/12/2023', 'вул. Велика Вісильківська, Київ', 'Тестовий проект для прикладу'),
                     ]
                   ),
                 )

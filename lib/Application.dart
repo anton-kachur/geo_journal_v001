@@ -3,6 +3,7 @@ import 'package:geo_journal_v001/AppUtilites.dart';
 import 'package:geo_journal_v001/accounts/AccountPage.dart';
 import 'package:geo_journal_v001/admin_page/AdminPage.dart';
 import 'package:geo_journal_v001/Bottom.dart';
+import 'package:geo_journal_v001/calculator/Calculators.dart';
 import 'package:geo_journal_v001/info/InfoPage.dart';
 import 'package:geo_journal_v001/projects/Projects.dart';
 import 'package:geo_journal_v001/Settings.dart';
@@ -32,7 +33,7 @@ class ApplicationState extends State<Application> {
       child: Consumer<ThemeModel>( 
         builder: (_, model, __) { 
           
-          lightingMode = model.mode;
+          lightingMode = model.mode;  // set light/dark theme
 
           return MaterialApp(
 
@@ -46,6 +47,7 @@ class ApplicationState extends State<Application> {
               '/home': (context) => MainPage(model),
               '/soil_types': (context) => SoilTypes(),
               '/info_page': (context) => InfoPage(),
+              '/calculators': (context) => Calculators(),
               '/projects_page': (context) => Projects(),
               '/forecasts_page': (context) => WeatherForecast(),
               '/settings_page': (context) => Settings(model),
@@ -91,53 +93,8 @@ class MainPageState extends State<MainPage> {
 
   @override
   Widget build(BuildContext context) {
-    
-    return SafeArea(
-      child: Stack(
-        children: [
-          DragBox(Offset(0.0, 0.0), widget.model),
-        ],
-      ),
-    );
-  }
-}
-
-
-
-/* ************************************************************
-  Class for creating draggable box with buttons on the 
-  main page
-************************************************************ */
-class DragBox extends StatefulWidget {
-  final Offset initPos;
-  final model;
-
-  DragBox(this.initPos, this.model);
-
-  @override
-  DragBoxState createState() => DragBoxState();
-}
-
-
-class DragBoxState extends State<DragBox> with SingleTickerProviderStateMixin {
-  Offset position = Offset(0.0, 0.0);
-
-
-  @override
-  void initState() {
-    super.initState();
-    position = widget.initPos;
-  }
-
-
-  @override
-  Widget build(BuildContext context) {
-    var height = MediaQuery.of(context).size.height;
     var width = MediaQuery.of(context).size.width;
-    
-
     var registerStatus = checkIfUserIsRegistered();
-
 
     return FutureBuilder(
       future: registerStatus,  // data retreived from database
@@ -171,7 +128,8 @@ class DragBoxState extends State<DragBox> with SingleTickerProviderStateMixin {
               ),
 
               body: Container(
-                
+                  width: width,
+
                   decoration: BoxDecoration(
                     image: DecorationImage(
                       image: AssetImage((widget.model.mode == ThemeMode.dark)? "assets/black_mount_wallpaper.jpg" : "assets/white_mount_wallpaper.jpg"),
@@ -179,53 +137,25 @@ class DragBoxState extends State<DragBox> with SingleTickerProviderStateMixin {
                     )
                   ),
 
-                  child: Stack(
-                    children: [
-                      Positioned(
-                        left: position.dx,
-                        top: position.dy,
+                  child: 
+                      Padding(
+                        padding: EdgeInsets.symmetric(vertical: 15, horizontal: 15),
 
-                        child: Draggable(
-                          child: Padding(
-                            padding: EdgeInsets.fromLTRB(width/5, height/24, width, height),
+                        child: Column(
+                          children: [
+                            if (snapshot.data[0] == true && snapshot.data[1] == true)
+                              buttonConstructor('Сторінка адміністратора', widget.model.mode, route: '/admin_page'),
+                            
+                            if (snapshot.data[0] == true && snapshot.data[1] == false)
+                              buttonConstructor('Налаштування акаунта', widget.model.mode, materialRoute: true),
 
-                            child: Column(
-                              children: [
-                                if (snapshot.data[0] == true && snapshot.data[1] == true)
-                                  buttonConstructor('Сторінка адміністратора', widget.model.mode, route: '/admin_page'),
-                                
-                                if (snapshot.data[0] == true && snapshot.data[1] == false)
-                                  buttonConstructor('Налаштування акаунта', widget.model.mode, materialRoute: true),
+                            buttonConstructor('Прогноз погоди', widget.model.mode, route: '/forecasts_page'),
+                            buttonConstructor('Про застосунок', widget.model.mode, route: '/info_page'),
+                          ]
+                        )
+                      ),  
 
-                                buttonConstructor('Прогноз погоди', widget.model.mode, route: '/forecasts_page'),
-                                buttonConstructor('Про застосунок', widget.model.mode, route: '/info_page'),
-                              ]
-                            )
-                          ),
-                          
-                          onDraggableCanceled: (velocity, offset) { setState(() { position = offset; }); },
-
-                          feedback: Padding(
-                            padding: EdgeInsets.fromLTRB(width/5, height/24, width, height),
-                            child: Column(
-                              children: [
-                                if (snapshot.data[0] == true && snapshot.data[1] == true)
-                                  buttonConstructor('Сторінка адміністратора', widget.model.mode, route: '/admin_page'),
-                                
-                                if (snapshot.data[0] == true && snapshot.data[1] == false)
-                                  buttonConstructor('Налаштування акаунта', widget.model.mode, materialRoute: true),
-
-                                buttonConstructor('Прогноз погоди', widget.model.mode, route: '/forecasts_page'),
-                                buttonConstructor('Про застосунок', widget.model.mode, route: '/info_page'),
-                              ]
-                            ),
-                          ),
-
-                        ),
-                      ),
-
-                    ],
-                  ),
+                  
               ),
               
               bottomNavigationBar: Bottom(),
@@ -236,7 +166,7 @@ class DragBoxState extends State<DragBox> with SingleTickerProviderStateMixin {
   }
 
 
-  // Create buttons on home page
+  // Create buttons on home page with routing
   Widget buttonConstructor(String? text, ThemeMode? mode, {String? route, bool materialRoute = false}) {
     return FlatButton(
       minWidth: 210.0,

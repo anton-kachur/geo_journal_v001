@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:geo_journal_v001/AppUtilites.dart';
 import 'package:geo_journal_v001/Bottom.dart';
 import 'package:geo_journal_v001/accounts/AccountsDBClasses.dart';
+import 'package:geo_journal_v001/appUtilites.dart';
 import 'package:geo_journal_v001/projects/project_and_DB/ProjectDBClasses.dart';
 import 'package:geo_journal_v001/wells/WellPage.dart';
 import 'package:geo_journal_v001/wells/soil_and_DB/SoilSampleDBClasses.dart';
@@ -17,7 +17,7 @@ class AddSoilSample extends StatefulWidget {
   final wellNumber; // number of well, to which the soil sample belongs
   final projectNumber; // number of project, to which the soil sample belongs
   final mode;
-  var name;
+  var name; // soil sample name, which is needed when the mode == 'edit'
 
   AddSoilSample.editing(this.name, this.wellNumber, this.projectNumber, this.mode);
   AddSoilSample(this.wellNumber, this.projectNumber, this.mode);
@@ -42,7 +42,6 @@ class AddSoilSampleState extends State<AddSoilSample> {
   var wellBox;
 
   var textFieldWidth = 320.0;
-  var textFieldHeight = 32.0;
 
 
   // Redirect to page with list of wells
@@ -50,6 +49,7 @@ class AddSoilSampleState extends State<AddSoilSample> {
     Navigator.pop(context, false);
     Navigator.pushReplacement(context, MaterialPageRoute(builder: (BuildContext context) => WellPage(widget.wellNumber, widget.projectNumber)));
   }
+
 
   // Function for getting data from Hive database
   Future getDataFromBox() async {
@@ -60,6 +60,7 @@ class AddSoilSampleState extends State<AddSoilSample> {
   }
 
 
+  // Check current account
   Future<bool> checkAccount(var account) async {
     return (account.login == (await currentAccount).login &&
       account.password == (await currentAccount).password &&
@@ -70,71 +71,85 @@ class AddSoilSampleState extends State<AddSoilSample> {
   }
 
 
+  // Check if start depth is less than final depth  
+  List<bool> checkIfAllCorrect() {
+    return fieldValues['depthStart'] == '' || fieldValues['depthEnd'] == ''? 
+      [false]:
+      [double.parse(fieldValues['depthStart'].toString()) >= double.parse(fieldValues['depthEnd'].toString())? false : true];
+  }
+
+
+
   // Function for adding data to database
   addToBox() async {
     var projects = (await currentAccount).projects;
     var wells;
 
-    for (var key in box.keys) {
-      if ((await checkAccount(box.get(key))) == true) {
-        
-        for (var project in projects) {
-          if (project.number == widget.projectNumber) {
-
-            wells = project.wells;
-
-            for (var well in wells) {
-              if (well.projectNumber == widget.projectNumber && well.number == widget.wellNumber) {
-
-                wells[wells.indexOf(well)] = WellDescription(
-                  well.number, 
-                  well.date,
-                  well.latitude,
-                  well.longtitude,
-                  well.projectNumber,
-                  well.samples + [ 
-                    SoilForWellDescription(
-                      fieldValues['name'], 
-                      fieldValues['depthStart'],
-                      fieldValues['depthEnd'],
-                      fieldValues['notes'],
-                      widget.wellNumber,
-                      widget.projectNumber,
-                      image: null
-                    )
-                  ],
-                  image: well.image,
-                );
-            
-                projects[projects.indexOf(project)] = ProjectDescription(
-                  project.name, 
-                  project.number,
-                  project.date,
-                  project.notes,
-                  wells,
-                  project.soundings,
-                );
-
-                box.put(
-                  key, UserAccountDescription(
-                  (await currentAccount).login,
-                  (await currentAccount).password,
-                  (await currentAccount).email,
-                  (await currentAccount).phoneNumber,
-                  (await currentAccount).position,
-                  true,
-                  (await currentAccount).isAdmin,
-                  projects
-                  )
-                );
-
-              }
-            }
+    if (checkIfAllCorrect()[0]) {
+      for (var key in box.keys) {
+        if ((await checkAccount(box.get(key))) == true) {
           
-          }
-        }
+          for (var project in projects) {
+            if (project.number == widget.projectNumber) {
 
+              wells = project.wells;
+
+              for (var well in wells) {
+                if (well.projectNumber == widget.projectNumber && well.number == widget.wellNumber) {
+
+                  wells[wells.indexOf(well)] = WellDescription(
+                    well.number, 
+                    well.date,
+                    well.latitude,
+                    well.longtitude,
+                    well.projectNumber,
+                    well.samples + [ 
+                      SoilForWellDescription(
+                        fieldValues['name'], 
+                        fieldValues['depthStart'],
+                        fieldValues['depthEnd'],
+                        fieldValues['notes'],
+                        widget.wellNumber,
+                        widget.projectNumber,
+                        image: null
+                      )
+                    ],
+                    image: well.image,
+                  );
+              
+                  projects[projects.indexOf(project)] = ProjectDescription(
+                    project.name, 
+                    project.number,
+                    project.date,
+                    project.address,
+                    project.notes,
+                    wells,
+                    project.soundings,
+                  );
+
+                  box.put(
+                    key, UserAccountDescription(
+                    (await currentAccount).login,
+                    (await currentAccount).password,
+                    (await currentAccount).email,
+                    (await currentAccount).phoneNumber,
+                    (await currentAccount).position,
+                    true,
+                    (await currentAccount).isAdmin,
+                    projects
+                    )
+                  );
+
+                }
+              }
+            
+            }
+          }
+
+        }
       }
+    } else {
+      alert('Початкова глибина не може бути більше або дорівнювати кінцевій глибині', context);
     }
   }
 
@@ -145,77 +160,83 @@ class AddSoilSampleState extends State<AddSoilSample> {
     var wells;
     var samples;
     
-    for (var key in box.keys) {
-      if ((await checkAccount(box.get(key))) == true) {
+    if (checkIfAllCorrect()[0]) {
+      for (var key in box.keys) {
+        if ((await checkAccount(box.get(key))) == true) {
 
-        for (var project in projects) {
-          if (project.number == widget.projectNumber) {
+          for (var project in projects) {
+            if (project.number == widget.projectNumber) {
 
-            wells = project.wells;
+              wells = project.wells;
 
-            for (var well in wells) {
-              if (well.projectNumber == widget.projectNumber && well.number == widget.wellNumber) {
+              for (var well in wells) {
+                if (well.projectNumber == widget.projectNumber && well.number == widget.wellNumber) {
 
-                samples = well.samples;
+                  samples = well.samples;
 
-                for (var sample in samples) {
-                  if (sample.name == widget.name) {
+                  for (var sample in samples) {
+                    if (sample.name == widget.name) {
 
-                    samples[samples.indexOf(sample)] = SoilForWellDescription(
-                      fieldValues['name'] == ''? sample.name : fieldValues['name'], 
-                      fieldValues['depthStart'] == ''? sample.depthStart : fieldValues['depthStart'],
-                      fieldValues['depthEnd'] == ''? sample.depthEnd : fieldValues['depthEnd'],
-                      fieldValues['notes'] == ''? sample.notes : fieldValues['notes'],
-                      widget.wellNumber,
-                      widget.projectNumber,
-                      image: sample.image
-                    );
+                      samples[samples.indexOf(sample)] = SoilForWellDescription(
+                        fieldValues['name'] == ''? sample.name : fieldValues['name'], 
+                        fieldValues['depthStart'] == ''? sample.depthStart : fieldValues['depthStart'],
+                        fieldValues['depthEnd'] == ''? sample.depthEnd : fieldValues['depthEnd'],
+                        fieldValues['notes'] == ''? sample.notes : fieldValues['notes'],
+                        widget.wellNumber,
+                        widget.projectNumber,
+                        image: sample.image
+                      );
 
-                    wells[wells.indexOf(well)] = WellDescription(
-                      well.number, 
-                      well.date,
-                      well.latitude,
-                      well.longtitude,
-                      well.projectNumber,
-                      samples,
-                      image: well.image 
-                    );
+                      wells[wells.indexOf(well)] = WellDescription(
+                        well.number, 
+                        well.date,
+                        well.latitude,
+                        well.longtitude,
+                        well.projectNumber,
+                        samples,
+                        image: well.image 
+                      );
 
-                    projects[projects.indexOf(project)] = ProjectDescription(
-                      project.name, 
-                      project.number,
-                      project.date,
-                      project.notes, 
-                      wells, 
-                      project.soundings 
-                    );
+                      projects[projects.indexOf(project)] = ProjectDescription(
+                        project.name, 
+                        project.number,
+                        project.date,
+                        project.address,
+                        project.notes, 
+                        wells, 
+                        project.soundings 
+                      );
 
-                    box.put(
-                      key, UserAccountDescription(
-                      (await currentAccount).login,
-                      (await currentAccount).password,
-                      (await currentAccount).email,
-                      (await currentAccount).phoneNumber,
-                      (await currentAccount).position,
-                      true,
-                      (await currentAccount).isAdmin,
-                      projects
-                      )
-                    );
+                      box.put(
+                        key, UserAccountDescription(
+                        (await currentAccount).login,
+                        (await currentAccount).password,
+                        (await currentAccount).email,
+                        (await currentAccount).phoneNumber,
+                        (await currentAccount).position,
+                        true,
+                        (await currentAccount).isAdmin,
+                        projects
+                        )
+                      );
 
+                    }
                   }
+
                 }
-
               }
-            }
 
+            }
           }
         }
       }
+    } else {
+      alert('Початкова глибина не може бути більше або дорівнювати кінцевій глибині', context);
     }
   }
 
 
+  // Text field block for input
   Widget textFieldsForAdd() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -238,7 +259,6 @@ class AddSoilSampleState extends State<AddSoilSample> {
                 null,
                 String,
                 width: textFieldWidth,
-                height: textFieldHeight,
                 inputValueIndex: 'name'
               ),
 
@@ -252,7 +272,6 @@ class AddSoilSampleState extends State<AddSoilSample> {
                 FilteringTextInputFormatter.allow(RegExp(r'[0-9.,]')),
                 String,
                 width: textFieldWidth,
-                height: textFieldHeight,
                 inputValueIndex: 'depthStart'
               ),
               
@@ -266,7 +285,6 @@ class AddSoilSampleState extends State<AddSoilSample> {
                 FilteringTextInputFormatter.allow(RegExp(r'[0-9.,]')),
                 String,
                 width: textFieldWidth,
-                height: textFieldHeight,
                 inputValueIndex: 'depthEnd'
               ),
 
@@ -274,13 +292,12 @@ class AddSoilSampleState extends State<AddSoilSample> {
 
               textField(
                 TextInputAction.newline, 
-                'Нотатки', 
+                'Нотатки...', 
                 null, null,
                 TextInputType.multiline, 
                 null,
                 String,
                 width: textFieldWidth,
-                height: textFieldHeight,
                 inputValueIndex: 'notes'
               ),
      
@@ -294,7 +311,7 @@ class AddSoilSampleState extends State<AddSoilSample> {
 
 
   // Change element from DB
-  Widget textFieldForChange() {
+  Widget changeSoilSampleTextField() {
 
     return Padding(
       padding: EdgeInsets.fromLTRB(15, 15, 15, 8),
@@ -331,8 +348,10 @@ class AddSoilSampleState extends State<AddSoilSample> {
   }
 
 
+
   @override
   Widget build(BuildContext context) {
+
     var boxData = getDataFromBox();
 
 
@@ -360,9 +379,9 @@ class AddSoilSampleState extends State<AddSoilSample> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
 
-                      // create text fields for add/edit project, depending on page, where you're in
+                      // create text fields for add/edit soil sample, depending on mode
                       if (widget.mode == 'add') addSoilTextField(),
-                      if (widget.mode == 'edit') textFieldForChange(),
+                      if (widget.mode == 'edit') changeSoilSampleTextField(),
                     
                     ],
                   ),

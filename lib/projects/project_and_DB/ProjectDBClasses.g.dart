@@ -21,15 +21,16 @@ class ProjectDescriptionAdapter extends TypeAdapter<ProjectDescription> {
       fields[1] as dynamic,
       fields[2] as dynamic,
       fields[3] as dynamic,
-      (fields[4] as List).cast<WellDescription>(),
-      (fields[5] as List).cast<SoundingDescription>(),
+      fields[4] as dynamic,
+      (fields[5] as List).cast<WellDescription>(),
+      (fields[6] as List).cast<SoundingDescription>(),
     );
   }
 
   @override
   void write(BinaryWriter writer, ProjectDescription obj) {
     writer
-      ..writeByte(6)
+      ..writeByte(7)
       ..writeByte(0)
       ..write(obj.name)
       ..writeByte(1)
@@ -37,10 +38,12 @@ class ProjectDescriptionAdapter extends TypeAdapter<ProjectDescription> {
       ..writeByte(2)
       ..write(obj.date)
       ..writeByte(3)
-      ..write(obj.notes)
+      ..write(obj.address)
       ..writeByte(4)
-      ..write(obj.wells)
+      ..write(obj.notes)
       ..writeByte(5)
+      ..write(obj.wells)
+      ..writeByte(6)
       ..write(obj.soundings);
   }
 

@@ -48,7 +48,8 @@ class SoilSampleState extends State<SoilSample> {
   }
 
 
-  getFromGallery() async {
+  // Get image from gallery
+  void getFromGallery() async {
     PickedFile pickedFile = await ImagePicker().getImage(
       source: ImageSource.gallery,
       maxWidth: 4000,
@@ -58,17 +59,8 @@ class SoilSampleState extends State<SoilSample> {
     image = pickedFile.path;
   }
 
-  getFromCamera() async {
-    PickedFile pickedFile = await ImagePicker().getImage(
-      source: ImageSource.camera,
-      maxWidth: 4000,
-      maxHeight: 4000,
-    );
 
-    image = pickedFile.path;
-  }
-
-
+  // Check current account
   Future<bool> checkAccount(var account) async {
     return (account.login == (await currentAccount).login &&
       account.password == (await currentAccount).password &&
@@ -79,6 +71,7 @@ class SoilSampleState extends State<SoilSample> {
   }
 
 
+  // Function for saving or deleting image from gallery, depending on mode
   saveOrDeleteImage(bool change) async {
     var projects = (await currentAccount).projects;
     var wells;
@@ -124,6 +117,7 @@ class SoilSampleState extends State<SoilSample> {
                       project.name, 
                       project.number,
                       project.date,
+                      project.address,
                       project.notes, 
                       wells, 
                       project.soundings 
@@ -141,6 +135,8 @@ class SoilSampleState extends State<SoilSample> {
                       projects
                       )
                     );
+
+                    return '';
 
                   }
                 }
@@ -193,6 +189,7 @@ class SoilSampleState extends State<SoilSample> {
                       project.name, 
                       project.number,
                       project.date,
+                      project.address,
                       project.notes, 
                       wells, 
                       project.soundings 
@@ -224,143 +221,159 @@ class SoilSampleState extends State<SoilSample> {
   }
 
 
+
   @override
   Widget build(BuildContext context) {
+
     getDataFromBox();
 
     return Container(
 
-        decoration: BoxDecoration(
-          border: Border(
-          bottom: BorderSide(color: Colors.black45, width: 1.0),
-          )
-        ),
+      decoration: BoxDecoration(
+        border: Border(
+        bottom: BorderSide(color: Colors.black45, width: 1.0),
+        )
+      ),
 
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Padding(
-                  padding: EdgeInsets.fromLTRB(15.0, 15.0, 0.0, 0.0),
-                  child: Text('${widget.name}')
-                ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
 
-                Padding(
-                  padding: EdgeInsets.fromLTRB(15.0, 5.0, 0.0, 0.0),
-                  child: Text('${widget.depthStart}-${widget.depthEnd} м'),
-                ),
+          // Main data about soil sample
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Padding(
+                padding: EdgeInsets.fromLTRB(15.0, 15.0, 0.0, 0.0),
+                child: Text('${widget.name}')
+              ),
 
-                Padding(
-                  padding: EdgeInsets.fromLTRB(15.0, 5.0, 0.0, 15.0),
-                  child: Text('Примітки: ${widget.notes}'),
+              Padding(
+                padding: EdgeInsets.fromLTRB(15.0, 5.0, 0.0, 0.0),
+                child: Text('${widget.depthStart}-${widget.depthEnd} м'),
+              ),
+
+              Padding(
+                padding: EdgeInsets.fromLTRB(15.0, 5.0, 0.0, 15.0),
+                child: Container(
+                  width: 200,
+                  child: Text('Нотатки: ${widget.notes}'),
                 )
-              ]
-            ),
+              )
+            ]
+          ),
 
 
-            Row(
-              children: [
-                
-                IconButton(        
-                  splashColor: Colors.transparent,
-                  highlightColor: Colors.transparent,
+          Row(
+            children: [
+              
+              // Add / delete photo
+              IconButton(        
+                splashColor: Colors.transparent,
+                highlightColor: Colors.transparent,
 
-                  padding: EdgeInsets.fromLTRB(10.0, 0.0, 0.0, 0.0),
-                  icon: Icon(Icons.photo, size: 20),
-                  onPressed: () {
-                    if (widget.image != null || image != null) {
-                      
-                      showDialog(
-                        context: context, 
-                        builder: (BuildContext context) {
+                padding: EdgeInsets.fromLTRB(10.0, 0.0, 0.0, 0.0),
+                icon: Icon(Icons.photo, size: 20),
+                onPressed: () {
 
-                          return AlertDialog(
-                            insetPadding: EdgeInsets.all(10),
-                            contentPadding: EdgeInsets.zero,
+                  // If there isn't a photo - add new one from gallery and save it, 
+                  // else - show this photo and then choose: delete it or not
+                  if ((widget.image == null && image != null) || (widget.image != null && image == null)) {
+
+                    saveOrDeleteImage(true);
+                    
+                    showDialog(
+                      context: context, 
+                      builder: (BuildContext context) {
+
+                        return AlertDialog(
+                          insetPadding: EdgeInsets.all(10),
+                          contentPadding: EdgeInsets.zero,
+                          
+                          title: const Text(''),
+                          content: Stack(
+                            overflow: Overflow.visible,
+                            alignment: Alignment.center,
+                            children: [
+                              Image.file(File(widget.image == null? image : widget.image), fit: BoxFit.cover)
+                            ],
+                          ),
+
+                          actions: [
                             
-                            title: const Text(''),
-                            content: Stack(
-                              overflow: Overflow.visible,
-                              alignment: Alignment.center,
-                              children: [
-                                Image.file(File(widget.image == null? image : widget.image), fit: BoxFit.cover)
-                              ],
+                            FlatButton(
+                              child: const Text('Видалити'),
+                              onPressed: () { 
+                                saveOrDeleteImage(false);
+                                image = null;
+                                Navigator.of(context).pop(); 
+                              },
                             ),
 
-                            actions: [
-                              
-                              FlatButton(
-                                child: const Text('Видалити'),
-                                onPressed: () { 
-                                  saveOrDeleteImage(false);
-                                  image = null;
-                                  Navigator.of(context).pop(); 
-                                },
-                              ),
+                            FlatButton(
+                              child: const Text('ОК'),
+                              onPressed: () { 
+                                saveOrDeleteImage(true);
+                                Navigator.of(context).pop(); 
+                              },
+                            ),
 
-                              FlatButton(
-                                child: const Text('ОК'),
-                                onPressed: () { 
-                                  saveOrDeleteImage(true);
-                                  Navigator.of(context).pop(); 
-                                },
-                              ),
-
-                            ],
-                          );
-                        }
-                      );
-                    } else {
-                      getFromGallery();
-                    }
-                    }
-                ),
-
-                IconButton(        
-                  splashColor: Colors.transparent,
-                  highlightColor: Colors.transparent,
-
-                  padding: EdgeInsets.fromLTRB(0.0, 0.0, 5.0, 0.0),
-                  icon: Icon(Icons.edit, size: 23),
-                  onPressed: () {
-
-                    if (currentAccountIsRegistered) {
-                      Navigator.push(context, MaterialPageRoute(builder: (context) => AddSoilSample.editing(widget.name, widget.wellNumber, widget.projectNumber, 'edit')));
-                    } else {
-                      attentionAlert(context, 'Незареєстровані користувачі не мають доступу до даного елементу.\nМожливо, ви хочете зареєструватися?', materialRoute: AddAccountPage('sign_up'));
-                    }
-
+                          ],
+                        );
+                      }
+                    );
+                  } else {
+                    getFromGallery();
                   }
-                ),
-
-                IconButton(        
-                  splashColor: Colors.transparent,
-                  highlightColor: Colors.transparent,
-
-                  padding: EdgeInsets.fromLTRB(0.0, 0.0, 23.0, 0.0),
-                  icon: Icon(Icons.delete, size: 23),
-                  onPressed: () {
-                    
-                    if (currentAccountIsRegistered) {
-                      onDeleteAlert(context, 'дану пробу грунту', deleteElementInBox, materialPageRoute: WellPage(widget.wellNumber, widget.projectNumber));
-                      setState(() { });
-                    } else {
-                      attentionAlert(context, 'Незареєстровані користувачі не мають доступу до даного елементу.\nМожливо, ви хочете зареєструватися?', materialRoute: AddAccountPage('sign_up'));
-                    }
-                    
                   }
-                ),
-                
-                
-              ]
-            ),
+              ),
 
-          ]
-        )
-      );
 
+              // Move to soil sample editing page
+              IconButton(        
+                splashColor: Colors.transparent,
+                highlightColor: Colors.transparent,
+
+                padding: EdgeInsets.fromLTRB(0.0, 0.0, 5.0, 0.0),
+                icon: Icon(Icons.edit, size: 23),
+                onPressed: () {
+
+                  if (currentAccountIsRegistered) {
+                    Navigator.push(context, MaterialPageRoute(builder: (context) => AddSoilSample.editing(widget.name, widget.wellNumber, widget.projectNumber, 'edit')));
+                  } else {
+                    attentionAlert(context, 'Незареєстровані користувачі не мають доступу до даного елементу.\nМожливо, ви хочете зареєструватися?', materialRoute: AddAccountPage('sign_up'));
+                  }
+
+                }
+              ),
+
+
+              // Delete soil sample
+              IconButton(        
+                splashColor: Colors.transparent,
+                highlightColor: Colors.transparent,
+
+                padding: EdgeInsets.fromLTRB(0.0, 0.0, 23.0, 0.0),
+                icon: Icon(Icons.delete, size: 23),
+                onPressed: () {
+                  
+                  if (currentAccountIsRegistered) {
+                    onDeleteAlert(context, 'дану пробу грунту', deleteElementInBox, materialPageRoute: WellPage(widget.wellNumber, widget.projectNumber));
+                    setState(() { });
+                  } else {
+                    attentionAlert(context, 'Незареєстровані користувачі не мають доступу до даного елементу.\nМожливо, ви хочете зареєструватися?', materialRoute: AddAccountPage('sign_up'));
+                  }
+                  
+                }
+              ),
+              
+              
+            ]
+          ),
+
+        ]
+      )
+    );
   }
 
 }

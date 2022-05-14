@@ -26,6 +26,7 @@ class InfoPage extends StatelessWidget {
 
     var boxData = getDataFromBox();
 
+
     return FutureBuilder(
       future: boxData,  // data retreived from database
       builder: (BuildContext context, AsyncSnapshot snapshot) {
@@ -48,6 +49,7 @@ class InfoPage extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
 
+                  // Info data
                   Padding(
                     padding: EdgeInsets.symmetric(vertical: 15.0, horizontal: 15.0),
                     child: Text(snapshot.data.title),
@@ -66,7 +68,7 @@ class InfoPage extends StatelessWidget {
                 ]
               ),
 
-              bottomNavigationBar: Bottom('info_page'),
+              bottomNavigationBar: Bottom(),
             );
         }
       }

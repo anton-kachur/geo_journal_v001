@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:geo_journal_v001/Application.dart';
 import 'package:geo_journal_v001/projects/project_and_DB/ProjectDBClasses.dart';
 import 'package:geo_journal_v001/soil_types/SoilTypesDBClasses.dart';
@@ -14,10 +15,11 @@ import 'accounts/AccountsDBClasses.dart';
 
 
 
-
 void main() async {   
   WidgetsFlutterBinding.ensureInitialized();
+  SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
   final appDocDir = await getApplicationDocumentsDirectory();
+  
   Hive
     ..init(appDocDir.path)
     
@@ -30,7 +32,7 @@ void main() async {
     ..registerAdapter(InfoDescriptionAdapter())  // Adding adapter for app info description
     ..initFlutter();
 
-  //Hive.deleteBoxFromDisk('soil_types');
+  //Hive.deleteBoxFromDisk('accounts_data');
 
   // Creating box for soil description
   var box = await Hive.openBox('soil_types');
@@ -44,47 +46,34 @@ void main() async {
   /*box1.put(
     'account0', UserAccountDescription(
     'admin', 'qwerty', 'admin@gmail.com', '+380999999999', 
-    'Адміністратор/розробник', true, true, [ProjectDescription('тест', '1', '31/12/2023', 'notes', [], [])]));*/
+    'Адміністратор/розробник', true, true, [
+      ProjectDescription(
+        'тест', '1', '31/12/2023', 'вул. Велика Васильківська, Київ', 'Тестовий проект для прикладу.', 
+        [WellDescription(
+          '1', '01/01/2023', 50.4536, 30.5164, '1', 
+          
+          [SoilForWellDescription('Пісок', 0.2, 0.5, 'нотатки', '1', '1')]
+        )],
+
+        [SoundingDescription(0.0, 2.234, 2.546, 'нотатки', '1')]
+      )]
+    )
+  );
   //box1.clear();
+  
   for (var i in box1.values) {
    print(i.toString());
-  } 
+  }*/
+  
   box1.close();
-
-  // Creating box for weather forecasts
-  /*var box2 = await Hive.openBox<WeatherDescription>('weather');
-  //box2.clear();
-  box2.close();
-
-  // Creating box for projects
-  var box3 = await Hive.openBox<ProjectDescription>('projects');
-  //box3.clear();
-  box3.close();
-
-  // Creating box for soundings
-  var box4 = await Hive.openBox<SoundingDescription>('soundings');
-  //box4.clear();
-  box4.close();
-
-  // Creating box for wells
-  var box5 = await Hive.openBox<WellDescription>('wells');
-  //box5.put('well0', WellDescription('1', '24/04/2022', 11.2324, 14.5332, '1'));
-  //box5.clear();
-  box5.close();
-
-  // Creating box for soil_samples
-  var box6 = await Hive.openBox<SoilForWellDescription>('well_soil_samples');
-  //box6.put('soil_sample0', SoilForWellDescription('Вода', '0.0', '1.0', 'Нотатки', '1', '1'));
-  //box6.clear();
-  box6.close();*/
   
 
   // Creating box for app info
   var box7 = await Hive.openBox<InfoDescription>('info');
-  box7.put('info0', InfoDescription(
+  /*box7.put('info0', InfoDescription(
       'Застосунок для геологів', 
       'Розробник: Качур А. В.', 
-      'Версія: 0.0.3'));
+      'Версія: 0.0.3'));*/
   box7.close();
 
   // Running app

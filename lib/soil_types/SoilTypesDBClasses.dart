@@ -19,7 +19,7 @@ class SoilDescription{
 
   @override
   String toString() {
-    return '${this.type} \n${this.description}';
+    return '${this.type}\n${this.description}\n\n${this.image}';
   }
 }
 

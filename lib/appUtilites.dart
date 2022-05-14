@@ -64,12 +64,7 @@ Future<bool> logOutFromAccount() async {
   }
 
   return false;
-
-}
-
-
-getCurrentAccount() {
-
+  
 }
 
 
@@ -97,6 +92,7 @@ Future checkIfUserIsRegistered() async {
 }
 
 
+// Window which displays error or waiting
 Widget waitingOrErrorWindow(var text, var context) {
   return Container(
     height: MediaQuery.of(context).size.height, 
@@ -233,7 +229,7 @@ attentionAlert(BuildContext context, String? text, {String? route, var materialR
 }
 
 
-// Alert dialog, which is shown if 'password' and 'confirm password' fields mismatch 
+// Alert dialog
 alert(var alertText, var context) {
 
   return showDialog(
@@ -252,5 +248,18 @@ alert(var alertText, var context) {
       );
     }
   );
+}
+
+
+// Function that compares 2 String dates
+bool compareTwoDates(String date1, String date2) {
+  List<String> splitDate1 = date1.split("/");
+  List<String> splitDate2 = date2.split("/");
+  var dateNow = DateTime.now();
+
+  DateTime date1Vals = DateTime.parse(splitDate1[2] + "-" + splitDate1[1] + "-" + splitDate1[0]);
+  DateTime date2Vals = DateTime.parse(splitDate2[2] + "-" + splitDate2[1] + "-" + splitDate2[0]);
+
+  return (date1Vals.difference(date2Vals).inDays > 0 || dateNow.difference(date2Vals).inDays < 0)? false : true;
 }
 

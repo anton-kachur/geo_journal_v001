@@ -29,7 +29,6 @@ class SoilDatabaseSettingsPageState extends State<SoilDatabaseSettingsPage> {
   var box;
 
   var textFieldWidth = 320.0;
-  var textFieldHeight = 32.0;
 
 
   // Refresh page
@@ -80,7 +79,7 @@ class SoilDatabaseSettingsPageState extends State<SoilDatabaseSettingsPage> {
   // Function for deleting data in database
   void deleteElementInBox() {
     for (var key in box.keys) {
-      if ((box.get(key)).type == fieldValues['type']) {
+      if (box.get(key).type == fieldValues['type']) {
         
         box.delete(key);
       
@@ -152,7 +151,6 @@ class SoilDatabaseSettingsPageState extends State<SoilDatabaseSettingsPage> {
               null,  
               inputValueIndex: 'type',
               width: textFieldWidth,
-              height: textFieldHeight
             ),
 
             SizedBox(height: 8),
@@ -164,7 +162,6 @@ class SoilDatabaseSettingsPageState extends State<SoilDatabaseSettingsPage> {
               null,  
               inputValueIndex: 'description',
               width: textFieldWidth,
-              height: textFieldHeight
             ),
 
             SizedBox(height: 8),
@@ -176,7 +173,6 @@ class SoilDatabaseSettingsPageState extends State<SoilDatabaseSettingsPage> {
               null,  
               inputValueIndex: 'link',
               width: textFieldWidth,
-              height: textFieldHeight
             ),       
           ]
         ),
@@ -184,12 +180,10 @@ class SoilDatabaseSettingsPageState extends State<SoilDatabaseSettingsPage> {
   }
 
 
+
   @override
   Widget build(BuildContext context) {
 
-    // Retreive data from database, 
-    // set hint text for text fields and
-    // set input settings for them  
     var boxData = getDataFromBox(widget.value);
 
 
@@ -279,7 +273,6 @@ class SoilDatabaseSettingsPageState extends State<SoilDatabaseSettingsPage> {
                                     null, 
                                     inputValueIndex: 'type',
                                     width: textFieldWidth,
-                                    height: textFieldHeight
                                   ),
                                       
                                 ]
@@ -307,20 +300,23 @@ class SoilDatabaseSettingsPageState extends State<SoilDatabaseSettingsPage> {
                                 Text('Список елементів\n'),
                                 
                                 for (var element in snapshot.data)
-                                  Container(
-                                    width: 320,
-                                    decoration: BoxDecoration(
-                                      borderRadius: BorderRadius.all(Radius.circular(5.0)),
-                                      boxShadow: [
-                                        BoxShadow(color: Colors.amber.shade50),
-                                        BoxShadow(color: Colors.white, spreadRadius: -12.0, blurRadius: 12.0),
-                                      ],
-                                      border: Border.all(color: Colors.grey.shade800),
-                                    ),
+                                  Padding(
+                                    padding: EdgeInsets.fromLTRB(0, 0, 0, 10),
+                                    child: Container(
 
-                                    padding: EdgeInsets.fromLTRB(10, 10, 10, 10),
+                                      width: 320,
+                                      decoration: BoxDecoration(
+                                        borderRadius: BorderRadius.all(Radius.circular(5.0)),
+                                        boxShadow: [
+                                          BoxShadow(color: lightingMode == ThemeMode.dark? Colors.grey.shade800 : Colors.amber.shade50),
+                                        ],
+                                        border: Border.all(color: Colors.grey.shade700),
+                                      ),
 
-                                    child: Text("${element.toString()}", style: TextStyle(color: lightingMode == ThemeMode.dark? Colors.black : Colors.white),),
+                                      padding: EdgeInsets.fromLTRB(10, 10, 10, 10),
+
+                                      child: Text("${element.toString()}", style: TextStyle(color: lightingMode == ThemeMode.dark? Colors.grey.shade300 : Colors.black),),
+                                    )
                                   )
                                   
                               ]

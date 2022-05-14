@@ -18,10 +18,10 @@ void main() {
     setUp(() {
       
       projectPage = ProjectPage(
-                        
                         'project1', 
                         '12', 
                         '13-09-2023', 
+                        'вул. Велика Вісильківська, Київ',
                         'notes'
                       );
     });

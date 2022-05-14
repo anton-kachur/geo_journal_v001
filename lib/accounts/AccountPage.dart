@@ -65,7 +65,7 @@ class AddAccountPageState extends State<AddAccountPage> {
         fieldValues['isRegistered'],
         fieldValues['isAdmin'],
         [ProjectDescription(
-          'тест', '1', '12/12/2033', 'примітки', 
+          'тест', '1', '12/12/2033', 'вул. Велика Васильківська, Київ', 'примітки', 
           [WellDescription(
             '1', '01/01/2023', 50.4536, 30.5164, '1', 
             [SoilForWellDescription('Пісок', 0.2, 0.5, 'примітки', '1', '1')]
@@ -78,7 +78,7 @@ class AddAccountPageState extends State<AddAccountPage> {
   }
 
 
-   // Function for adding data to database
+  // Function for adding data to database
   void changeInBox() {
     for (var key in box.keys) {
       if ((box.get(key)).login == currentAccount.login) {

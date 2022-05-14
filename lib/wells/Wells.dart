@@ -41,8 +41,18 @@ class WellsState extends State<Wells>{
   }  
 
 
+  // Sort the list of wells
+  List<WellDescription> sortArray(List<WellDescription> array) {
+    array.sort((a, b) => a.number.compareTo(b.number));
+
+    return array;
+  }
+
+
+
   @override
   Widget build(BuildContext context) {
+
     var boxData = getDataFromBox();
 
 
@@ -73,7 +83,7 @@ class WellsState extends State<Wells>{
                       if (currentAccount != null) 
                         for (var element in snapshot.data.projects)
                           if (element.number == widget.projectNumber)
-                            for (var well in element.wells)
+                            for (var well in sortArray(element.wells))
                               Well(well.number, well.date, well.latitude, well.longtitude, well.projectNumber, well.image),
                       
                     ]

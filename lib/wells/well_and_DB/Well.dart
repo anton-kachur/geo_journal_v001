@@ -8,7 +8,6 @@ import 'package:geo_journal_v001/accounts/AccountsDBClasses.dart';
 import 'package:geo_journal_v001/projects/project_and_DB/ProjectDBClasses.dart';
 import 'package:geo_journal_v001/wells/AddWellDescription.dart';
 import 'package:geo_journal_v001/wells/WellPage.dart';
-import 'package:geo_journal_v001/wells/soil_and_DB/SoilSampleDBClasses.dart';
 import 'package:geo_journal_v001/wells/well_and_DB/WellDBClasses.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:image_picker/image_picker.dart';
@@ -47,8 +46,9 @@ class WellState extends State<Well>{
     return Future.value(box.values);     
   }
 
-
-  getFromGallery() async {
+  
+  // Get image from gallery
+  void getFromGallery() async {
     PickedFile pickedFile = await ImagePicker().getImage(
       source: ImageSource.gallery,
       maxWidth: 4000,
@@ -58,17 +58,8 @@ class WellState extends State<Well>{
     image = pickedFile.path;
   }
 
-  getFromCamera() async {
-    PickedFile pickedFile = await ImagePicker().getImage(
-      source: ImageSource.camera,
-      maxWidth: 4000,
-      maxHeight: 4000,
-    );
 
-    image = pickedFile.path;
-  }
-
-
+  // Check current account
   Future<bool> checkAccount(var account) async {
     return (account.login == (await currentAccount).login &&
       account.password == (await currentAccount).password &&
@@ -79,16 +70,18 @@ class WellState extends State<Well>{
   }
 
   
+  // Function for saving or deleting image, depending on mode
   saveOrDeleteImage(bool change) async {
     var projects = (await currentAccount).projects;
     var wells;
     
     for (var key in box.keys) {
+
       if ((await checkAccount(box.get(key))) == true) {
         
         for (var project in projects) {
           if (project.number == widget.projectNumber) {
-
+            
             wells = project.wells;
             
             for (var well in wells) {
@@ -101,13 +94,14 @@ class WellState extends State<Well>{
                   well.longtitude,
                   widget.projectNumber,
                   well.samples,
-                  image: change==true? image.toString() : null
+                  image: change==true? image : null
                 );
 
                 projects[projects.indexOf(project)] = ProjectDescription(
                   project.name, 
                   project.number,
                   project.date,
+                  project.address,
                   project.notes, 
                   wells, 
                   project.soundings 
@@ -125,6 +119,8 @@ class WellState extends State<Well>{
                   projects
                   )
                 );
+
+                return '';
 
               }
             }
@@ -158,6 +154,7 @@ class WellState extends State<Well>{
                   project.name, 
                   project.number,
                   project.date,
+                  project.address,
                   project.notes, 
                   project.wells, 
                   wells
@@ -190,6 +187,7 @@ class WellState extends State<Well>{
 
   @override
   Widget build(BuildContext context) {
+
     var boxData = getDataFromBox();
 
     return FutureBuilder(
@@ -213,6 +211,8 @@ class WellState extends State<Well>{
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
+
+                  // Main info about well
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -236,6 +236,8 @@ class WellState extends State<Well>{
 
                   Row(
                     children: [
+
+                      // Add / delete photo
                       IconButton(        
                         splashColor: Colors.transparent,
                         highlightColor: Colors.transparent,
@@ -243,7 +245,12 @@ class WellState extends State<Well>{
                         padding: EdgeInsets.fromLTRB(15.0, 0.0, 0.0, 0.0),
                         icon: Icon(Icons.photo, size: 20),
                         onPressed: () {
-                          if (widget.image != null || image != null) {
+                          
+                          // If there isn't a photo - add new one from gallery and save it, 
+                          // else - show this photo and then choose: delete it or not
+                          if ((widget.image == null && image != null) || (widget.image != null && image == null)) {
+
+                            saveOrDeleteImage(true);
                             
                             showDialog(
                               context: context, 
@@ -290,7 +297,9 @@ class WellState extends State<Well>{
                           }
                          }
                       ),
+                      
 
+                      // Move to well editing page
                       IconButton(        
                         splashColor: Colors.transparent,
                         highlightColor: Colors.transparent,
@@ -307,7 +316,9 @@ class WellState extends State<Well>{
 
                         }
                       ),
+                      
 
+                      // Delete well
                       IconButton(        
                         splashColor: Colors.transparent,
                         highlightColor: Colors.transparent,
@@ -326,6 +337,8 @@ class WellState extends State<Well>{
                         }
                       ),
                       
+
+                      // Move to well description page
                       IconButton(  
                         splashColor: Colors.transparent,
                         highlightColor: Colors.transparent,
