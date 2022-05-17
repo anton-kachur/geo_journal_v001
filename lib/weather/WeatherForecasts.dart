@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:geo_journal_v001/AppUtilites.dart';
-import 'package:geo_journal_v001/Bottom.dart';
+import 'package:geo_journal_v001/app_components/Bottom.dart';
+import 'package:geo_journal_v001/app_components/appUtilites.dart';
 import 'package:weather_icons/weather_icons.dart';
 
 // ignore: import_of_legacy_library_into_null_safe

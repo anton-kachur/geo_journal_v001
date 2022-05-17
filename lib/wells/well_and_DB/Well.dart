@@ -5,14 +5,13 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:geo_journal_v001/accounts/AccountPage.dart';
 import 'package:geo_journal_v001/accounts/AccountsDBClasses.dart';
+import 'package:geo_journal_v001/app_components/appUtilites.dart';
 import 'package:geo_journal_v001/projects/project_and_DB/ProjectDBClasses.dart';
 import 'package:geo_journal_v001/wells/AddWellDescription.dart';
 import 'package:geo_journal_v001/wells/WellPage.dart';
 import 'package:geo_journal_v001/wells/well_and_DB/WellDBClasses.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:image_picker/image_picker.dart';
-
-import '../../AppUtilites.dart';
 
 
 /* *************************************************************************

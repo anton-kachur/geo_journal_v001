@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:geo_journal_v001/AppUtilites.dart';
 import 'package:geo_journal_v001/accounts/AccountPage.dart';
 import 'package:geo_journal_v001/accounts/AccountsDBClasses.dart';
+import 'package:geo_journal_v001/app_components/appUtilites.dart';
 import 'package:geo_journal_v001/projects/AddProjectDescription.dart';
 import 'package:geo_journal_v001/projects/ProjectPage.dart';
 import 'package:hive_flutter/hive_flutter.dart';

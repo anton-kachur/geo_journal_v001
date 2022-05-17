@@ -1,16 +1,15 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:geo_journal_v001/Bottom.dart';
 import 'package:geo_journal_v001/accounts/AccountPage.dart';
+import 'package:geo_journal_v001/app_components/Bottom.dart';
+import 'package:geo_journal_v001/app_components/appUtilites.dart';
 import 'package:geo_journal_v001/soundings/AddSoundingData.dart';
 import 'package:geo_journal_v001/soundings/Soundigs.dart';
 import 'package:geo_journal_v001/wells/AddWellDescription.dart';
 import 'package:geo_journal_v001/wells/Wells.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:geocoding/geocoding.dart';
-
-import '../../AppUtilites.dart';
 
 
 /* *************************************************************************

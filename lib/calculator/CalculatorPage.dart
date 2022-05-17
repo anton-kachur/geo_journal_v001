@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-
-import '../AppUtilites.dart';
+import 'package:geo_journal_v001/app_components/appUtilites.dart';
 
 
 /* *************************************************************************

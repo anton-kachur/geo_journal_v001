@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:geo_journal_v001/Bottom.dart';
 import 'package:geo_journal_v001/admin_page/DatabaseSettingsPage.dart';
 import 'package:geo_journal_v001/admin_page/SoilDataBaseSettings.dart';
 import 'package:geo_journal_v001/admin_page/InfoDataBaseSettings.dart';
+import 'package:geo_journal_v001/app_components/Bottom.dart';
 
 
 /* ***************************************************************

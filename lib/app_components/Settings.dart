@@ -2,9 +2,9 @@ import 'dart:io';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:geo_journal_v001/AppUtilites.dart';
 import 'package:geo_journal_v001/accounts/AccountPage.dart';
-import 'package:geo_journal_v001/Bottom.dart';
+import 'package:geo_journal_v001/app_components/Bottom.dart';
+import 'package:geo_journal_v001/app_components/appUtilites.dart';
 
 
 /* ***************************************************************

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:geo_journal_v001/Bottom.dart';
+import 'package:geo_journal_v001/app_components/Bottom.dart';
 import 'package:geo_journal_v001/soil_types/SoilType.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 

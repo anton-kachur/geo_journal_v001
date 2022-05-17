@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:geo_journal_v001/Bottom.dart';
+import 'package:geo_journal_v001/app_components/Bottom.dart';
+import 'package:geo_journal_v001/app_components/appUtilites.dart';
 import 'package:geo_journal_v001/wells/soil_and_DB/SoilSample.dart';
 import 'package:geo_journal_v001/wells/soil_and_DB/SoilSampleDBClasses.dart';
 import 'package:hive_flutter/hive_flutter.dart';
-
-import '../AppUtilites.dart';
 
 
 /* *************************************************************************

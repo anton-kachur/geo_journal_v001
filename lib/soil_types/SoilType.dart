@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:geo_journal_v001/app_components/appUtilites.dart';
 import 'package:geo_journal_v001/soil_types/SoilTypesDBClasses.dart';
 import 'package:hive_flutter/hive_flutter.dart';
-
-import '../AppUtilites.dart';
 
 
 /* ***************************************************************

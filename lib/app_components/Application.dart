@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:geo_journal_v001/AppUtilites.dart';
 import 'package:geo_journal_v001/accounts/AccountPage.dart';
 import 'package:geo_journal_v001/admin_page/AdminPage.dart';
-import 'package:geo_journal_v001/Bottom.dart';
+import 'package:geo_journal_v001/app_components/Bottom.dart';
+import 'package:geo_journal_v001/app_components/Settings.dart';
+import 'package:geo_journal_v001/app_components/appUtilites.dart';
 import 'package:geo_journal_v001/calculator/Calculators.dart';
 import 'package:geo_journal_v001/info/InfoPage.dart';
 import 'package:geo_journal_v001/projects/Projects.dart';
-import 'package:geo_journal_v001/Settings.dart';
 import 'package:geo_journal_v001/soil_types/SoilTypes.dart';
 import 'package:geo_journal_v001/weather/WeatherForecasts.dart';
 import 'package:provider/provider.dart';

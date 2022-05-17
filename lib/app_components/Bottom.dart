@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:geo_journal_v001/AppUtilites.dart';
+import 'package:geo_journal_v001/app_components/appUtilites.dart';
 import 'package:geo_journal_v001/projects/AddProjectDescription.dart';
 import 'package:geo_journal_v001/soundings/AddSoundingData.dart';
 import 'package:geo_journal_v001/wells/AddSoilSample.dart';

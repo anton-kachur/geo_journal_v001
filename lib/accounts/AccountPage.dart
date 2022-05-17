@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:geo_journal_v001/AppUtilites.dart';
-import 'package:geo_journal_v001/Bottom.dart';
 import 'package:geo_journal_v001/accounts/AccountsDBClasses.dart';
+import 'package:geo_journal_v001/app_components/Bottom.dart';
+import 'package:geo_journal_v001/app_components/appUtilites.dart';
 import 'package:geo_journal_v001/projects/project_and_DB/ProjectDBClasses.dart';
 import 'package:geo_journal_v001/soundings/sounding_and_DB/SoundingDBClasses.dart';
 import 'package:geo_journal_v001/wells/soil_and_DB/SoilSampleDBClasses.dart';
