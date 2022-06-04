@@ -36,16 +36,20 @@ void main() async {
 
   // Creating box for soil description
   var box = await Hive.openBox('soil_types');
-  /*box.put(
-    'soil0', SoilDescription('Пісок', 'Опис піску')
-  );*/
+  if (box.isEmpty)
+    box.put(
+      'soil0', SoilDescription('Пісок', 'Опис піску')
+    );
+  else 
+    print('Box info is not empty!');
   box.close();
 
   // Creating box for accounts
   var box1 = await Hive.openBox('accounts_data');
-  /*box1.put(
+  if (box1.isEmpty)
+    box1.put(
     'account0', UserAccountDescription(
-    'admin', 'qwerty', 'admin@gmail.com', '+380999999999', 
+    'admin', 'qwertyui', 'admin@gmail.com', '+380999999999', 
     'Адміністратор/розробник', true, true, [
       ProjectDescription(
         'тест', '1', '31/12/2023', 'вул. Велика Васильківська, Київ', 'Тестовий проект для прикладу.', 
@@ -57,11 +61,13 @@ void main() async {
 
         [SoundingDescription(0.0, 2.234, 2.546, 'нотатки', '1')]
       )]
-    )
-  );
+      )
+    );
+  else 
+    print('Box info is not empty!');
   //box1.clear();
   
-  for (var i in box1.values) {
+  /*for (var i in box1.values) {
    print(i.toString());
   }*/
   
@@ -69,12 +75,15 @@ void main() async {
   
 
   // Creating box for app info
-  var box7 = await Hive.openBox<InfoDescription>('info');
-  /*box7.put('info0', InfoDescription(
+  var box2 = await Hive.openBox<InfoDescription>('info');
+  if (box2.isEmpty)
+    box2.put('info0', InfoDescription(
       'Застосунок для геологів', 
       'Розробник: Качур А. В.', 
-      'Версія: 0.0.3'));*/
-  box7.close();
+      'Версія: 0.0.1'));
+  else 
+    print('Box info is not empty!');
+  box2.close();
 
   // Running app
   runApp(Application());

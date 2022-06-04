@@ -99,13 +99,18 @@ class MainPageState extends State<MainPage> {
     return FutureBuilder(
       future: registerStatus,  // data retreived from database
       builder: (BuildContext context, AsyncSnapshot snapshot) {
+          var statusReg = false;
+          var statusAdmin = false;
+          try {
+            statusReg = snapshot.data[0] == true? true : false; 
+            statusAdmin = snapshot.data[1] == true? true : false;
+          } catch (e) {}
 
-        
           if (snapshot.hasError)
-            return waitingOrErrorWindow('Помилка: ${snapshot.error}', context);
-          else
-            return Scaffold(
-              
+            return waitingOrErrorWindow('Зачекайте...', context);
+          else {
+            
+            return Scaffold(  
               appBar: PreferredSize(
                 
                 preferredSize: Size.fromHeight(60),
@@ -143,12 +148,13 @@ class MainPageState extends State<MainPage> {
 
                         child: Column(
                           children: [
-                            if (snapshot.data[0] == true && snapshot.data[1] == true)
+                            
+                            if (statusReg == true && statusAdmin == true)
                               buttonConstructor('Сторінка адміністратора', widget.model.mode, route: '/admin_page'),
                             
-                            if (snapshot.data[0] == true && snapshot.data[1] == false)
+                            if (statusReg == true && statusAdmin == false)
                               buttonConstructor('Налаштування акаунта', widget.model.mode, materialRoute: true),
-
+                              
                             buttonConstructor('Прогноз погоди', widget.model.mode, route: '/forecasts_page'),
                             buttonConstructor('Про застосунок', widget.model.mode, route: '/info_page'),
                           ]
@@ -160,7 +166,8 @@ class MainPageState extends State<MainPage> {
               
               bottomNavigationBar: Bottom(),
           );
-        
+
+        }
       }
     );
   }

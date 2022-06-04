@@ -24,7 +24,6 @@ getCurrentAccountFromBox() async {
   
   for (var key in currentAccountBox.keys) {
     if ((currentAccountBox.get(key)).isRegistered == true) {
-      print("${currentAccountBox.get(key).toString()}");
       return currentAccountBox.get(key);
     }
   }

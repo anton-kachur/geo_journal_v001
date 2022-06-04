@@ -40,14 +40,22 @@ class AddAccountPageState extends State<AddAccountPage> {
   var boxSize;
 
   var textFieldWidth = 320.0;
-  var textFieldHeight = 32.0;
+
 
   // Function for getting data from Hive database
-  Future getDataFromBox(var boxName) async {
+  getDataFromBox(var boxName) async {
     box = await Hive.openBox(boxName);
     boxSize = box.length;
+
+    if (currentAccount != null) {
+      for (var key in box.keys) {
+        if ((box.get(key)).login == (await currentAccount).login) {
+          return Future.value(box.get(key));  
+        }
+      }
+    }
     
-    return Future.value(box.values);     
+    
   }  
 
 
@@ -55,7 +63,7 @@ class AddAccountPageState extends State<AddAccountPage> {
   void addToBox() {
 
     box.put(
-      'account$boxSize', 
+      'account${boxSize?? 0}', 
       UserAccountDescription(
         fieldValues['login'], 
         fieldValues['password'], 
@@ -79,21 +87,21 @@ class AddAccountPageState extends State<AddAccountPage> {
 
 
   // Function for adding data to database
-  void changeInBox() {
+  void changeInBox() async {
     for (var key in box.keys) {
-      if ((box.get(key)).login == currentAccount.login) {
+      if ((box.get(key)).login == (await currentAccount).login) {
         
         box.put(
           key, 
           UserAccountDescription(
-            fieldValues['login'] == ''? box.get(key).login : fieldValues['login'],
-            fieldValues['password'] == ''? box.get(key).password : fieldValues['password'], 
-            fieldValues['email'] == ''? box.get(key).email : fieldValues['email'],
-            fieldValues['phoneNumber'] == ''? box.get(key).phoneNumber : fieldValues['phoneNumber'],
-            fieldValues['position'] == ''? box.get(key).position : fieldValues['position'],
-            fieldValues['isRegistered'] == ''? box.get(key).isRegistered : fieldValues['isRegistered'],
-            fieldValues['isAdmin'] == ''? box.get(key).isAdmin : fieldValues['isAdmin'],   
-            box.get(key).projects    
+            fieldValues['login'] == ''? (box.get(key)).login : fieldValues['login'],
+            fieldValues['password'] == ''? (box.get(key)).password : fieldValues['password'], 
+            fieldValues['email'] == ''? (box.get(key)).email : fieldValues['email'],
+            fieldValues['phoneNumber'] == ''? (box.get(key)).phoneNumber : fieldValues['phoneNumber'],
+            fieldValues['position'] == ''? (box.get(key)).position : fieldValues['position'],
+            fieldValues['isRegistered'] == ''? (box.get(key)).isRegistered : fieldValues['isRegistered'],
+            fieldValues['isAdmin'] == ''? (box.get(key)).isAdmin : fieldValues['isAdmin'],   
+            (box.get(key)).projects    
           )
         );
         
@@ -108,40 +116,22 @@ class AddAccountPageState extends State<AddAccountPage> {
   // Check if 'password' and 'confirm password' fields match and if email adsress is correctly written. 
   // If true - register new account, else - show alert dialog
   void checkIfSignUpCorrect() {
-    int correct = 0;
-        
-    fieldValues['password'] != fieldValues['confirmPassword']? alert('Введені паролі не співпадають', context) : correct++;
-    fieldValues['email'].toString().contains('@')? correct++ : alert('Введіть коректну адресу електронної пошти', context);
-    
-    if (correct==2) { 
-      fieldValues['isRegistered'] = true;
-      addToBox();
-      checkIfLogInCorrect();
+    fieldValues['isRegistered'] = true;
+    addToBox();
+    checkIfLogInCorrect();
 
-      alert('Ви успішно зареєструвалися.\nЛаскаво просимо!', context); 
-    } else { 
-      alert('Перевірте будь ласка введені дані', context); 
-    }
+    alert('Ви успішно зареєструвалися.\nЛаскаво просимо!', context); 
   }
 
 
   // Check if 'password' and 'confirm password' fields match and if email adsress is correctly written. 
   // If true - register new account, else - show alert dialog
   void checkIfChangeCorrect() {
-    int correct = 0;
-        
-    fieldValues['password'] != fieldValues['confirmPassword']? alert('Паролі не співпадають', context) : correct++;
-    if (fieldValues['email'] != '') fieldValues['email'].toString().contains('@')? correct++ : alert('Введіть коректну адресу електронної пошти', context);
-    
-    if (correct>=1) { 
-      fieldValues['isRegistered'] = true;
-      changeInBox();
-      statusLogOut = false;
+    fieldValues['isRegistered'] = true;
+    changeInBox();
+    statusLogOut = false;
 
-      alert('Ви успішно зареєструвалися.\nЛаскаво просимо!', context); 
-    } else { 
-      alert('Перевірте будь ласка введені дані', context); 
-    }
+    alert('Ви успішно зареєструвалися.\nЛаскаво просимо!', context); 
   }
 
 
@@ -220,11 +210,11 @@ class AddAccountPageState extends State<AddAccountPage> {
 
 
   // Creates input fields if user wishes to change his/her account
-  List<Widget> changeAccountTextFields() {
+  List<Widget> changeAccountTextFields(hintTextValues) {
     return [
       createTextFieldsBlock(
         1, [20.0, 8.0], 
-        [currentAccount.login?? "логін...", currentAccount.email?? "електронна пошта..."], 
+        hintTextValues[0], 
         [TextInputType.text, TextInputType.emailAddress],
         [null, null],
         ['login', 'email']
@@ -232,7 +222,7 @@ class AddAccountPageState extends State<AddAccountPage> {
 
       createTextFieldsBlock(
         2, [0.0, 8.0], 
-        [currentAccount.password?? "новий пароль...", "підтвердити новий пароль..."], 
+        hintTextValues[1],
         [TextInputType.text, TextInputType.text],
         [null, null],
         ['password', 'confirmPassword']
@@ -240,7 +230,7 @@ class AddAccountPageState extends State<AddAccountPage> {
 
       createTextFieldsBlock(
         3, [0.0, 4.0], 
-        [currentAccount.phoneNumber?? "номер телефону...", currentAccount.position?? "позиція..."], 
+        hintTextValues[2],
         [TextInputType.phone, TextInputType.text],
         [null, null],
         ['phoneNumber', 'position']
@@ -323,7 +313,11 @@ class AddAccountPageState extends State<AddAccountPage> {
                     for (var widget in logInTextFields())
                       widget
                   else 
-                    for (var widget in changeAccountTextFields())
+                    for (var widget in changeAccountTextFields(
+                      [[snapshot.data.login?? "логін...", snapshot.data.email?? "електронна пошта..."],
+                      [snapshot.data.password?? "новий пароль...", "підтвердити новий пароль..."], 
+                      [snapshot.data.phoneNumber?? "номер телефону...", snapshot.data.position?? "позиція..."]]
+                    ))
                       widget
                   
 
@@ -380,10 +374,30 @@ class AddAccountPageState extends State<AddAccountPage> {
             if (widget.mode == 'change' && inputValueIndex == 'login') {
               fieldValues[inputValueIndex] = currentAccount.login;
             } else {
+              
               fieldValues[inputValueIndex] = value; 
             }
           }
-        }
+        },
+
+        onFieldSubmitted: (String value) {
+          
+            var correct = 0;
+
+            if (inputValueIndex == 'password') {
+              value.length < 8? alert('Пароль надто короткий', context) : correct++;
+              value.contains(RegExp(r'[A-Za-z0-9]'))? correct++ : alert('Пароль повинен містити хоча б одну літеру та цифру', context);
+            } else if (inputValueIndex == 'email') {
+              value.contains('@')? correct++ : alert('Введіть коректну адресу електронної пошти', context);
+            } else if (inputValueIndex == 'confirmPassword') {
+              fieldValues['password'] != value? alert('Введені паролі не співпадають', context) : correct++;
+            }
+
+            if (correct == 4) {
+              fieldValues[inputValueIndex.toString()] = value; 
+            }
+          
+        },
       ),
     );
   }
@@ -406,7 +420,6 @@ class AddAccountPageState extends State<AddAccountPage> {
             textInputTypes[0], 
             inputFormatters[0],
             width: textFieldWidth,
-            height: textFieldHeight,
             inputValueIndex: inputValueIndexes[0]
           ),
 
@@ -418,7 +431,6 @@ class AddAccountPageState extends State<AddAccountPage> {
             textInputTypes[1], 
             inputFormatters[1],
             width: textFieldWidth,
-            height: textFieldHeight,
             inputValueIndex: inputValueIndexes[1]
           ),
 

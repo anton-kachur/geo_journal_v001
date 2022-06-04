@@ -52,7 +52,7 @@ class SoilDatabaseSettingsPageState extends State<SoilDatabaseSettingsPage> {
 
   // Function for adding data to database
   void addToBox() {
-    box.put('soil$boxSize', SoilDescription(fieldValues['type'], fieldValues['description'], image: fieldValues['link']));
+    box.put('soil${boxSize?? 0}', SoilDescription(fieldValues['type'], fieldValues['description'], image: fieldValues['link']));
   }
 
 

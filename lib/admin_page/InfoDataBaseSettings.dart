@@ -44,8 +44,9 @@ class InfoDatabaseSettingsPageState extends State<InfoDatabaseSettingsPage> {
   void addToBox() {
     box.put('info0', InfoDescription(
       'Застосунок для геологів', 
-      fieldValues[0] == 'Розробник: '? box.get('info0').developer : fieldValues[0], 
-      fieldValues[1] == 'Версія: '? box.get('info0').version : fieldValues[1]));
+      fieldValues[0] == 'Розробник: '? (box.get('info0')).developer : fieldValues[0], 
+      fieldValues[1] == 'Версія: '? (box.get('info0')).version : fieldValues[1])
+    );
     
     box.close();
   }

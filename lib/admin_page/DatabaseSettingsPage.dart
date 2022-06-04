@@ -70,7 +70,7 @@ class DatabaseSettingsPageState extends State<DatabaseSettingsPage> {
   void addToBox() {
     
     box.put(
-      'account$boxSize', 
+      'account${boxSize?? 0}', 
       UserAccountDescription(
         fieldValues['login'],
         fieldValues['password'],

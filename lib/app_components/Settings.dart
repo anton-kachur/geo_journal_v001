@@ -123,7 +123,7 @@ class SettingsState extends State<Settings>{
           ),
 
 
-          if (currentAccountIsRegistered && currentAccountIsAdmin == false) 
+          if (currentAccountIsRegistered) 
             // Account settings
             Padding(
               padding: EdgeInsets.fromLTRB(15, 5, 15, 5),

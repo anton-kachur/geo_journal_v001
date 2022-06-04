@@ -10,7 +10,6 @@ import 'package:hive_flutter/hive_flutter.dart';
  Classes for page with the list of projects
 ************************************************************************* */
 class Projects extends StatefulWidget {
-  Projects();
   
   @override
   ProjectsState createState() => ProjectsState();
@@ -18,9 +17,7 @@ class Projects extends StatefulWidget {
 
 
 class ProjectsState extends State<Projects>{
-  var boxSize;
   var box;
-  
   
   // Function for getting data from Hive database
   Future getDataFromBox() async {
@@ -29,8 +26,7 @@ class ProjectsState extends State<Projects>{
     try {
       for (var key in box.keys) {
         if (box.get(key).login == (await currentAccount).login) {
-          boxSize = box.length;
-      
+
           return Future.value(box.get(key));  
         
         }
@@ -52,10 +48,8 @@ class ProjectsState extends State<Projects>{
 
   @override
   Widget build(BuildContext context) {
-
     var boxData = getDataFromBox();
-    
-
+  
     return FutureBuilder(
       future: boxData,  // data retreived from database
       builder: (BuildContext context, AsyncSnapshot snapshot) {
@@ -84,7 +78,7 @@ class ProjectsState extends State<Projects>{
                         for (var element in sortArray(snapshot.data.projects))
                           Project(element.name, element.number, element.date, element.address, element.notes)
                       else 
-                        Project('тест', '1', '31/12/2023', 'вул. Велика Вісильківська, Київ', 'Тестовий проект для прикладу'),
+                        Project('тест', '1', '31/12/2023', 'вул. Велика Васильківська, Київ', 'Тестовий проект для прикладу'),
                     ]
                   ),
                 )
@@ -96,5 +90,7 @@ class ProjectsState extends State<Projects>{
       }
     );
   }
-  
 }
+
+
+
