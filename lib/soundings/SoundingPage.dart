@@ -48,7 +48,7 @@ class SoundingsPageState extends State<SoundingsPage> {
   List<ChartData> getDataFromFuture(var snapshotData) {
     final List<ChartData> chartData = [];
 
-    if (currentAccount != null) 
+    if (snapshotData != null) 
         for (var element in snapshotData.projects)
           if (element.number == widget.projectNumber)
             for (var sounding in element.soundings)

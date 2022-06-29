@@ -91,6 +91,7 @@ class MainPage extends StatefulWidget {
 
 class MainPageState extends State<MainPage> {
 
+
   @override
   Widget build(BuildContext context) {
     var width = MediaQuery.of(context).size.width;
@@ -104,7 +105,8 @@ class MainPageState extends State<MainPage> {
           try {
             statusReg = snapshot.data[0] == true? true : false; 
             statusAdmin = snapshot.data[1] == true? true : false;
-          } catch (e) {}
+          } catch (e) {
+          }
 
           if (snapshot.hasError)
             return waitingOrErrorWindow('Зачекайте...', context);
@@ -148,7 +150,6 @@ class MainPageState extends State<MainPage> {
 
                         child: Column(
                           children: [
-                            
                             if (statusReg == true && statusAdmin == true)
                               buttonConstructor('Сторінка адміністратора', widget.model.mode, route: '/admin_page'),
                             

@@ -105,7 +105,7 @@ class AddWellDescriptionState extends State<AddWellDescription> {
                 )
               );
             } else {
-              alert('Дата буріння не може бути більше, менше або дорівнювати кінцевій даті проекту', context);
+              alert('Дата буріння не може бути більше, або дорівнювати кінцевій даті проекту', context);
             }
           
           }
@@ -305,26 +305,6 @@ class AddWellDescriptionState extends State<AddWellDescription> {
       int.tryParse(date.substring(3, 5)) ?? 0, 
       int.tryParse(date.substring(0, 2)) ?? 0,
     );
-  }
-
-
-  // Check if date of project end differs from date of well drilling
-  bool checkIfDateCorrect() {
-
-    for (var projectKey in projectBox.keys) {
-      if ((projectBox.get(projectKey)).number == widget.projectNumber) {
-        
-        if (dateParse((projectBox.get(projectKey)).date).difference(dateParse(fieldValues['date'] as String)).inSeconds < 0) {
-          return false;
-        } else {
-          return true;
-        }
-            
-      
-      }
-    }
-
-    return false;
   }
 
 

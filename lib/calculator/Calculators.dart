@@ -35,6 +35,9 @@ class CalculatorsState extends State<Calculators>{
               createCalcElement('Коефіцієнт спливання'),
               createCalcElement('Виштовхуюча сила'),
               createCalcElement('Густина грунту методом ріжучого кільця'),
+              createCalcElement('Пористість і коефіцієнт пористості грунту'),
+              createCalcElement('Вологоємкість грунту'),
+              createCalcElement('Критична величина гідравлічного градієнту'),
               
             ]
           ),

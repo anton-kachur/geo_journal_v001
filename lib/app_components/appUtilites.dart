@@ -53,9 +53,8 @@ Future<bool> logOutFromAccount() async {
             (currentAccountBox.get(key)).projects,            
           )
         );
-
+      
       currentAccount = null;
-      statusLogOut = true;
       currentAccountIsRegistered = false;
       currentAccountIsAdmin = false;
       return true;
@@ -252,13 +251,13 @@ alert(var alertText, var context) {
 
 // Function that compares 2 String dates
 bool compareTwoDates(String date1, String date2) {
-  List<String> splitDate1 = date1.split("/");
-  List<String> splitDate2 = date2.split("/");
+  List<String> splitDate1 = date1.contains('-')? date1.split("-") : date1.split("/");
+  List<String> splitDate2 = date2.contains('-')? date2.split("-") : date2.split("/");
   var dateNow = DateTime.now();
 
   DateTime date1Vals = DateTime.parse(splitDate1[2] + "-" + splitDate1[1] + "-" + splitDate1[0]);
   DateTime date2Vals = DateTime.parse(splitDate2[2] + "-" + splitDate2[1] + "-" + splitDate2[0]);
-
-  return (date1Vals.difference(date2Vals).inDays > 0 || dateNow.difference(date2Vals).inDays < 0)? false : true;
+  print("${date1Vals.difference(date2Vals).inDays} ${dateNow.difference(date1Vals).inDays}");
+  return (date1Vals.difference(date2Vals).inDays > 0 || dateNow.difference(date1Vals).inDays > 0)? false : true;
 }
 

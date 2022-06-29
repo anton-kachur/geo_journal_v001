@@ -30,7 +30,9 @@ class SoundingsState extends State<Soundings> {
 
     try {
       for (var key in box.keys) {
-        if (box.get(key).login == (await currentAccount).login) {
+        if (
+          box.get(key).login == (await currentAccount).login
+        ) {
           boxSize = box.length;
       
           return Future.value(box.get(key));  
@@ -79,12 +81,14 @@ class SoundingsState extends State<Soundings> {
                     children: [
 
                       // Output the list of soundings
-                      if (currentAccount != null) 
+                      if (snapshot.data != null) 
                         for (var element in snapshot.data.projects)
                           if (element.number == widget.projectNumber)
                             for (var sounding in sortArray(element.soundings))
-                              Sounding(sounding.depth, sounding.qc, sounding.fs, sounding.notes, widget.projectNumber, sounding.image)
+                              Sounding(sounding.depth, sounding.qc, sounding.fs, sounding.notes, widget.projectNumber, sounding.image),
                       
+                      if (snapshot.data == null) 
+                        Sounding('0.5', '23.4', '15.8', 'Нотатки', widget.projectNumber, null)
                     ]
                   ),
                 )

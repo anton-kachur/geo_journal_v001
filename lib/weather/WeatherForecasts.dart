@@ -42,6 +42,7 @@ class _WeatherForecastState extends State<WeatherForecast> {
     ws = new WeatherFactory(key);
   }
 
+
   // Function for getting 5-day forecast by latitude and longtitude
   void queryForecastByCoordinates() async {
     FocusScope.of(context).requestFocus(FocusNode());
@@ -67,10 +68,16 @@ class _WeatherForecastState extends State<WeatherForecast> {
       state = WeatherState.DOWNLOADING;
     });
 
-    weather = await ws.currentWeatherByLocation(latitude, longtitude);
+    List<Weather> forecasts = await ws.fiveDayForecastByLocation(latitude, longtitude);
+    List<Weather> forecastOneDay = [];
+
+    for (Weather w in forecasts) {
+      if (DateTime(forecasts[0].date.day, forecasts[0].date.month, forecasts[0].date.year).isBefore(DateTime(w.date.day, w.date.month, w.date.year))) break;
+      else forecastOneDay.add(w);
+    }
 
     setState(() {
-      weatherData = [weather];
+      weatherData = forecastOneDay;
       state = WeatherState.FINISHED_DOWNLOADING;
     });
   }
@@ -85,6 +92,8 @@ class _WeatherForecastState extends State<WeatherForecast> {
     });
 
     List<Weather> forecasts = await ws.fiveDayForecastByCityName(cityName);
+
+    
     setState(() {
       weatherData = forecasts;
       state = WeatherState.FINISHED_DOWNLOADING;
@@ -100,10 +109,16 @@ class _WeatherForecastState extends State<WeatherForecast> {
       state = WeatherState.DOWNLOADING;
     });
 
-    weather = await ws.currentWeatherByCityName(cityName);
+    List<Weather> forecasts = await ws.fiveDayForecastByCityName(cityName);
+    List<Weather> forecastOneDay = [];
+
+    for (Weather w in forecasts) {
+      if (DateTime(forecasts[0].date.day, forecasts[0].date.month, forecasts[0].date.year).isBefore(DateTime(w.date.day, w.date.month, w.date.year))) break;
+      else forecastOneDay.add(w);
+    }
 
     setState(() {
-      weatherData = [weather];
+      weatherData = forecastOneDay;
       state = WeatherState.FINISHED_DOWNLOADING;
     });
   }
@@ -122,33 +137,43 @@ class _WeatherForecastState extends State<WeatherForecast> {
   Widget contentFinishedDownload() {
 
     return Center(
-      child: ListView.separated(
+      child: ListView.builder(
         itemCount: weatherData.length,
         itemBuilder: (context, index) {
 
-          return ListTile(
-            title: Text.rich(
-              TextSpan(
-                children: [
-                  TextSpan(
-                    text: "${weatherData[index].areaName}, ${weatherData[index].country}\n${weatherData[index].date}\n" +
-                    "Температура: ${weatherData[index].temperature.celsius != null? weatherData[index].temperature.celsius.round() : '?'} °С "
-                  ),
-                  WidgetSpan(child: getWeatherDescription(weatherData[index].weatherDescription)),
-                  TextSpan(
-                    text: "\nВідчувається: ${weatherData[index].tempFeelsLike.celsius != null? weatherData[index].tempFeelsLike.celsius.round() : '?'} °С\n" + 
-                    "\nШвидкість вітру: ${weatherData[index].windSpeed?? '?'} м/с\n" +
-                    "Схід: ${weatherData[index].sunrise?? '?'}\nЗахід: ${weatherData[index].sunset?? '?'}" 
-                  ),
-                ]
-              )
+          return Container(
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.all(Radius.circular(5.0)),
+              boxShadow: [
+                BoxShadow(color: lightingMode == ThemeMode.dark? Colors.grey.shade800 : Colors.amber.shade50),
+              ],
+              border: Border.all(color: Colors.grey.shade700),
             ),
+
+            child: ListTile(
+              title: Text.rich(
+                TextSpan(
+                  children: [
+                    TextSpan(
+                      text: "${weatherData[index].areaName}, ${weatherData[index].country}\n${weatherData[index].date.weekday}, ${weatherData[index].date.day}\n" +
+                      "Температура: ${weatherData[index].temperature.celsius != null? weatherData[index].temperature.celsius.round() : '?'} °С "
+                    ),
+                    WidgetSpan(child: getWeatherDescription(weatherData[index].weatherDescription)),
+                    TextSpan(
+                      text: "\nВідчувається: ${weatherData[index].tempFeelsLike.celsius != null? weatherData[index].tempFeelsLike.celsius.round() : '?'} °С\n" + 
+                      "\nШвидкість вітру: ${weatherData[index].windSpeed?? '?'} м/с\n" +
+                      "Схід: ${weatherData[index].sunrise?? '?'}\nЗахід: ${weatherData[index].sunset?? '?'}" 
+                    ),
+                  ]
+                )
+              ),
+            )
           );
         },
 
-        separatorBuilder: (context, index) {
+        /*separatorBuilder: (context, index) {
           return Divider(thickness: weatherData[index].date.day != weatherData[index+1].date.day? 4 : 0.5);
-        },
+        },*/
 
       ),
     );

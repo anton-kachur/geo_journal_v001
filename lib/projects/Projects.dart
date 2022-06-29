@@ -25,7 +25,9 @@ class ProjectsState extends State<Projects>{
     
     try {
       for (var key in box.keys) {
-        if (box.get(key).login == (await currentAccount).login) {
+        if (
+          box.get(key).login == (await currentAccount).login
+        ) {
 
           return Future.value(box.get(key));  
         

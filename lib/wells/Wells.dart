@@ -29,7 +29,9 @@ class WellsState extends State<Wells>{
     
     try {
       for (var key in box.keys) {
-        if (box.get(key).login == (await currentAccount).login) {
+        if (
+          box.get(key).login == (await currentAccount).login
+        ) {
           boxSize = box.length;
       
           return Future.value(box.get(key));  
@@ -77,14 +79,16 @@ class WellsState extends State<Wells>{
                 child: SingleChildScrollView(
                   child: Column(
                     children: [
-
-                      // output list of wells
-                      if (currentAccount != null) 
-                        for (var element in snapshot.data.projects)
+                    
+                     // output list of wells
+                      if (snapshot.data != null) 
+                        for (var element in snapshot.data.projects) 
                           if (element.number == widget.projectNumber)
                             for (var well in sortArray(element.wells))
                               Well(well.number, well.date, well.latitude, well.longtitude, well.projectNumber, well.image),
-                      
+                              
+                      if (snapshot.data == null) 
+                        Well('1', '12/07/2023', '17.1234', '19.1411', widget.projectNumber, ''),
                     ]
                   ),
                 )

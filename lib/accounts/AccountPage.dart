@@ -47,9 +47,11 @@ class AddAccountPageState extends State<AddAccountPage> {
     box = await Hive.openBox(boxName);
     boxSize = box.length;
 
-    if (currentAccount != null) {
+    if ((await currentAccount) != null) {
       for (var key in box.keys) {
-        if ((box.get(key)).login == (await currentAccount).login) {
+        if (
+          (box.get(key)).login == (await currentAccount).login
+        ) {
           return Future.value(box.get(key));  
         }
       }

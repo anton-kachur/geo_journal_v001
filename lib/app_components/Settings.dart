@@ -80,7 +80,7 @@ class SettingsState extends State<Settings>{
                   itemBuilder: (context) => [
                     PopupMenuItem(child: Text('Реєстрація'), value: 'sign_up'),
                     PopupMenuItem(child: Text('Увійти'), value: 'log_in'),
-                    if (currentAccount!=null) PopupMenuItem(child: Text('Вийти з акаунту'), value: 'log_out'),
+                    if (currentAccountIsRegistered == true) PopupMenuItem(child: Text('Вийти з акаунту'), value: 'log_out'),
                   ],
 
                   onSelected: (value) {

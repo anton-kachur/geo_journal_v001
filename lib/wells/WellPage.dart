@@ -31,7 +31,9 @@ class WellPageState extends State<WellPage>{
       
     try {
       for (var key in box.keys) {
-        if (box.get(key).login == (await currentAccount).login) {
+        if (
+          box.get(key).login == (await currentAccount).login
+        ) {
           boxSize = box.length;
       
           return Future.value(box.get(key));  
@@ -81,14 +83,16 @@ class WellPageState extends State<WellPage>{
                     children: [
 
                       // output the list of soil samples from current well
-                      if (currentAccount != null) 
+                      if (snapshot.data != null) 
                         for (var element in snapshot.data.projects)
                           if (element.number == widget.projectNumber)
                             for (var well in element.wells)
                               if (well.number == widget.wellNumber && well.projectNumber == widget.projectNumber)
                                 for (var sample in sortArray(well.samples))
                                   SoilSample(sample.name, sample.depthStart, sample.depthEnd, sample.notes, sample.wellNumber, sample.projectNumber, sample.image),
-                          
+
+                      if (snapshot.data == null) 
+                        SoilSample("Пісок", '0.0', '0.3', 'Пісок 0.3 метри вглиб', widget.wellNumber, widget.projectNumber, ''),
                     ]
                   ),
                 )
